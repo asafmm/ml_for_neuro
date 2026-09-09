@@ -557,11 +557,12 @@ section.tabpanel{padding:2.6rem 0 0}
 </div>
 
 <div class="wrap">
+
 <!-- ==================== 07 ==================== -->
 <section id="s7">
   <div class="shead"><div class="num">01</div><h2>The linear model</h2></div>
   <div class="prose">
-    <p>The simplest possible guess at <span class="m">f</span> is a straight line. Assume <span class="m">y</span> changes by a constant amount for every unit of <span class="m">x</span>:</p>
+    <p>The simplest guess at <span class="m">f</span> is a straight line: we assume <span class="m">y</span> changes by a constant amount for every unit of <span class="m">x</span>.</p>
   </div>
 
   <div class="eq">
@@ -569,24 +570,24 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Two numbers, and they are both readable in plain language.</p>
+    <p>Two numbers, both readable in plain language:</p>
     <ul>
-      <li><span class="m">&beta;<sub>0</sub></span>, the <strong>intercept</strong>: the predicted <span class="m">y</span> when <span class="m">x</span> = 0. Here that is the recall score of an average-sized hippocampus.</li>
-      <li><span class="m">&beta;<sub>1</sub></span>, the <strong>slope</strong>: how much <span class="m">y</span> moves per one-unit increase in <span class="m">x</span>. <em>This is the number you interpret.</em></li>
+      <li><span class="m">&beta;<sub>0</sub></span>, the <strong>intercept</strong>: the predicted <span class="m">y</span> when <span class="m">x</span> = 0. Here, the recall score of an average-sized hippocampus.</li>
+      <li><span class="m">&beta;<sub>1</sub></span>, the <strong>slope</strong>: how much <span class="m">y</span> moves per one-unit increase in <span class="m">x</span>. This is the number we interpret.</li>
     </ul>
-    <p>Note that the slope turns the line about the point <span class="m">x</span> = 0, marked on the plot. That is the only point the slope leaves alone, which is why a predictor is often measured from its own mean: it puts the pivot in the middle of the data instead of far outside it.</p>
-    <p>&ldquo;Fitting the model&rdquo; means nothing more than choosing values for these two. Try it by hand, you are the optimiser:</p>
+    <p>The slope turns the line about <span class="m">x</span> = 0, marked on the plot. That is the one point it leaves alone, which is why we often measure a predictor from its own mean: it puts the pivot inside the data instead of far outside it.</p>
+    <p>Fitting the model means nothing more than choosing these two numbers. Try it by hand, you are the optimiser:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
       <div class="t">Move the line yourself</div>
-      <div class="hint">drag the data points too &mdash; the plot is live</div>
+      <div class="hint">the points are draggable too</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvLine" class="cv drag" height="340"></canvas>
-        <p class="notecap">Hippocampal volume against a delayed-recall score, 14 simulated subjects. Volume is measured as the difference from the group mean, so <span class="m">x</span> = 0 is an average-sized hippocampus. Drag any point to move it, click empty space to add one, shift-click a point to delete it.</p>
+        <p class="notecap">Hippocampal volume against a delayed-recall score, 14 simulated subjects. Volume is measured as the difference from the group mean, so <span class="m">x</span> = 0 is an average-sized hippocampus. Drag a point to move it, click empty space to add one, shift-click a point to delete it.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -599,7 +600,7 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <label class="chk"><input type="checkbox" id="lineGeom" checked> mark the intercept at <span class="m">x</span> = 0</label>
         <div class="stats">
-          <div class="stat error"><span class="k">RSS &mdash; total squared error</span><span class="val" id="lineRSS">&mdash;</span></div>
+          <div class="stat error"><span class="k">RSS, total squared error</span><span class="val" id="lineRSS">&mdash;</span></div>
           <div class="stat model"><span class="k">best possible RSS</span><span class="val" id="lineBest">&mdash;</span></div>
         </div>
         <div class="btnrow">
@@ -610,13 +611,15 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 </section>
+
 <!-- ==================== 08 ==================== -->
 <section id="s8">
   <div class="shead"><div class="num">02</div><h2>Least squares</h2></div>
   <div class="prose">
-    <p>You just moved a line around until it &ldquo;looked right&rdquo;. To do that automatically we need to say precisely what &ldquo;right&rdquo; means.</p>
-    <p>For each subject, the model predicts <span class="m"><span class="hat">y</span><sub>i</sub></span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>i</sub></span>, and reality delivered <span class="m">y<sub>i</sub></span>. The gap between them is the <strong>residual</strong>, <span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span> &mdash; the vertical distance from the point to the line.</p>
-    <p>We cannot just add the residuals up: the positive and negative ones cancel, and a terrible line can score zero. So we square each one first, then add. That is the <strong>residual sum of squares</strong>:</p>
+    <p>We just moved a line until it looked right. To do that automatically, we need to say precisely what &ldquo;right&rdquo; means.</p>
+    <p>For each subject the model predicts <span class="m"><span class="hat">y</span><sub>i</sub></span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>i</sub></span>, and reality delivered <span class="m">y<sub>i</sub></span>.
+      <br>The gap between them is the <strong>residual</strong>, <span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>: the vertical distance from the point to the line.</p>
+    <p>We cannot simply add the residuals up, because the positive and negative ones cancel and a terrible line can score zero. We square each one first, then add. That is the <strong>residual sum of squares</strong>:</p>
   </div>
 
   <div class="eq">
@@ -626,8 +629,9 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Squaring does two things. It makes every error count as positive, and it punishes large misses disproportionately &mdash; being off by 4 is sixteen times worse than being off by 1, not four times worse. <strong>Ordinary least squares</strong> (OLS) is simply the choice of <span class="m">&beta;<sub>0</sub></span> and <span class="m">&beta;<sub>1</sub></span> that makes this number as small as it can be.</p>
-    <p>Every residual is drawn below as a red stick running from the observation to the line. Making the line better means making those sticks shorter, all of them at once:</p>
+    <p>Squaring does two jobs: every error counts as positive, and large misses are punished out of proportion. Being off by 4 is sixteen times worse than being off by 1, not four times worse.</p>
+    <p><strong>Ordinary least squares</strong> (OLS) is the choice of <span class="m">&beta;<sub>0</sub></span> and <span class="m">&beta;<sub>1</sub></span> that makes RSS as small as it can be.</p>
+    <p>Below, each residual is a red stick running from the observation to the line. A better line means shorter sticks, all of them at once:</p>
   </div>
 
   <div class="panel">
@@ -654,7 +658,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat model"><span class="k">minimum achievable</span><span class="val" id="sqMin">&mdash;</span></div>
         </div>
         <div class="btnrow"><button class="btn primary" id="sqFit">minimise</button></div>
-        <p class="notecap">Uses the same 14 subjects as the first tab &mdash; and the same line. Move either one and both follow.</p>
+        <p class="notecap">The same 14 subjects and the same line as the first tab. Move either one and both follow.</p>
       </div>
     </div>
   </div>
@@ -667,7 +671,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <p>Hunting for the best line by hand is fine for two parameters, but we can do better.
       <br>Think of RSS as a function of <span class="m">&beta;</span>. It is a parabola: steep where the line is badly wrong, flattening out as it improves, and perfectly flat at its lowest point.
       <br>Flat means the <em>derivative is zero</em>, and that is the whole trick: write RSS as a function of <span class="m">&beta;</span>, differentiate, set it to zero, and solve.</p>
-    <p>To keep the algebra visible we drop the intercept for a moment and fit a line through the origin, <span class="m">y</span> = <span class="m">&beta;x</span>, so there is only one unknown. Reveal one step at a time:</p>
+    <p>To keep the algebra visible we drop the intercept for now and fit a line through the origin, <span class="m">y</span> = <span class="m">&beta;x</span>, leaving one unknown. Reveal one step at a time:</p>
   </div>
 
   <div class="btnrow" style="margin:1.2rem 0 0">
@@ -685,7 +689,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
           (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>)<sup>2</sup>
         </div>
-        <div class="sw">The data <span class="m">x<sub>i</sub></span> and <span class="m">y<sub>i</sub></span> are <b>fixed numbers</b> you already measured. The only thing that can vary is <span class="m">&beta;</span>. So RSS is an ordinary function of one variable &mdash; and we want its minimum.</div>
+        <div class="sw">The data <span class="m">x<sub>i</sub></span> and <span class="m">y<sub>i</sub></span> are <b>fixed numbers</b> we already measured. The only thing free to vary is <span class="m">&beta;</span>, so RSS is an ordinary function of one variable, and we want its minimum.</div>
       </div>
     </div>
     <div class="step" data-s="1">
@@ -696,7 +700,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
           (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>) <span class="m">x<sub>i</sub></span>
         </div>
-        <div class="sw">Differentiate with respect to <span class="m">&beta;</span>. Each term is something-squared, so the chain rule gives 2&#183;(inside)&#183;(derivative of inside), and the derivative of (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>) with respect to <span class="m">&beta;</span> is just &minus;<span class="m">x<sub>i</sub></span>.</div>
+        <div class="sw">Differentiate with respect to <span class="m">&beta;</span>. Each term is something squared, so the chain rule gives 2&#183;(inside)&#183;(derivative of inside), and the derivative of (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>) is just &minus;<span class="m">x<sub>i</sub></span>.</div>
       </div>
     </div>
     <div class="step" data-s="2">
@@ -707,7 +711,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
           (<span class="m">y<sub>i</sub>x<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span><sup>2</sup>) = 0
         </div>
-        <div class="sw">Set the derivative to zero &mdash; <b>this is the definition of the minimum</b> &mdash; and multiply out the bracket. The &minus;2 in front now does nothing, since zero divided by &minus;2 is still zero.</div>
+        <div class="sw">Set the derivative to zero, which is <b>the definition of the minimum</b>, and multiply out the bracket. The &minus;2 in front now does nothing, since zero divided by &minus;2 is still zero.</div>
       </div>
     </div>
     <div class="step" data-s="3">
@@ -733,7 +737,7 @@ section.tabpanel{padding:2.6rem 0 0}
             <span><span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span> <span class="m">x<sub>i</sub></span><sup>2</sup></span>
           </span>
         </div>
-        <div class="sw">Divide. That is it &mdash; <b>a closed-form answer</b>. No search, no iteration, no learning rate. Two sums over your data and you have the optimal slope exactly.</div>
+        <div class="sw">Divide. That is it: <b>a closed-form answer</b>. No search, no iteration, no learning rate. Two sums over our data give the optimal slope exactly.</div>
       </div>
     </div>
   </div>
@@ -741,12 +745,12 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="panel">
     <div class="panel-bar">
       <div class="t">The formula, on actual numbers</div>
-      <div class="hint">drag a point &mdash; every column updates</div>
+      <div class="hint">drag a point, every column updates</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
         <canvas id="cvOrigin" class="cv drag" height="290"></canvas>
-        <p class="notecap">Six points, one parameter. Drag any of them vertically and watch the two sums &mdash; and <span class="m"><span class="hat b">&beta;</span></span> &mdash; recompute.</p>
+        <p class="notecap">Six points, one parameter. Drag any of them vertically and watch the two sums, and <span class="m"><span class="hat b">&beta;</span></span>, recompute.</p>
       </div>
       <div>
         <div class="tblwrap" style="margin-top:0">
@@ -759,7 +763,7 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <h3>Putting the intercept back</h3>
-    <p>Doing the same two-variable version &mdash; take the partial derivative with respect to <span class="m">&beta;<sub>0</sub></span> and with respect to <span class="m">&beta;<sub>1</sub></span>, set both to zero, solve the pair &mdash; gives the formulas you will actually use:</p>
+    <p>Doing the same with two unknowns (take the partial derivative with respect to <span class="m">&beta;<sub>0</sub></span> and to <span class="m">&beta;<sub>1</sub></span>, set both to zero, solve the pair) gives the formulas we actually use:</p>
   </div>
 
   <div class="eq">
@@ -773,8 +777,9 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Same structure as step 05, with every variable measured from its own mean instead of from zero. Two things fall straight out of these, and both are worth remembering.</p>
-    <p>First, <span class="m"><span class="hat b">&beta;</span><sub>0</sub></span> = <span class="m"><span class="bar">y</span></span> &minus; <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span><span class="m"><span class="bar">x</span></span> rearranges to say that the fitted line always passes exactly through the point (<span class="m"><span class="bar">x</span></span>, <span class="m"><span class="bar">y</span></span>). Second, that numerator is the covariance of <span class="m">x</span> and <span class="m">y</span> and the denominator is the variance of <span class="m">x</span>, which means:</p>
+    <p>Same structure as step 05, with every variable measured from its own mean instead of from zero. Two things fall straight out, both worth remembering.</p>
+    <p>First, <span class="m"><span class="hat b">&beta;</span><sub>0</sub></span> = <span class="m"><span class="bar">y</span></span> &minus; <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span><span class="m"><span class="bar">x</span></span> rearranges to say the fitted line always passes exactly through the point (<span class="m"><span class="bar">x</span></span>, <span class="m"><span class="bar">y</span></span>).
+      <br>Second, the numerator is the covariance of <span class="m">x</span> and <span class="m">y</span> and the denominator is the variance of <span class="m">x</span>, which means:</p>
   </div>
 
   <div class="eq tight">
@@ -783,16 +788,18 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="key">
     <div class="lbl">Key idea</div>
-    <p>The regression slope is the correlation, rescaled by the spread of the two variables. Correlation and simple regression are the same fact wearing different units &mdash; which is exactly why a strong <span class="m">p</span>-value on a slope tells you nothing about whether the model can predict.</p>
+    <p>The regression slope is the correlation, rescaled by the spread of the two variables. Correlation and simple regression are the same fact in different units, which is exactly why a strong <span class="m">p</span>-value on a slope tells us nothing about whether the model can predict.</p>
   </div>
 </section>
 <!-- ==================== 10 ==================== -->
 <section id="s10">
   <div class="shead"><div class="num">04</div><h2>How good is the fit?</h2></div>
   <div class="prose">
-    <p>RSS on its own is unreadable. Is 4,300 good? It depends entirely on the units of <span class="m">y</span> and on how many subjects you have. Two fixes.</p>
-    <p><strong>MSE</strong> divides RSS by <span class="m">n</span>, so at least it does not grow just because you collected more data. Its square root, RMSE, is back in the original units &mdash; &ldquo;on average we miss by 3.4 points&rdquo; is a sentence a clinician can use.</p>
-    <p><strong>R<sup>2</sup></strong> takes a different route: it compares your model to the laziest possible one. If you had no <span class="m">x</span> at all, your best guess for everybody would be the mean <span class="m"><span class="bar">y</span></span>. The error of that null model is the <em>total</em> sum of squares, TSS. R<sup>2</sup> asks what fraction of it your line removed.</p>
+    <p>RSS on its own is unreadable. Is 4,300 good? It depends on the units of <span class="m">y</span> and on how many subjects we have. Two fixes:</p>
+    <p><strong>MSE</strong> divides RSS by <span class="m">n</span>, so it no longer grows just because we collected more data.
+      <br>Its square root, RMSE, is back in the original units: &ldquo;on average we miss by 3.4 points&rdquo; is a sentence a clinician can use.</p>
+    <p><strong>R<sup>2</sup></strong> compares our model to the laziest one available. With no <span class="m">x</span> at all, the best guess for everybody is the mean <span class="m"><span class="bar">y</span></span>.
+      <br>The error of that null model is the <em>total</em> sum of squares, TSS. R<sup>2</sup> asks what fraction of it our line removed.</p>
   </div>
 
   <div class="eq">
@@ -803,7 +810,8 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>R<sup>2</sup> = 0 means the line did no better than guessing the mean every time. R<sup>2</sup> = 1 means the residuals vanished. Toggle between the two models below and watch the sticks shorten: the fraction of the total you removed <em>is</em> R<sup>2</sup>.</p>
+    <p>R<sup>2</sup> = 0 means the line did no better than guessing the mean every time. R<sup>2</sup> = 1 means the residuals vanished.
+      <br>Toggle between the two models below and watch the sticks shorten: the fraction of the total we removed <em>is</em> R<sup>2</sup>.</p>
   </div>
 
   <div class="panel">
@@ -823,26 +831,27 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="stats">
-          <div class="stat plain"><span class="k">TSS &mdash; null model error</span><span class="val" id="r2TSS">&mdash;</span></div>
-          <div class="stat error"><span class="k">RSS &mdash; your model&rsquo;s error</span><span class="val" id="r2RSS">&mdash;</span></div>
+          <div class="stat plain"><span class="k">TSS, null model error</span><span class="val" id="r2TSS">&mdash;</span></div>
+          <div class="stat error"><span class="k">RSS, our model&rsquo;s error</span><span class="val" id="r2RSS">&mdash;</span></div>
           <div class="stat model"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val" id="r2Val">&mdash;</span></div>
           <div class="stat plain"><span class="k">RMSE (recall-score units)</span><span class="val" id="r2RMSE">&mdash;</span></div>
         </div>
-        <p class="notecap">Same 14 subjects again. Go back to the first tab, drag an outlier, and return here to see what a single subject does to R<sup>2</sup>.</p>
+        <p class="notecap">The same 14 subjects. Go back to the first tab, drag one point far away, and return here to see what a single subject does to R<sup>2</sup>.</p>
       </div>
     </div>
   </div>
 
   <div class="warn">
-    <b>R<sup>2</sup> never goes down when you add a predictor.</b> Add pure random noise as a variable and R<sup>2</sup> creeps up, because the extra freedom lets the model chase the noise. A high in-sample R<sup>2</sup> is not evidence of anything until you have checked it out of sample.
+    <b>R<sup>2</sup> never goes down when we add a predictor.</b> Add pure random noise as a variable and R<sup>2</sup> creeps up, because the extra freedom lets the model chase that noise. A high in-sample R<sup>2</sup> is not evidence of anything until we have checked it out of sample.
   </div>
 </section>
 <!-- ==================== 11 ==================== -->
 <section id="s11">
   <div class="shead"><div class="num">05</div><h2>Noisy data, small samples</h2></div>
   <div class="prose">
-    <p>Everything so far works beautifully with 500 clean observations. Neuroscience rarely offers those. You get 25 subjects, an effect that explains a few percent of the variance, and a hundred candidate predictors.</p>
-    <p>The demo below is the one to sit with. Fit the same linear model on a small training sample, then score it honestly on fresh subjects from the same population.</p>
+    <p>Everything so far works beautifully with 500 clean observations. Neuroscience rarely offers those.
+      <br>We get 25 subjects, an effect explaining a few percent of the variance, and a hundred candidate predictors.</p>
+    <p>The demo below is the one to sit with: fit the same linear model on a small training sample, then score it honestly on fresh subjects from the same population.</p>
   </div>
 
   <div class="panel">
@@ -866,7 +875,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="smN" min="6" max="200" value="20" step="1">
         </div>
         <div class="ctl-row">
-          <label>true effect &mdash; population <span class="m">r</span> <span class="v" id="smRv">0.35</span></label>
+          <label>true effect: population <span class="m">r</span> <span class="v" id="smRv">0.35</span></label>
           <input type="range" id="smR" min="0" max="90" value="35" step="1">
         </div>
         <div class="stats">
@@ -876,24 +885,26 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat error"><span class="k">true slope</span><span class="val" id="smB1t">&mdash;</span></div>
         </div>
         <div class="btnrow"><button class="btn primary" id="smNew">new cohort</button></div>
-        <p class="notecap">Test R<sup>2</sup> can be <em>negative</em>. That is not a bug: it means the model predicts new subjects worse than simply guessing the training mean would have.</p>
+        <p class="notecap">Test R<sup>2</sup> can be <em>negative</em>. That is not a bug: it means the model predicts new subjects worse than simply guessing the mean would have.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p>Two things to notice as you click through cohorts. At <span class="m">n</span> = 20 the estimated slope swings wildly around the true one &mdash; each cohort tells a different story, and any single published one might be yours. And train R<sup>2</sup> is systematically optimistic: it is computed on the very points that were used to place the line, so it gets to peek at the answer.</p>
-    <p>Drag <span class="m">n</span> up to 200 and both problems fade. That gap between the two numbers is the whole reason this course insists on a test set.</p>
+    <p>Two things to notice as you click through cohorts.
+      <br>At <span class="m">n</span> = 20 the estimated slope swings wildly around the true one. Each cohort tells a different story, and any single published one might be ours.
+      <br>Train R<sup>2</sup> is systematically optimistic: it is computed on the very points used to place the line, so it gets to peek at the answer.</p>
+    <p>Drag <span class="m">n</span> up to 200 and both problems fade. That gap between the two numbers is why this course insists on a test set.</p>
   </div>
 
   <div class="key">
     <div class="lbl">Key idea</div>
-    <p>A metric computed on the data you fitted is a description. The same metric computed on data the model has never seen is a prediction. Only the second one generalises &mdash; and it is the only one anyone should believe.</p>
+    <p>A metric computed on the data we fitted is a description. The same metric on data the model has never seen is a prediction. Only the second one generalises, and it is the only one worth believing.</p>
   </div>
 
   <div class="prose">
     <h3>What this looks like in Python</h3>
-    <p>Everything in this class is four lines of scikit-learn. Which is exactly the danger: the library will happily let you skip the split.</p>
+    <p>Everything in this class is four lines of scikit-learn. That is exactly the danger: the library will happily let us skip the split.</p>
   </div>
 
   <div class="code"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
@@ -918,10 +929,10 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
   </div>
 
   <div class="gloss">
-    <div class="gitem"><div class="gt"><span class="m">x</span></div><div class="gd">Feature / predictor. What you measured and are willing to use as input.</div></div>
-    <div class="gitem"><div class="gt"><span class="m">y</span></div><div class="gd">Outcome / target. What you want the model to produce.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">x</span></div><div class="gd">Feature, or predictor. What we measured and are willing to use as input.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">y</span></div><div class="gd">Outcome, or target. What we want the model to produce.</div></div>
     <div class="gitem"><div class="gt"><span class="m">f</span></div><div class="gd">The true relationship between them. Unknown, and stays unknown.</div></div>
-    <div class="gitem"><div class="gt"><span class="m"><span class="hat f">f</span></span></div><div class="gd">Your estimate of it &mdash; the fitted model. The hat means &ldquo;estimated from data&rdquo;.</div></div>
+    <div class="gitem"><div class="gt"><span class="m"><span class="hat f">f</span></span></div><div class="gd">Our estimate of it: the fitted model. The hat means &ldquo;estimated from data&rdquo;.</div></div>
     <div class="gitem"><div class="gt"><span class="m">&epsilon;</span></div><div class="gd">Irreducible noise. The part of <span class="m">y</span> no model can ever recover.</div></div>
     <div class="gitem"><div class="gt"><span class="m"><span class="hat">y</span><sub>i</sub></span></div><div class="gd">The model&rsquo;s prediction for subject <span class="m">i</span>.</div></div>
     <div class="gitem"><div class="gt"><span class="m">n</span> / <span class="m">p</span></div><div class="gd">Number of observations / number of features. In neuroscience <span class="m">p</span> &gt; <span class="m">n</span> is normal, and it breaks things.</div></div>
@@ -944,13 +955,13 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 
   <div class="prose" style="margin-top:1.6rem">
     <h3>Next time</h3>
-    <p>More than one predictor. What happens when features are correlated with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it &mdash; regularisation.</p>
+    <p>More than one predictor: what happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
   </div>
 
 
   <div class="crosslink">
     <div>
-      <div class="cl-t">Part 1 &mdash; What is machine learning</div>
+      <div class="cl-t">Part 1: What is machine learning</div>
       <p class="cl-d">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
     </div>
     <a href="https://claude.ai/code/artifact/d74b446f-4367-4f83-b6b9-47ba4cd98888" data-local="class1_part1_what_is_ml.html">Back to part 1 &rarr;</a>
@@ -958,8 +969,8 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 
   <footer>
     Machine Learning for Neuroscience &middot; 1501.1027 &middot; Semester A, 5787<br>
-    Course text: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning with Applications in Python</em> (2023) &mdash; chapter 3 covers today.<br>
-    All data on this page is simulated, except Anscombe&rsquo;s quartet, which is real and from 1973.
+    Course text: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning with Applications in Python</em> (2023). Chapter 3 covers today.<br>
+    All data on this page is simulated.
   </footer>
 </section>
 
