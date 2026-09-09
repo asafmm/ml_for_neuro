@@ -1945,9 +1945,10 @@ function lrAxes(p){
   });
   cvs.addEventListener("pointermove", function(e){
     if (!dragging) return;
+    /* Both axes turn freely, all the way round. The scale is measured every
+       frame, so the cube stays in the panel whichever way it ends up. */
     yaw   += (e.clientX - lastX) * 0.011;
-    pitch += (e.clientY - lastY) * 0.008;
-    pitch = Math.max(-0.15, Math.min(1.15, pitch));
+    pitch += (e.clientY - lastY) * 0.009;
     lastX = e.clientX; lastY = e.clientY;
     draw();
   });
