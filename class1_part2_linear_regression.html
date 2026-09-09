@@ -35,31 +35,9 @@
   --shadow:0 1px 2px rgba(27,24,38,.05),0 8px 24px -12px rgba(27,24,38,.18);
   --rail:16rem;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --ground:#121017;
-    --surface:#1B1724;
-    --surface-2:#221D2E;
-    --hairline:#332C42;
-    --hairline-soft:#282235;
-    --ink:#EDEBF3;
-    --ink-soft:#A9A2BE;
-    --ink-faint:#786F90;
-
-    --c-model:#F5843F;
-    --c-model-wash:rgba(245,132,63,.17);
-    --c-error:#EA6A82;
-    --c-error-wash:rgba(234,106,130,.18);
-    --c-test:#3EB8B2;
-    --c-test-wash:rgba(62,184,178,.16);
-    --c-data:#C3BCD8;
-    --c-alt:#89A9E8;
-    --c-grid:#2C2639;
-    --c-axis:#6B6382;
-
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
-  }
-}
+/* Light is the default everywhere. Dark applies only when something
+   explicitly asks for it: the theme button, or a host that stamps
+   data-theme="dark". The page no longer follows the operating system. */
 :root[data-theme="dark"]{
   --ground:#121017;
   --surface:#1B1724;
@@ -1290,18 +1268,21 @@ function layerToggles(hostId, spec, onChange){
    THEME
    ============================================================ */
 (function(){
-  var modes = ["auto","light","dark"];
-  var glyph = { auto:"theme · auto", light:"theme · light", dark:"theme · dark" };
-  var cur = 0;
+  /* Light is the CSS default, so nothing is stamped on load and there is no
+     flash of the wrong theme. The button flips between light and dark; a host
+     that stamps data-theme="dark" (an explicit choice by the reader) is
+     respected, and the label starts in step with whatever it finds. */
+  var modes = ["light", "dark"];
+  var glyph = { light: "theme · light", dark: "theme · dark" };
   var btn = document.getElementById("themebtn");
+  var cur = document.documentElement.getAttribute("data-theme") === "dark" ? 1 : 0;
   function apply(){
-    if (modes[cur] === "auto") document.documentElement.removeAttribute("data-theme");
-    else document.documentElement.setAttribute("data-theme", modes[cur]);
+    document.documentElement.setAttribute("data-theme", modes[cur]);
     btn.innerHTML = glyph[modes[cur]];
     requestAnimationFrame(redrawAll);
   }
-  btn.addEventListener("click", function(){ cur = (cur+1) % 3; apply(); });
-  try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ requestAnimationFrame(redrawAll); }); } catch(e){}
+  btn.innerHTML = glyph[modes[cur]];
+  btn.addEventListener("click", function(){ cur = (cur + 1) % modes.length; apply(); });
 })();
 
 /* ============================================================
