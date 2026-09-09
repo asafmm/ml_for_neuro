@@ -1,0 +1,1759 @@
+<title>Least Squares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+
+<style>
+/* ============================================================
+   TOKENS  — light is the base; dark redefines tokens only
+   ============================================================ */
+:root{
+  --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
+
+  --ground:#E8E9F0;
+  --surface:#FCFCFE;
+  --surface-2:#F1F1F7;
+  --hairline:#D3D3E0;
+  --hairline-soft:#E2E2EC;
+  --ink:#1B1826;
+  --ink-soft:#5C5674;
+  --ink-faint:#8B85A3;
+
+  --c-model:#DD5F1B;
+  --c-model-wash:rgba(221,95,27,.13);
+  --c-error:#B8365A;
+  --c-error-wash:rgba(184,54,90,.16);
+  --c-test:#0E7C7B;
+  --c-test-wash:rgba(14,124,123,.14);
+  --c-data:#3A3452;
+  --c-alt:#3E63A8;
+  --c-grid:#DEDEE9;
+  --c-axis:#9C96B2;
+
+  --shadow:0 1px 2px rgba(27,24,38,.05),0 8px 24px -12px rgba(27,24,38,.18);
+  --rail:16rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#121017;
+    --surface:#1B1724;
+    --surface-2:#221D2E;
+    --hairline:#332C42;
+    --hairline-soft:#282235;
+    --ink:#EDEBF3;
+    --ink-soft:#A9A2BE;
+    --ink-faint:#786F90;
+
+    --c-model:#F5843F;
+    --c-model-wash:rgba(245,132,63,.17);
+    --c-error:#EA6A82;
+    --c-error-wash:rgba(234,106,130,.18);
+    --c-test:#3EB8B2;
+    --c-test-wash:rgba(62,184,178,.16);
+    --c-data:#C3BCD8;
+    --c-alt:#89A9E8;
+    --c-grid:#2C2639;
+    --c-axis:#6B6382;
+
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121017;
+  --surface:#1B1724;
+  --surface-2:#221D2E;
+  --hairline:#332C42;
+  --hairline-soft:#282235;
+  --ink:#EDEBF3;
+  --ink-soft:#A9A2BE;
+  --ink-faint:#786F90;
+
+  --c-model:#F5843F;
+  --c-model-wash:rgba(245,132,63,.17);
+  --c-error:#EA6A82;
+  --c-error-wash:rgba(234,106,130,.18);
+  --c-test:#3EB8B2;
+  --c-test-wash:rgba(62,184,178,.16);
+  --c-data:#C3BCD8;
+  --c-alt:#89A9E8;
+  --c-grid:#2C2639;
+  --c-axis:#6B6382;
+
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--sans);font-size:16.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--c-model-wash)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--c-model);outline-offset:3px;border-radius:3px}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+.shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr)}
+
+.rail{
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  border-right:1px solid var(--hairline);
+  background:var(--surface);
+  padding:1.75rem 0 2rem;
+  display:flex;flex-direction:column;gap:1.4rem;
+}
+.rail-head{padding:0 1.4rem;display:flex;flex-direction:column;gap:.3rem}
+.rail-head .course{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--c-model);font-weight:500;
+}
+.rail-head .name{font-family:var(--serif);font-size:1.2rem;font-weight:600;line-height:1.2}
+.rail-head .meta{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);line-height:1.55}
+
+nav.toc{display:flex;flex-direction:column}
+nav.toc a{
+  display:grid;grid-template-columns:1.9rem 1fr;align-items:baseline;
+  gap:.1rem;padding:.4rem 1.4rem;text-decoration:none;
+  font-size:.84rem;line-height:1.35;color:var(--ink-soft);
+  border-left:2px solid transparent;transition:color .15s,border-color .15s,background .15s;
+}
+nav.toc a .n{font-family:var(--mono);font-size:.7rem;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+nav.toc a:hover{color:var(--ink);background:var(--surface-2)}
+nav.toc a.on{color:var(--ink);border-left-color:var(--c-model);font-weight:500}
+nav.toc a.on .n{color:var(--c-model)}
+nav.toc .grp{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-faint);padding:1rem 1.4rem .3rem;
+}
+
+.rail-foot{margin-top:auto;padding:1rem 1.4rem 0;display:flex;flex-direction:column;gap:.6rem}
+.themebtn{
+  font-family:var(--mono);font-size:.7rem;padding:.4rem .7rem;cursor:pointer;
+  background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--hairline);
+  border-radius:5px;text-align:left;
+}
+.themebtn:hover{color:var(--ink);border-color:var(--c-model)}
+
+main{min-width:0;padding:0 0 6rem}
+.wrap{max-width:63rem;margin:0 auto;padding:0 2.5rem}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  border-bottom:1px solid var(--hairline);
+  background:linear-gradient(180deg,var(--c-model-wash),transparent 60%),var(--surface);
+  padding:4.5rem 0 0;
+}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3rem;align-items:end}
+.hero h1{
+  font-family:var(--serif);font-weight:600;font-size:clamp(2.5rem,4.4vw,3.7rem);
+  line-height:1.03;margin:.55rem 0 0;letter-spacing:-.018em;text-wrap:balance;
+}
+.hero h1 em{font-style:italic;color:var(--c-model)}
+.hero .kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c-model);font-weight:500;
+}
+.hero .lede{font-size:1.05rem;color:var(--ink-soft);margin:1.1rem 0 0;max-width:36ch}
+.hero .credits{
+  font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);
+  margin:1.4rem 0 0;padding-top:1rem;border-top:1px solid var(--hairline-soft);line-height:1.7;
+}
+.hero-fig{align-self:end;margin-bottom:-1px}
+.hero-fig canvas{width:100%;height:290px;display:block}
+.hero-cap{font-family:var(--mono);font-size:.66rem;color:var(--ink-faint);text-align:right;padding-bottom:.45rem}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+section{padding:4rem 0 0}
+section:first-of-type{padding-top:2.6rem}
+.shead{display:flex;flex-direction:column;gap:.15rem;margin-bottom:1.4rem}
+.shead .num{font-family:var(--mono);font-size:.72rem;letter-spacing:.13em;color:var(--c-model);font-weight:500}
+.shead h2{
+  font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,2.5vw,2.1rem);
+  line-height:1.15;margin:0;letter-spacing:-.012em;text-wrap:balance;
+}
+.prose{max-width:63ch}
+.prose p{margin:0 0 1rem}
+.prose p:last-child{margin-bottom:0}
+.prose ul{margin:0 0 1rem;padding-left:1.15rem}
+.prose li{margin:0 0 .35rem}
+.prose strong{font-weight:600}
+.prose h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin:2rem 0 .55rem;letter-spacing:-.005em}
+hr.rule{border:0;border-top:1px solid var(--hairline);margin:3.5rem 0 0}
+
+.key{
+  display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:start;
+  border-left:3px solid var(--c-model);background:var(--c-model-wash);
+  padding:.9rem 1.1rem;border-radius:0 7px 7px 0;margin:1.4rem 0;max-width:63ch;
+}
+.key .lbl{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--c-model);font-weight:600;padding-top:.26rem;white-space:nowrap;
+}
+.key p{margin:0;font-size:.94rem;line-height:1.55}
+.warn{
+  border-left:3px solid var(--c-error);background:var(--c-error-wash);
+  padding:.9rem 1.1rem;border-radius:0 7px 7px 0;margin:1.4rem 0;max-width:63ch;
+  font-size:.94rem;line-height:1.55;
+}
+.warn b{color:var(--c-error);font-weight:600}
+
+/* ============================================================
+   FIGURE PANELS
+   ============================================================ */
+.panel{
+  background:var(--surface);border:1px solid var(--hairline);border-radius:10px;
+  box-shadow:var(--shadow);margin:1.8rem 0;overflow:hidden;
+}
+.panel-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding:.58rem 1.1rem;border-bottom:1px solid var(--hairline-soft);background:var(--surface-2);
+}
+.panel-bar .t{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-soft);font-weight:500;
+}
+.panel-bar .hint{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint)}
+.panel-body{padding:1.05rem}
+.panel-split{display:grid;grid-template-columns:minmax(0,1fr) 15.5rem;gap:1.05rem}
+.panel-split.wide-ctl{grid-template-columns:minmax(0,1fr) 18rem}
+.panel-duo{display:grid;grid-template-columns:1fr 1fr;gap:1.05rem}
+.panel-quad{display:grid;grid-template-columns:1fr 1fr;gap:1.05rem}
+
+canvas{display:block;width:100%;touch-action:none}
+.cv{border-radius:6px}
+.cv.drag{cursor:crosshair}
+
+.ctl{display:flex;flex-direction:column;gap:.95rem}
+.ctl-row{display:flex;flex-direction:column;gap:.3rem}
+.ctl-row label{
+  font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);
+  display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;
+}
+.ctl-row label .v{color:var(--c-model);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--hairline);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--hairline);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--c-model);
+  border:2px solid var(--surface);box-shadow:0 0 0 1px var(--c-model);margin-top:-6px;
+}
+input[type=range]::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%;background:var(--c-model);
+  border:2px solid var(--surface);box-shadow:0 0 0 1px var(--c-model);
+}
+.btn{
+  font-family:var(--mono);font-size:.72rem;padding:.44rem .78rem;cursor:pointer;
+  background:var(--surface);color:var(--ink);border:1px solid var(--hairline);border-radius:5px;
+  transition:border-color .15s,background .15s,color .15s;
+}
+.btn:hover{border-color:var(--c-model);color:var(--c-model)}
+.btn.primary{background:var(--c-model);color:#fff;border-color:var(--c-model)}
+.btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btnrow{display:flex;gap:.45rem;flex-wrap:wrap}
+.chk{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);cursor:pointer}
+.chk input{accent-color:var(--c-model);width:14px;height:14px;cursor:pointer}
+
+.seg{display:inline-flex;border:1px solid var(--hairline);border-radius:6px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font-family:var(--mono);font-size:.7rem;padding:.4rem .75rem;cursor:pointer;
+  background:transparent;color:var(--ink-soft);border:0;border-right:1px solid var(--hairline);
+}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--c-model);color:#fff;font-weight:500}
+.seg button:not(.on):hover{background:var(--surface-2);color:var(--ink)}
+
+.stats{display:grid;gap:.5rem}
+.stat{
+  display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
+  padding:.48rem .62rem;background:var(--surface-2);border-radius:5px;border-left:2px solid var(--hairline);
+}
+.stat .k{font-family:var(--mono);font-size:.68rem;color:var(--ink-soft);line-height:1.3}
+.stat .val{font-family:var(--mono);font-size:.96rem;font-weight:500;font-variant-numeric:tabular-nums}
+.stat.model{border-left-color:var(--c-model)} .stat.model .val{color:var(--c-model)}
+.stat.error{border-left-color:var(--c-error)} .stat.error .val{color:var(--c-error)}
+.stat.test{border-left-color:var(--c-test)}  .stat.test .val{color:var(--c-test)}
+.stat.plain .val{color:var(--ink)}
+
+.legend{display:flex;flex-wrap:wrap;gap:.35rem .95rem;font-family:var(--mono);font-size:.68rem;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+.legend i.ring{background:transparent;border:1.5px solid var(--c-test);border-radius:50%}
+.legend i.dot{border-radius:50%}
+.legend i.ln{height:0;border-top:2.5px solid var(--c-model);border-radius:0;width:14px}
+.legend i.dash{height:0;border-top:2px dashed var(--ink-faint);border-radius:0;width:14px}
+.notecap{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);margin:.55rem 0 0;line-height:1.5}
+
+/* ============================================================
+   MATH
+   ============================================================ */
+.m{font-family:var(--serif);font-style:italic}
+.mu{font-family:var(--serif);font-style:normal}
+
+/* ------------------------------------------------------------------
+   Hats and bars:  f-hat, y-hat, beta-hat, x-bar, y-bar.
+   The Unicode combining marks (U+0302, U+0304) need font mark-attachment
+   that IBM Plex Serif does not supply, so they land BESIDE the letter
+   instead of over it. The accent is drawn as a positioned overlay here.
+
+   Markup:   <span class="hat f">f</span>     f-hat
+             <span class="hat">y</span>       y-hat
+             <span class="hat b">&beta;</span> beta-hat
+             <span class="bar">x</span>       x-bar
+
+   If an accent sits too high or low, nudge --y on that line below.
+   Larger --y moves it DOWN; --x moves it RIGHT.
+   ------------------------------------------------------------------ */
+.hat,.bar{
+  position:relative;display:inline-block;line-height:1;
+  font-family:var(--serif);font-style:italic;
+}
+.hat::after,.bar::after{
+  position:absolute;left:0;right:0;top:var(--y);
+  margin-left:var(--x,.03em);
+  font-family:var(--serif);font-style:normal;font-weight:400;
+  font-size:.8em;line-height:1;text-align:center;pointer-events:none;
+}
+.hat::after{content:"\02C6"}                 /* x-height letters: y */
+.bar::after{content:"\00AF"}
+.hat{--y:.05em}
+.bar{--y:.10em}
+.hat.f{--y:-.15em;--x:.10em}                 /* tall ascender, leans right */
+.hat.b{--y:-.13em;--x:.04em}                 /* beta */
+.eq{
+  font-family:var(--serif);font-size:1.1rem;text-align:center;
+  padding:1rem .8rem;margin:1.2rem 0;background:var(--surface);
+  border:1px solid var(--hairline);border-radius:8px;max-width:63ch;
+  overflow-x:auto;line-height:1.9;
+}
+.eq.tight{padding:.7rem;font-size:1rem;margin:.8rem 0}
+.frac{display:inline-flex;flex-direction:column;vertical-align:-.62em;text-align:center;margin:0 .18em;font-size:.92em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .4em .12em}
+.frac>span:last-child{padding:.14em .4em 0}
+.sum{display:inline-flex;flex-direction:column;align-items:center;vertical-align:-.5em;margin:0 .12em;line-height:1}
+.sum .sig{font-size:1.42em;font-style:normal;font-family:var(--serif)}
+.sum .lim{font-size:.55em;font-style:normal;font-family:var(--mono);line-height:1.25}
+sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
+
+.deriv{display:flex;flex-direction:column;gap:0;margin:1.35rem 0}
+.step{
+  display:grid;grid-template-columns:2.1rem minmax(0,1fr);gap:.9rem;align-items:start;
+  padding:.9rem 1.1rem;border:1px solid var(--hairline);border-bottom:0;background:var(--surface);
+  transition:background .2s,opacity .25s;
+}
+.step:first-child{border-radius:8px 8px 0 0}
+.step:last-child{border-bottom:1px solid var(--hairline);border-radius:0 0 8px 8px}
+.step .sn{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);padding-top:.42rem;font-variant-numeric:tabular-nums}
+.step .sm{font-family:var(--serif);font-size:1.05rem;overflow-x:auto;padding-bottom:.1rem}
+.step .sw{font-size:.86rem;color:var(--ink-soft);margin-top:.4rem;line-height:1.5}
+.step .sw b{color:var(--ink);font-weight:600}
+.step.hid{opacity:.12}
+.step.hid .sm,.step.hid .sw{visibility:hidden}
+.step.live{background:var(--c-model-wash)}
+.step.live .sn{color:var(--c-model);font-weight:600}
+
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.75rem;font-variant-numeric:tabular-nums}
+.tbl th{
+  text-align:right;padding:.38rem .6rem;border-bottom:1px solid var(--hairline);
+  color:var(--ink-soft);font-weight:500;font-size:.68rem;letter-spacing:.04em;white-space:nowrap;
+}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{text-align:right;padding:.28rem .6rem;border-bottom:1px solid var(--hairline-soft);color:var(--ink-soft)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.tot td{border-top:1px solid var(--hairline);border-bottom:0;color:var(--ink);font-weight:600;padding-top:.44rem}
+.tbl td.hi{color:var(--c-model);font-weight:500}
+.tblwrap{overflow-x:auto;margin:.5rem 0 0}
+
+/* data table beside its own explanation */
+.dfsplit{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.45rem;align-items:start}
+/* if the explanation column is deleted, collapse rather than leaving a gap */
+.dfsplit:not(:has(> * + *)){grid-template-columns:minmax(0,1fr)}
+.dfsplit:not(:has(> * + *)) .tblwrap{border-right:0;padding-right:0;max-width:30rem}
+.dfsplit .tblwrap{border-right:1px solid var(--hairline-soft);padding-right:1.3rem}
+@media (max-width:1080px){
+  .dfsplit{grid-template-columns:1fr;gap:1.1rem}
+  .dfsplit .tblwrap{border-right:0;padding-right:0;border-bottom:1px solid var(--hairline-soft);padding-bottom:1rem}
+}
+
+/* a table that reads like a pandas frame: muted index, quiet shape line.
+   Sized to be readable from the back of a lecture room. */
+.tbl.df{width:100%;table-layout:fixed}
+.tbl.df td{font-size:.92rem;padding:.32rem .5rem;color:var(--ink)}
+.tbl.df th{font-size:.7rem;padding:.38rem .5rem;letter-spacing:.01em}
+.tbl.df td.ix{color:var(--ink-faint);font-size:.78rem}
+.tbl.df td.ix,.tbl.df th:first-child{width:2.1rem}
+.tbl.df tr.shape td{
+  border-top:1px solid var(--hairline);border-bottom:0;
+  color:var(--ink-faint);font-size:.72rem;padding-top:.5rem;text-align:left;
+}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin:1.6rem 0}
+.card{
+  background:var(--surface);border:1px solid var(--hairline);border-radius:9px;
+  padding:1rem 1rem 1.1rem;display:flex;flex-direction:column;gap:.5rem;box-shadow:var(--shadow);
+}
+.card .cn{font-family:var(--mono);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--c-model);font-weight:600}
+.card h4{font-family:var(--serif);font-size:1rem;font-weight:600;margin:0;line-height:1.25}
+.card .cd{font-size:.845rem;color:var(--ink-soft);line-height:1.5;margin:0}
+.card .xy{
+  display:grid;grid-template-columns:1.5rem 1fr;gap:.15rem .5rem;
+  font-family:var(--mono);font-size:.71rem;color:var(--ink-soft);
+  border-top:1px solid var(--hairline-soft);padding-top:.58rem;margin-top:auto;line-height:1.45;
+}
+.card .xy b{color:var(--c-model);font-weight:500;font-family:var(--serif);font-style:italic;font-size:.95rem}
+.tag{align-self:flex-start;font-family:var(--mono);font-size:.61rem;letter-spacing:.06em;padding:.16rem .45rem;border-radius:4px;text-transform:uppercase;font-weight:500}
+.tag.reg{background:var(--c-model-wash);color:var(--c-model)}
+.tag.cls{background:var(--c-test-wash);color:var(--c-test)}
+.tag.uns{background:var(--c-error-wash);color:var(--c-error)}
+
+.gloss{display:grid;grid-template-columns:repeat(2,1fr);gap:0 2rem;margin:1.5rem 0}
+.gitem{display:grid;grid-template-columns:6.4rem 1fr;gap:.9rem;align-items:baseline;padding:.6rem 0;border-bottom:1px solid var(--hairline-soft)}
+.gitem .gt{font-family:var(--mono);font-size:.75rem;color:var(--c-model);font-weight:500;line-height:1.45}
+.gitem .gd{font-size:.845rem;color:var(--ink-soft);line-height:1.5}
+
+.code{
+  background:var(--surface);border:1px solid var(--hairline);border-radius:8px;
+  font-family:var(--mono);font-size:.77rem;line-height:1.72;overflow-x:auto;
+  padding:.9rem 1.05rem;margin:1.2rem 0;color:var(--ink-soft);max-width:63ch;white-space:pre;
+}
+.code .kw{color:var(--c-model)} .code .st{color:var(--c-test)} .code .cm{color:var(--ink-faint);font-style:italic}
+.code .fn{color:var(--ink)}
+
+footer{margin-top:4.5rem;border-top:1px solid var(--hairline);padding-top:1.5rem;font-family:var(--mono);font-size:.72rem;color:var(--ink-faint);line-height:1.7}
+
+@media (max-width:1080px){
+  :root{--rail:0px}
+  .shell{grid-template-columns:1fr}
+  .wrap{padding:0 1.4rem}
+  .hero .wrap{grid-template-columns:1fr;gap:1.4rem}
+  .hero{padding-top:2.6rem}
+  .panel-split,.panel-split.wide-ctl,.panel-duo,.panel-quad{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
+  .gloss{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+/* ============================================================
+   TABS  — one section at a time
+   ============================================================ */
+.tabpanel{display:none}
+.tabpanel.on{display:block;animation:fadein .18s ease-out}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.pager{
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  margin:3.2rem 0 0;padding-top:1.4rem;border-top:1px solid var(--hairline);
+}
+.pager .btn{max-width:47%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:.55rem .9rem}
+.pager span{flex:0 0 auto}
+
+.tabcount{
+  font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;letter-spacing:.05em;
+}
+
+/* the hero collapses to a slim band once you leave the first tab */
+body:not(.first) .hero{padding:1.3rem 0}
+body:not(.first) .hero .wrap{grid-template-columns:1fr;gap:0;align-items:center}
+body:not(.first) .hero-fig,
+body:not(.first) .hero .lede,
+body:not(.first) .hero .credits{display:none}
+body:not(.first) .hero h1{font-size:1.4rem;margin:.1rem 0 0}
+body:not(.first) .hero .kicker{font-size:.65rem}
+
+/* first panel sits closer to the hero than a scrolled section would */
+section.tabpanel{padding:2.6rem 0 0}
+
+/* cross-link to the other half of the lecture */
+.crosslink{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  margin:2rem 0 0;padding:1.05rem 1.2rem;border:1px solid var(--hairline);
+  border-left:3px solid var(--c-test);border-radius:0 9px 9px 0;background:var(--surface);
+}
+.crosslink .cl-t{font-family:var(--serif);font-size:1.02rem;font-weight:600}
+.crosslink .cl-d{font-size:.85rem;color:var(--ink-soft);margin:.15rem 0 0}
+.crosslink a{
+  font-family:var(--mono);font-size:.72rem;text-decoration:none;white-space:nowrap;
+  padding:.5rem .85rem;border-radius:5px;background:var(--c-test);color:#fff;
+}
+.crosslink a:hover{filter:brightness(1.08)}
+
+@media (max-width:1080px){
+  /* the rail becomes a horizontal tab strip instead of disappearing */
+  .rail{
+    display:flex;position:sticky;top:0;height:auto;
+    flex-direction:row;align-items:stretch;gap:0;
+    overflow-x:auto;overflow-y:hidden;padding:0;
+    border-right:0;border-bottom:1px solid var(--hairline);z-index:30;
+  }
+  .rail-head{display:none}
+  nav.toc{flex-direction:row;flex:1 0 auto}
+  nav.toc .grp{display:none}
+  nav.toc a{
+    grid-template-columns:auto auto;gap:.42rem;align-items:center;
+    border-left:0;border-bottom:2px solid transparent;
+    white-space:nowrap;padding:.75rem .85rem;
+  }
+  nav.toc a.on{border-bottom-color:var(--c-model);background:var(--surface-2)}
+  .rail-foot{
+    margin:0;padding:0 .85rem;flex-direction:row;align-items:center;gap:.7rem;
+    border-left:1px solid var(--hairline);position:sticky;right:0;background:var(--surface);
+  }
+  section.tabpanel{padding:1.9rem 0 0}
+}
+
+</style>
+
+<div class="shell">
+
+<aside class="rail">
+  <div class="rail-head">
+    <div class="course">1501.1027 &middot; Class 1 &middot; Part 2</div>
+    <div class="name">Linear<br>Regression</div>
+    <div class="meta">Machine Learning for Neuroscience<br>Tel Aviv University</div>
+  </div>
+
+  <nav class="toc" id="toc">
+    <a href="#s7"><span class="n">01</span><span>The linear model</span></a>
+    <a href="#s8"><span class="n">02</span><span>Least squares</span></a>
+    <a href="#s9"><span class="n">03</span><span>Solving it with calculus</span></a>
+    <a href="#s10"><span class="n">04</span><span>How good is the fit?</span></a>
+    <a href="#s11"><span class="n">05</span><span>Noisy data, small samples</span></a>
+    <a href="#s12"><span class="n">06</span><span>Glossary</span></a>
+  </nav>
+
+  <div class="rail-foot">
+    <span class="tabcount" id="tabcount"></span>
+    <button class="themebtn" id="themebtn" type="button">theme &middot; auto</button>
+  </div>
+</aside>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <div class="kicker">Class 1 &middot; Part 2 of 2</div>
+      <h1>Least Squares</h1>
+      <p class="lede">The simplest guess at <em>f</em> is a straight line. Where that line comes from, how good it is, and why the number you report depends on which data you computed it on.</p>
+      <p class="credits">
+        Dr. Asaf Madar &middot; lecturer<br>
+        Mr. Yoav Melamed &middot; teaching assistant<br>
+        Mondays 08:30&ndash;11:00
+      </p>
+    </div>
+    <div class="hero-fig">
+      <div class="hero-cap">RSS shrinking onto the fit</div>
+      <canvas id="cvHeroB" height="290"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<!-- ==================== 07 ==================== -->
+<section id="s7">
+  <div class="shead"><div class="num">01</div><h2>The linear model</h2></div>
+  <div class="prose">
+    <p>The simplest possible guess at <span class="m">f</span> is a straight line. Assume <span class="m">y</span> changes by a constant amount for every unit of <span class="m">x</span>:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">y</span> &asymp; <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span>
+  </div>
+
+  <div class="prose">
+    <p>Two numbers, and they are both readable in plain language.</p>
+    <ul>
+      <li><span class="m">&beta;<sub>0</sub></span>, the <strong>intercept</strong>: the predicted <span class="m">y</span> when <span class="m">x</span> = 0. Here that is the recall score of an average-sized hippocampus.</li>
+      <li><span class="m">&beta;<sub>1</sub></span>, the <strong>slope</strong>: how much <span class="m">y</span> moves per one-unit increase in <span class="m">x</span>. <em>This is the number you interpret.</em></li>
+    </ul>
+    <p>Note that the slope turns the line about the point <span class="m">x</span> = 0, marked on the plot. That is the only point the slope leaves alone, which is why a predictor is often measured from its own mean: it puts the pivot in the middle of the data instead of far outside it.</p>
+    <p>&ldquo;Fitting the model&rdquo; means nothing more than choosing values for these two. Try it by hand, you are the optimiser:</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">Move the line yourself</div>
+      <div class="hint">drag the data points too &mdash; the plot is live</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvLine" class="cv drag" height="340"></canvas>
+        <p class="notecap">Hippocampal volume against a delayed-recall score, 14 simulated subjects. Volume is measured as the difference from the group mean, so <span class="m">x</span> = 0 is an average-sized hippocampus. Drag any point to move it, click empty space to add one, shift-click a point to delete it.</p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>intercept <span class="m">&beta;<sub>0</sub></span> <span class="v" id="lineB0v">0.0</span></label>
+          <input type="range" id="lineB0" min="-4000" max="4000" value="0" step="1">
+        </div>
+        <div class="ctl-row">
+          <label>slope <span class="m">&beta;<sub>1</sub></span> <span class="v" id="lineB1v">0.0</span></label>
+          <input type="range" id="lineB1" min="-3000" max="3000" value="0" step="1">
+        </div>
+        <label class="chk"><input type="checkbox" id="lineGeom" checked> mark the intercept at <span class="m">x</span> = 0</label>
+        <div class="stats">
+          <div class="stat error"><span class="k">RSS &mdash; total squared error</span><span class="val" id="lineRSS">&mdash;</span></div>
+          <div class="stat model"><span class="k">best possible RSS</span><span class="val" id="lineBest">&mdash;</span></div>
+        </div>
+        <div class="btnrow">
+          <button class="btn primary" id="lineFit">fit least squares</button>
+          <button class="btn" id="lineReset">reset data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ==================== 08 ==================== -->
+<section id="s8">
+  <div class="shead"><div class="num">02</div><h2>Least squares</h2></div>
+  <div class="prose">
+    <p>You just moved a line around until it &ldquo;looked right&rdquo;. To do that automatically we need to say precisely what &ldquo;right&rdquo; means.</p>
+    <p>For each subject, the model predicts <span class="m"><span class="hat">y</span><sub>i</sub></span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>i</sub></span>, and reality delivered <span class="m">y<sub>i</sub></span>. The gap between them is the <strong>residual</strong>, <span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span> &mdash; the vertical distance from the point to the line.</p>
+    <p>We cannot just add the residuals up: the positive and negative ones cancel, and a terrible line can score zero. So we square each one first, then add. That is the <strong>residual sum of squares</strong>:</p>
+  </div>
+
+  <div class="eq">
+    RSS =
+    <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+    (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup>
+  </div>
+
+  <div class="prose">
+    <p>Squaring does two things. It makes every error count as positive, and it punishes large misses disproportionately &mdash; being off by 4 is sixteen times worse than being off by 1, not four times worse. <strong>Ordinary least squares</strong> (OLS) is simply the choice of <span class="m">&beta;<sub>0</sub></span> and <span class="m">&beta;<sub>1</sub></span> that makes this number as small as it can be.</p>
+    <p>Every residual is drawn below as a red stick running from the observation to the line. Making the line better means making those sticks shorter, all of them at once:</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">Every residual, and their total</div>
+      <div class="hint">make the sticks as short as you can</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvSq" class="cv" height="360"></canvas>
+        <p class="notecap">Each stick is one residual. RSS squares every length and adds them up, so the long sticks dominate the total. Least squares is the line that leaves the smallest total.</p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>intercept <span class="m">&beta;<sub>0</sub></span> <span class="v" id="sqB0v">0.0</span></label>
+          <input type="range" id="sqB0" min="-4000" max="4000" value="1500" step="1">
+        </div>
+        <div class="ctl-row">
+          <label>slope <span class="m">&beta;<sub>1</sub></span> <span class="v" id="sqB1v">0.0</span></label>
+          <input type="range" id="sqB1" min="-3000" max="3000" value="300" step="1">
+        </div>
+        <div class="stats">
+          <div class="stat error"><span class="k">RSS, the total to beat</span><span class="val" id="sqRSS">&mdash;</span></div>
+          <div class="stat model"><span class="k">minimum achievable</span><span class="val" id="sqMin">&mdash;</span></div>
+        </div>
+        <div class="btnrow"><button class="btn primary" id="sqFit">minimise</button></div>
+        <p class="notecap">Uses the same 14 subjects as the first tab &mdash; and the same line. Move either one and both follow.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+<!-- ==================== 09 ==================== -->
+<section id="s9">
+  <div class="shead"><div class="num">03</div><h2>Solving it with calculus</h2></div>
+  <div class="prose">
+    <p>Hunting for the best line by hand is fine for two parameters, but we can do better.
+      <br>Think of RSS as a function of <span class="m">&beta;</span>. It is a parabola: steep where the line is badly wrong, flattening out as it improves, and perfectly flat at its lowest point.
+      <br>Flat means the <em>derivative is zero</em>, and that is the whole trick: write RSS as a function of <span class="m">&beta;</span>, differentiate, set it to zero, and solve.</p>
+    <p>To keep the algebra visible we drop the intercept for a moment and fit a line through the origin, <span class="m">y</span> = <span class="m">&beta;x</span>, so there is only one unknown. Reveal one step at a time:</p>
+  </div>
+
+  <div class="btnrow" style="margin:1.2rem 0 0">
+    <button class="btn primary" id="dNext">next step</button>
+    <button class="btn" id="dAll">show all</button>
+    <button class="btn" id="dReset">restart</button>
+  </div>
+
+  <div class="deriv" id="deriv">
+    <div class="step" data-s="0">
+      <div class="sn">01</div>
+      <div>
+        <div class="sm">
+          RSS = <span class="m">f</span>(<span class="m">&beta;</span>) =
+          <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+          (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>)<sup>2</sup>
+        </div>
+        <div class="sw">The data <span class="m">x<sub>i</sub></span> and <span class="m">y<sub>i</sub></span> are <b>fixed numbers</b> you already measured. The only thing that can vary is <span class="m">&beta;</span>. So RSS is an ordinary function of one variable &mdash; and we want its minimum.</div>
+      </div>
+    </div>
+    <div class="step" data-s="1">
+      <div class="sn">02</div>
+      <div>
+        <div class="sm">
+          <span class="m">f</span>&prime;(<span class="m">&beta;</span>) = &minus;2
+          <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+          (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>) <span class="m">x<sub>i</sub></span>
+        </div>
+        <div class="sw">Differentiate with respect to <span class="m">&beta;</span>. Each term is something-squared, so the chain rule gives 2&#183;(inside)&#183;(derivative of inside), and the derivative of (<span class="m">y<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span>) with respect to <span class="m">&beta;</span> is just &minus;<span class="m">x<sub>i</sub></span>.</div>
+      </div>
+    </div>
+    <div class="step" data-s="2">
+      <div class="sn">03</div>
+      <div>
+        <div class="sm">
+          &minus;2
+          <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+          (<span class="m">y<sub>i</sub>x<sub>i</sub></span> &minus; <span class="m">&beta;x<sub>i</sub></span><sup>2</sup>) = 0
+        </div>
+        <div class="sw">Set the derivative to zero &mdash; <b>this is the definition of the minimum</b> &mdash; and multiply out the bracket. The &minus;2 in front now does nothing, since zero divided by &minus;2 is still zero.</div>
+      </div>
+    </div>
+    <div class="step" data-s="3">
+      <div class="sn">04</div>
+      <div>
+        <div class="sm">
+          <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+          <span class="m">y<sub>i</sub>x<sub>i</sub></span>
+          &nbsp;=&nbsp; <span class="m">&beta;</span>
+          <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+          <span class="m">x<sub>i</sub></span><sup>2</sup>
+        </div>
+        <div class="sw">Split the sum in two and move one side across. <span class="m">&beta;</span> is a single number, not indexed by <span class="m">i</span>, so it comes out in front of the sum.</div>
+      </div>
+    </div>
+    <div class="step" data-s="4">
+      <div class="sn">05</div>
+      <div>
+        <div class="sm">
+          <span class="m"><span class="hat b">&beta;</span></span> =
+          <span class="frac">
+            <span><span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span> <span class="m">y<sub>i</sub>x<sub>i</sub></span></span>
+            <span><span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span> <span class="m">x<sub>i</sub></span><sup>2</sup></span>
+          </span>
+        </div>
+        <div class="sw">Divide. That is it &mdash; <b>a closed-form answer</b>. No search, no iteration, no learning rate. Two sums over your data and you have the optimal slope exactly.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The formula, on actual numbers</div>
+      <div class="hint">drag a point &mdash; every column updates</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvOrigin" class="cv drag" height="290"></canvas>
+        <p class="notecap">Six points, one parameter. Drag any of them vertically and watch the two sums &mdash; and <span class="m"><span class="hat b">&beta;</span></span> &mdash; recompute.</p>
+      </div>
+      <div>
+        <div class="tblwrap" style="margin-top:0">
+          <table class="tbl" id="oTbl"></table>
+        </div>
+        <div class="eq tight" id="oResult" style="margin-top:.9rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>Putting the intercept back</h3>
+    <p>Doing the same two-variable version &mdash; take the partial derivative with respect to <span class="m">&beta;<sub>0</sub></span> and with respect to <span class="m">&beta;<sub>1</sub></span>, set both to zero, solve the pair &mdash; gives the formulas you will actually use:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span> =
+    <span class="frac">
+      <span><span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>(<span class="m">x<sub>i</sub></span> &minus; <span class="m"><span class="bar">x</span></span>)(<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="bar">y</span></span>)</span>
+      <span><span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>(<span class="m">x<sub>i</sub></span> &minus; <span class="m"><span class="bar">x</span></span>)<sup>2</sup></span>
+    </span>
+    <span style="display:inline-block;width:2.5rem"></span>
+    <span class="m"><span class="hat b">&beta;</span><sub>0</sub></span> = <span class="m"><span class="bar">y</span></span> &minus; <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span><span class="m"><span class="bar">x</span></span>
+  </div>
+
+  <div class="prose">
+    <p>Same structure as step 05, with every variable measured from its own mean instead of from zero. Two things fall straight out of these, and both are worth remembering.</p>
+    <p>First, <span class="m"><span class="hat b">&beta;</span><sub>0</sub></span> = <span class="m"><span class="bar">y</span></span> &minus; <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span><span class="m"><span class="bar">x</span></span> rearranges to say that the fitted line always passes exactly through the point (<span class="m"><span class="bar">x</span></span>, <span class="m"><span class="bar">y</span></span>). Second, that numerator is the covariance of <span class="m">x</span> and <span class="m">y</span> and the denominator is the variance of <span class="m">x</span>, which means:</p>
+  </div>
+
+  <div class="eq tight">
+    <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span> = <span class="m">r</span> &#183; <span class="frac"><span><span class="m">s<sub>y</sub></span></span><span><span class="m">s<sub>x</sub></span></span></span>
+  </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>The regression slope is the correlation, rescaled by the spread of the two variables. Correlation and simple regression are the same fact wearing different units &mdash; which is exactly why a strong <span class="m">p</span>-value on a slope tells you nothing about whether the model can predict.</p>
+  </div>
+</section>
+<!-- ==================== 10 ==================== -->
+<section id="s10">
+  <div class="shead"><div class="num">04</div><h2>How good is the fit?</h2></div>
+  <div class="prose">
+    <p>RSS on its own is unreadable. Is 4,300 good? It depends entirely on the units of <span class="m">y</span> and on how many subjects you have. Two fixes.</p>
+    <p><strong>MSE</strong> divides RSS by <span class="m">n</span>, so at least it does not grow just because you collected more data. Its square root, RMSE, is back in the original units &mdash; &ldquo;on average we miss by 3.4 points&rdquo; is a sentence a clinician can use.</p>
+    <p><strong>R<sup>2</sup></strong> takes a different route: it compares your model to the laziest possible one. If you had no <span class="m">x</span> at all, your best guess for everybody would be the mean <span class="m"><span class="bar">y</span></span>. The error of that null model is the <em>total</em> sum of squares, TSS. R<sup>2</sup> asks what fraction of it your line removed.</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">R</span><sup>2</sup> = 1 &minus;
+    <span class="frac"><span>RSS</span><span>TSS</span></span>
+    <span style="display:inline-block;width:1.6rem"></span>
+    <span style="font-family:var(--sans);font-size:.72rem;color:var(--ink-faint);letter-spacing:.06em">TSS = &Sigma;(<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="bar">y</span></span>)<sup>2</sup></span>
+  </div>
+
+  <div class="prose">
+    <p>R<sup>2</sup> = 0 means the line did no better than guessing the mean every time. R<sup>2</sup> = 1 means the residuals vanished. Toggle between the two models below and watch the sticks shorten: the fraction of the total you removed <em>is</em> R<sup>2</sup>.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">R<sup>2</sup> is the error you removed</div>
+      <div class="hint">switch between the null model and the fit</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <div class="btnrow" style="margin-bottom:.85rem">
+          <div class="seg" id="r2Seg">
+            <button class="on" data-v="null">null model: always <span class="bar">y</span></button>
+            <button data-v="fit">least-squares line</button>
+          </div>
+        </div>
+        <canvas id="cvR2" class="cv" height="330"></canvas>
+      </div>
+      <div class="ctl">
+        <div class="stats">
+          <div class="stat plain"><span class="k">TSS &mdash; null model error</span><span class="val" id="r2TSS">&mdash;</span></div>
+          <div class="stat error"><span class="k">RSS &mdash; your model&rsquo;s error</span><span class="val" id="r2RSS">&mdash;</span></div>
+          <div class="stat model"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val" id="r2Val">&mdash;</span></div>
+          <div class="stat plain"><span class="k">RMSE (recall-score units)</span><span class="val" id="r2RMSE">&mdash;</span></div>
+        </div>
+        <p class="notecap">Same 14 subjects again. Go back to the first tab, drag an outlier, and return here to see what a single subject does to R<sup>2</sup>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>R<sup>2</sup> never goes down when you add a predictor.</b> Add pure random noise as a variable and R<sup>2</sup> creeps up, because the extra freedom lets the model chase the noise. A high in-sample R<sup>2</sup> is not evidence of anything until you have checked it out of sample.
+  </div>
+</section>
+<!-- ==================== 11 ==================== -->
+<section id="s11">
+  <div class="shead"><div class="num">05</div><h2>Noisy data, small samples</h2></div>
+  <div class="prose">
+    <p>Everything so far works beautifully with 500 clean observations. Neuroscience rarely offers those. You get 25 subjects, an effect that explains a few percent of the variance, and a hundred candidate predictors.</p>
+    <p>The demo below is the one to sit with. Fit the same linear model on a small training sample, then score it honestly on fresh subjects from the same population.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">In-sample vs. out-of-sample, small <span class="m">n</span></div>
+      <div class="hint">press &ldquo;new cohort&rdquo; repeatedly and watch the line jump</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvSmall" class="cv" height="330"></canvas>
+        <div class="legend" style="margin-top:.65rem">
+          <span><i class="dot" style="background:var(--c-data)"></i>training subjects</span>
+          <span><i class="ring"></i>held-out subjects</span>
+          <span><i class="ln"></i>fit on training only</span>
+          <span><i class="dash"></i>true relationship</span>
+        </div>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>training subjects <span class="v" id="smNv">20</span></label>
+          <input type="range" id="smN" min="6" max="200" value="20" step="1">
+        </div>
+        <div class="ctl-row">
+          <label>true effect &mdash; population <span class="m">r</span> <span class="v" id="smRv">0.35</span></label>
+          <input type="range" id="smR" min="0" max="90" value="35" step="1">
+        </div>
+        <div class="stats">
+          <div class="stat plain"><span class="k">train <span class="m">R</span><sup>2</sup></span><span class="val" id="smTr">&mdash;</span></div>
+          <div class="stat test"><span class="k">test <span class="m">R</span><sup>2</sup> (200 fresh subjects)</span><span class="val" id="smTe">&mdash;</span></div>
+          <div class="stat model"><span class="k">estimated slope <span class="m"><span class="hat b">&beta;</span><sub>1</sub></span></span><span class="val" id="smB1">&mdash;</span></div>
+          <div class="stat error"><span class="k">true slope</span><span class="val" id="smB1t">&mdash;</span></div>
+        </div>
+        <div class="btnrow"><button class="btn primary" id="smNew">new cohort</button></div>
+        <p class="notecap">Test R<sup>2</sup> can be <em>negative</em>. That is not a bug: it means the model predicts new subjects worse than simply guessing the training mean would have.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Two things to notice as you click through cohorts. At <span class="m">n</span> = 20 the estimated slope swings wildly around the true one &mdash; each cohort tells a different story, and any single published one might be yours. And train R<sup>2</sup> is systematically optimistic: it is computed on the very points that were used to place the line, so it gets to peek at the answer.</p>
+    <p>Drag <span class="m">n</span> up to 200 and both problems fade. That gap between the two numbers is the whole reason this course insists on a test set.</p>
+  </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>A metric computed on the data you fitted is a description. The same metric computed on data the model has never seen is a prediction. Only the second one generalises &mdash; and it is the only one anyone should believe.</p>
+  </div>
+
+  <div class="prose">
+    <h3>What this looks like in Python</h3>
+    <p>Everything in this class is four lines of scikit-learn. Which is exactly the danger: the library will happily let you skip the split.</p>
+  </div>
+
+  <div class="code"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> r2_score, mean_squared_error
+
+X_tr, X_te, y_tr, y_te = <span class="fn">train_test_split</span>(X, y, test_size=<span class="st">0.3</span>, random_state=<span class="st">0</span>)
+
+model = <span class="fn">LinearRegression</span>().<span class="fn">fit</span>(X_tr, y_tr)
+
+model.intercept_          <span class="cm"># beta_0</span>
+model.coef_               <span class="cm"># beta_1 ... beta_p</span>
+
+<span class="fn">r2_score</span>(y_tr, model.<span class="fn">predict</span>(X_tr))   <span class="cm"># the flattering number</span>
+<span class="fn">r2_score</span>(y_te, model.<span class="fn">predict</span>(X_te))   <span class="cm"># the honest one</span></div>
+</section>
+<!-- ==================== 12 ==================== -->
+<section id="s12">
+  <div class="shead"><div class="num">06</div><h2>Glossary</h2></div>
+  <div class="prose">
+    <p>Everything introduced today, in the notation the course will keep using.</p>
+  </div>
+
+  <div class="gloss">
+    <div class="gitem"><div class="gt"><span class="m">x</span></div><div class="gd">Feature / predictor. What you measured and are willing to use as input.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">y</span></div><div class="gd">Outcome / target. What you want the model to produce.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">f</span></div><div class="gd">The true relationship between them. Unknown, and stays unknown.</div></div>
+    <div class="gitem"><div class="gt"><span class="m"><span class="hat f">f</span></span></div><div class="gd">Your estimate of it &mdash; the fitted model. The hat means &ldquo;estimated from data&rdquo;.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">&epsilon;</span></div><div class="gd">Irreducible noise. The part of <span class="m">y</span> no model can ever recover.</div></div>
+    <div class="gitem"><div class="gt"><span class="m"><span class="hat">y</span><sub>i</sub></span></div><div class="gd">The model&rsquo;s prediction for subject <span class="m">i</span>.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">n</span> / <span class="m">p</span></div><div class="gd">Number of observations / number of features. In neuroscience <span class="m">p</span> &gt; <span class="m">n</span> is normal, and it breaks things.</div></div>
+    <div class="gitem"><div class="gt">residual</div><div class="gd"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
+    <div class="gitem"><div class="gt">RSS</div><div class="gd">Sum of squared residuals. What least squares minimises.</div></div>
+    <div class="gitem"><div class="gt">TSS</div><div class="gd">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
+    <div class="gitem"><div class="gt">MSE</div><div class="gd">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
+    <div class="gitem"><div class="gt">RMSE</div><div class="gd">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">R</span><sup>2</sup></div><div class="gd">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd">Intercept and slope. The weights the model learns.</div></div>
+    <div class="gitem"><div class="gt">OLS</div><div class="gd">Ordinary least squares. The recipe for finding those weights.</div></div>
+    <div class="gitem"><div class="gt">training set</div><div class="gd">The data used to choose the weights.</div></div>
+    <div class="gitem"><div class="gt">test set</div><div class="gd">Data held back and touched exactly once, to estimate real performance.</div></div>
+    <div class="gitem"><div class="gt">overfitting</div><div class="gd">Fitting the noise. Train error falls, test error rises.</div></div>
+    <div class="gitem"><div class="gt">supervised</div><div class="gd">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
+    <div class="gitem"><div class="gt">unsupervised</div><div class="gd">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
+    <div class="gitem"><div class="gt">accuracy</div><div class="gd">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
+    <div class="gitem"><div class="gt">recall</div><div class="gd">Of the true positives, the fraction the model found.</div></div>
+  </div>
+
+  <div class="prose" style="margin-top:1.6rem">
+    <h3>Next time</h3>
+    <p>More than one predictor. What happens when features are correlated with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it &mdash; regularisation.</p>
+  </div>
+
+
+  <div class="crosslink">
+    <div>
+      <div class="cl-t">Part 1 &mdash; What is machine learning</div>
+      <p class="cl-d">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
+    </div>
+    <a href="https://claude.ai/code/artifact/d74b446f-4367-4f83-b6b9-47ba4cd98888" data-local="class1_part1_what_is_ml.html">Back to part 1 &rarr;</a>
+  </div>
+
+  <footer>
+    Machine Learning for Neuroscience &middot; 1501.1027 &middot; Semester A, 5787<br>
+    Course text: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning with Applications in Python</em> (2023) &mdash; chapter 3 covers today.<br>
+    All data on this page is simulated, except Anscombe&rsquo;s quartet, which is real and from 1973.
+  </footer>
+</section>
+
+</div><!-- /wrap -->
+</main>
+</div><!-- /shell -->
+
+<script>
+/* ============================================================
+   CORE — theme, canvas plotting, math helpers
+   ============================================================ */
+"use strict";
+
+var DRAWERS = [];
+function reg(fn){ DRAWERS.push(fn); fn(); }
+function redrawAll(){ for (var i=0;i<DRAWERS.length;i++){ try{ DRAWERS[i](); }catch(e){} } }
+
+function col(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
+}
+function alpha(hex, a){
+  hex = hex.trim();
+  if (hex.charAt(0) !== "#") return hex;
+  if (hex.length === 4) hex = "#"+hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3];
+  var r = parseInt(hex.substr(1,2),16), g = parseInt(hex.substr(3,2),16), b = parseInt(hex.substr(5,2),16);
+  return "rgba("+r+","+g+","+b+","+a+")";
+}
+function hex2rgb(hex){
+  hex = hex.trim();
+  if (hex.charAt(0) !== "#") return [128,128,128];
+  if (hex.length === 4) hex = "#"+hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3];
+  return [parseInt(hex.substr(1,2),16), parseInt(hex.substr(3,2),16), parseInt(hex.substr(5,2),16)];
+}
+
+/* ---------- tiny plotting layer ---------- */
+function mkPlot(id, opts){
+  var canvas = document.getElementById(id);
+  if (!canvas) return null;
+  var o = Object.assign({padL:46, padR:14, padT:14, padB:36, xd:[0,1], yd:[0,1]}, opts||{});
+  var ctx = canvas.getContext("2d");
+  /* pin the CSS height: writing canvas.height in device px would otherwise
+     grow the element's layout box on every redraw */
+  var cssH = +(canvas.getAttribute("height") || 300);
+  if (!canvas.style.height) canvas.style.height = cssH + "px";
+  var p = { el:canvas, ctx:ctx, o:o, W:0, H:0 };
+
+  p.sync = function(){
+    var r = canvas.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round((r.height || cssH) * dpr));
+    if (canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,r.width, r.height || cssH);
+    p.W = r.width; p.H = r.height || cssH;
+    p.L = o.padL; p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB;
+  };
+  p.dom = function(xd, yd){ if(xd) o.xd = xd; if(yd) o.yd = yd; };
+  p.x  = function(v){ return p.L + (v - o.xd[0])/(o.xd[1]-o.xd[0]) * (p.R - p.L); };
+  p.y  = function(v){ return p.B - (v - o.yd[0])/(o.yd[1]-o.yd[0]) * (p.B - p.T); };
+  p.ix = function(px){ return o.xd[0] + (px - p.L)/(p.R - p.L) * (o.xd[1]-o.xd[0]); };
+  p.iy = function(py){ return o.yd[0] + (p.B - py)/(p.B - p.T) * (o.yd[1]-o.yd[0]); };
+  p.clip = function(){ ctx.save(); ctx.beginPath(); ctx.rect(p.L, p.T, p.R-p.L, p.B-p.T); ctx.clip(); };
+  p.unclip = function(){ ctx.restore(); };
+
+  p.frame = function(){
+    ctx.fillStyle = col("--surface-2");
+    ctx.fillRect(p.L, p.T, p.R-p.L, p.B-p.T);
+  };
+  p.grid = function(xt, yt){
+    ctx.save(); ctx.strokeStyle = col("--c-grid"); ctx.lineWidth = 1;
+    var i;
+    if (xt) for (i=0;i<xt.length;i++){ var X = Math.round(p.x(xt[i]))+0.5; ctx.beginPath(); ctx.moveTo(X,p.T); ctx.lineTo(X,p.B); ctx.stroke(); }
+    if (yt) for (i=0;i<yt.length;i++){ var Y = Math.round(p.y(yt[i]))+0.5; ctx.beginPath(); ctx.moveTo(p.L,Y); ctx.lineTo(p.R,Y); ctx.stroke(); }
+    ctx.restore();
+  };
+  p.axes = function(cfg){
+    cfg = cfg || {};
+    var f = cfg.fmt || function(v){ return String(Math.round(v*100)/100); };
+    var fy = cfg.fmtY || f;
+    ctx.save();
+    ctx.strokeStyle = col("--c-axis"); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(p.L, Math.round(p.B)+0.5); ctx.lineTo(p.R, Math.round(p.B)+0.5);
+    ctx.moveTo(Math.round(p.L)+0.5, p.T); ctx.lineTo(Math.round(p.L)+0.5, p.B); ctx.stroke();
+    ctx.fillStyle = col("--ink-faint");
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    var i;
+    if (cfg.xt){ ctx.textAlign="center"; ctx.textBaseline="top";
+      for(i=0;i<cfg.xt.length;i++) ctx.fillText(f(cfg.xt[i]), p.x(cfg.xt[i]), p.B+6); }
+    if (cfg.yt){ ctx.textAlign="right"; ctx.textBaseline="middle";
+      for(i=0;i<cfg.yt.length;i++) ctx.fillText(fy(cfg.yt[i]), p.L-7, p.y(cfg.yt[i])); }
+    ctx.fillStyle = col("--ink-soft");
+    ctx.font = '10.5px "IBM Plex Mono", monospace';
+    if (cfg.xlabel){ ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(cfg.xlabel, (p.L+p.R)/2, p.H-1); }
+    if (cfg.ylabel){ ctx.save(); ctx.translate(11, (p.T+p.B)/2); ctx.rotate(-Math.PI/2);
+      ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillText(cfg.ylabel, 0, 0); ctx.restore(); }
+    ctx.restore();
+  };
+  p.dots = function(pts, s){
+    s = s || {};
+    var r = s.r || 4.2;
+    ctx.save();
+    for (var i=0;i<pts.length;i++){
+      var X = p.x(pts[i][0]), Y = p.y(pts[i][1]);
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832);
+      if (s.hollow){ ctx.strokeStyle = s.color || col("--c-test"); ctx.lineWidth = s.lw || 1.7; ctx.stroke(); }
+      else {
+        ctx.fillStyle = s.color || col("--c-data"); ctx.fill();
+        if (s.ring){ ctx.strokeStyle = s.ring; ctx.lineWidth = 1.4; ctx.stroke(); }
+      }
+    }
+    ctx.restore();
+  };
+  p.fnline = function(f, s){
+    s = s || {};
+    var N = s.n || 220, i, first = true;
+    ctx.save(); p.clip();
+    ctx.beginPath();
+    for (i=0;i<=N;i++){
+      var xv = o.xd[0] + (o.xd[1]-o.xd[0]) * i/N;
+      var yv = f(xv);
+      if (!isFinite(yv)) { first = true; continue; }
+      var Y = p.y(yv);
+      if (Y < p.T - 4000 || Y > p.B + 4000) { first = true; continue; }
+      if (first){ ctx.moveTo(p.x(xv), Y); first = false; } else ctx.lineTo(p.x(xv), Y);
+    }
+    ctx.strokeStyle = s.color || col("--c-model");
+    ctx.lineWidth = s.w || 2.4;
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    if (s.dash) ctx.setLineDash(s.dash);
+    ctx.stroke();
+    p.unclip(); ctx.restore();
+  };
+  p.seg = function(x0,y0,x1,y1,s){
+    s = s || {};
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(p.x(x0), p.y(y0)); ctx.lineTo(p.x(x1), p.y(y1));
+    ctx.strokeStyle = s.color || col("--ink-faint"); ctx.lineWidth = s.w || 1.5;
+    if (s.dash) ctx.setLineDash(s.dash);
+    ctx.stroke(); ctx.restore();
+  };
+  p.txt = function(str, X, Y, s){
+    s = s || {};
+    ctx.save();
+    ctx.fillStyle = s.color || col("--ink-soft");
+    ctx.font = s.font || '10.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = s.align || "left"; ctx.textBaseline = s.baseline || "alphabetic";
+    ctx.fillText(str, X, Y); ctx.restore();
+  };
+  return p;
+}
+
+function ticks(lo, hi, want){
+  want = want || 5;
+  var span = hi - lo; if (span <= 0) return [lo];
+  var raw = span / want;
+  var mag = Math.pow(10, Math.floor(Math.log(raw)/Math.LN10));
+  var norm = raw / mag, step;
+  if (norm < 1.5) step = 1; else if (norm < 3) step = 2; else if (norm < 7) step = 5; else step = 10;
+  step *= mag;
+  var out = [], v = Math.ceil(lo/step)*step;
+  for (; v <= hi + step*1e-9; v += step) out.push(Math.round(v/step)*step);
+  return out;
+}
+
+/* ---------- math ---------- */
+function rng(seed){
+  var a = seed >>> 0;
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function gauss(r){
+  var u = 0, v = 0;
+  while (u === 0) u = r();
+  while (v === 0) v = r();
+  return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+}
+function mean(a){ var s=0; for(var i=0;i<a.length;i++) s+=a[i]; return a.length ? s/a.length : 0; }
+function sd(a){ var m=mean(a), s=0; for(var i=0;i<a.length;i++) s+=(a[i]-m)*(a[i]-m); return a.length>1 ? Math.sqrt(s/(a.length-1)) : 0; }
+function corr(x,y){
+  var mx=mean(x), my=mean(y), sxy=0, sxx=0, syy=0;
+  for(var i=0;i<x.length;i++){ var dx=x[i]-mx, dy=y[i]-my; sxy+=dx*dy; sxx+=dx*dx; syy+=dy*dy; }
+  return (sxx>0 && syy>0) ? sxy/Math.sqrt(sxx*syy) : 0;
+}
+function ols(x,y){
+  var n = x.length;
+  if (n < 2) return { b0: n ? y[0] : 0, b1: 0 };
+  var mx=mean(x), my=mean(y), sxy=0, sxx=0;
+  for(var i=0;i<n;i++){ var dx=x[i]-mx; sxy += dx*(y[i]-my); sxx += dx*dx; }
+  var b1 = sxx > 1e-12 ? sxy/sxx : 0;
+  return { b0: my - b1*mx, b1: b1 };
+}
+function rssOf(x,y,b0,b1){ var s=0; for(var i=0;i<x.length;i++){ var e=y[i]-(b0+b1*x[i]); s+=e*e; } return s; }
+function tssOf(y){ var m=mean(y), s=0; for(var i=0;i<y.length;i++){ var e=y[i]-m; s+=e*e; } return s; }
+function r2Of(yTrue, yPred){
+  var m = mean(yTrue), ss=0, tt=0;
+  for(var i=0;i<yTrue.length;i++){ var e=yTrue[i]-yPred[i]; ss+=e*e; var d=yTrue[i]-m; tt+=d*d; }
+  return tt > 1e-12 ? 1 - ss/tt : 0;
+}
+function fmt(v, d){ d = (d===undefined) ? 2 : d; return (Math.abs(v) < 1e-9 ? 0 : v).toFixed(d); }
+
+/* solve A b = c, A is m x m (array of rows), partial pivoting */
+function solveLin(A, c){
+  var m = A.length, i, j, k;
+  var M = [];
+  for(i=0;i<m;i++) M.push(A[i].slice().concat([c[i]]));
+  for(i=0;i<m;i++){
+    var piv = i;
+    for(k=i+1;k<m;k++) if (Math.abs(M[k][i]) > Math.abs(M[piv][i])) piv = k;
+    var tmp = M[i]; M[i] = M[piv]; M[piv] = tmp;
+    if (Math.abs(M[i][i]) < 1e-14) { M[i][i] = 1e-14; }
+    for(k=i+1;k<m;k++){
+      var f = M[k][i]/M[i][i];
+      for(j=i;j<=m;j++) M[k][j] -= f*M[i][j];
+    }
+  }
+  var out = new Array(m);
+  for(i=m-1;i>=0;i--){
+    var s = M[i][m];
+    for(j=i+1;j<m;j++) s -= M[i][j]*out[j];
+    out[i] = s/M[i][i];
+  }
+  return out;
+}
+/* Chebyshev polynomial regression — well-conditioned up to high degree */
+function chebBasis(t, m){
+  var T = new Array(m); T[0] = 1;
+  if (m > 1) T[1] = t;
+  for (var k=2;k<m;k++) T[k] = 2*t*T[k-1] - T[k-2];
+  return T;
+}
+function polyFit(xs, ys, deg, lo, hi){
+  var m = Math.min(deg, Math.max(0, xs.length-1)) + 1;
+  var A = [], c = [], i, j, k;
+  for(i=0;i<m;i++){ A.push(new Array(m).fill(0)); c.push(0); }
+  for(k=0;k<xs.length;k++){
+    var t = 2*(xs[k]-lo)/(hi-lo) - 1;
+    var B = chebBasis(t, m);
+    for(i=0;i<m;i++){ c[i] += B[i]*ys[k]; for(j=0;j<m;j++) A[i][j] += B[i]*B[j]; }
+  }
+  for(i=0;i<m;i++) A[i][i] += 1e-8;
+  var w = solveLin(A, c);
+  return function(x){
+    var tt = 2*(x-lo)/(hi-lo) - 1;
+    var BB = chebBasis(tt, m), s = 0;
+    for(var q=0;q<m;q++) s += w[q]*BB[q];
+    return s;
+  };
+}
+/* Nadaraya-Watson kernel smoother */
+function kernelFit(xs, ys, h){
+  return function(x){
+    var num = 0, den = 0;
+    for(var i=0;i<xs.length;i++){
+      var u = (x - xs[i])/h;
+      var w = Math.exp(-0.5*u*u);
+      num += w*ys[i]; den += w;
+    }
+    return den > 1e-12 ? num/den : NaN;
+  };
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+(function(){
+  var modes = ["auto","light","dark"];
+  var glyph = { auto:"theme · auto", light:"theme · light", dark:"theme · dark" };
+  var cur = 0;
+  var btn = document.getElementById("themebtn");
+  function apply(){
+    if (modes[cur] === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", modes[cur]);
+    btn.innerHTML = glyph[modes[cur]];
+    requestAnimationFrame(redrawAll);
+  }
+  btn.addEventListener("click", function(){ cur = (cur+1) % 3; apply(); });
+  try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ requestAnimationFrame(redrawAll); }); } catch(e){}
+})();
+
+/* ============================================================
+   TABS — sections are shown one at a time, not scrolled through
+   ============================================================ */
+var TABS = (function(){
+  var links  = Array.prototype.slice.call(document.querySelectorAll("nav.toc a"));
+  var panels = links.map(function(a){ return document.querySelector(a.getAttribute("href")); });
+  var titles = links.map(function(a){
+    var s = a.querySelectorAll("span");
+    return s.length > 1 ? s[s.length-1].textContent : a.textContent;
+  });
+  var cur = 0;
+  var countEl = document.getElementById("tabcount");
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+
+  var nav = document.querySelector("nav.toc");
+  if (nav) nav.setAttribute("role", "tablist");
+  panels.forEach(function(s, i){
+    if (!s) return;
+    s.classList.add("tabpanel");
+    s.setAttribute("role", "tabpanel");
+    s.setAttribute("aria-labelledby", "tab" + i);
+  });
+  links.forEach(function(a, i){
+    a.setAttribute("role", "tab");
+    a.id = "tab" + i;
+    a.addEventListener("click", function(e){ e.preventDefault(); show(i, true); });
+  });
+
+  /* prev / next at the foot of every panel — the way you drive it in class */
+  panels.forEach(function(s, i){
+    if (!s) return;
+    var pg = document.createElement("div");
+    pg.className = "pager";
+    pg.innerHTML =
+      (i > 0 ? '<button class="btn" data-go="' + (i-1) + '">&larr; ' + titles[i-1] + '</button>' : '<span></span>') +
+      (i < panels.length-1 ? '<button class="btn primary" data-go="' + (i+1) + '">' + titles[i+1] + ' &rarr;</button>' : '<span></span>');
+    pg.addEventListener("click", function(e){
+      var b = e.target.closest("button[data-go]");
+      if (b) show(+b.getAttribute("data-go"), true);
+    });
+    var ft = s.querySelector("footer");
+    if (ft) s.insertBefore(pg, ft); else s.appendChild(pg);
+  });
+
+  function show(i, push){
+    if (i < 0 || i >= panels.length) return;
+    cur = i;
+    links.forEach(function(a, k){
+      a.classList.toggle("on", k === i);
+      a.setAttribute("aria-selected", k === i ? "true" : "false");
+    });
+    panels.forEach(function(s, k){ if (s) s.classList.toggle("on", k === i); });
+    document.body.classList.toggle("first", i === 0);
+    if (countEl) countEl.textContent = pad(i+1) + " / " + pad(panels.length);
+    if (push){
+      var h = links[i].getAttribute("href");
+      if (location.hash !== h){
+        try { history.replaceState(null, "", h); } catch(e){ location.hash = h; }
+      }
+      links[i].scrollIntoView({block:"nearest", inline:"nearest"});
+    }
+    window.scrollTo(0, 0);
+    /* canvases in a hidden panel measure zero — repaint once it is visible */
+    requestAnimationFrame(function(){ redrawAll(); });
+  }
+
+  function indexOfHash(){
+    for (var i=0;i<links.length;i++) if (links[i].getAttribute("href") === location.hash) return i;
+    return -1;
+  }
+  document.addEventListener("keydown", function(e){
+    var t = (e.target && e.target.tagName) || "";
+    if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "ArrowRight"){ e.preventDefault(); show(cur+1, true); }
+    else if (e.key === "ArrowLeft"){ e.preventDefault(); show(cur-1, true); }
+  });
+  window.addEventListener("hashchange", function(){
+    var k = indexOfHash();
+    if (k >= 0 && k !== cur) show(k, false);
+  });
+
+  var start = indexOfHash();
+  show(start >= 0 ? start : 0, false);
+  return { show: show };
+})();
+
+/* The cross-part link carries the published artifact URL, which only resolves
+   on claude.ai. Anywhere else, opened straight off disk or served from a static
+   host such as GitHub Pages, the sibling file is the right target. */
+(function(){
+  if (/(^|\.)claude\.ai$/.test(location.hostname)) return;
+  var links = document.querySelectorAll("a[data-local]");
+  for (var i=0;i<links.length;i++) links[i].href = links[i].getAttribute("data-local");
+})();
+
+/* resize */
+(function(){
+  var t = null;
+  window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(redrawAll, 90); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ redrawAll(); });
+})();
+
+
+/* ============================================================
+   HERO: the residuals shrinking onto the least-squares line
+   ============================================================ */
+(function(){
+  var p = mkPlot("cvHeroB", {padL:8, padR:8, padT:14, padB:8, xd:[0,10], yd:[-1,11]});
+  if (!p) return;
+  var r = rng(31415), X = [], Y = [];
+  for (var i=0;i<16;i++){
+    var x = 0.5 + i*0.6 + r()*0.35;
+    X.push(x); Y.push(1.4 + 0.82*x + gauss(r)*1.5);
+  }
+  var f = ols(X, Y);
+  var prog = 0;
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced) prog = 1;
+
+  function draw(){
+    p.sync();
+    var ctx = p.ctx;
+    var b1 = f.b1*prog + (-0.30)*(1-prog);
+    var b0 = f.b0*prog + (7.9)*(1-prog);
+    p.clip();
+    ctx.save();
+    ctx.strokeStyle = alpha(col("--c-error"), .55);
+    ctx.lineWidth = 1.6; ctx.lineCap = "round";
+    for (var i=0;i<X.length;i++){
+      var Yp = p.y(Y[i]), Yh = p.y(b0 + b1*X[i]), Xp = p.x(X[i]);
+      if (Math.abs(Yp - Yh) < 0.6) continue;
+      ctx.beginPath(); ctx.moveTo(Xp, Yp); ctx.lineTo(Xp, Yh); ctx.stroke();
+    }
+    ctx.restore();
+    p.unclip();
+    p.fnline(function(x){ return b0 + b1*x; }, {w:2.6});
+    p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:4, color: col("--c-data")});
+  }
+  reg(draw);
+  if (!reduced){
+    var t0 = null;
+    requestAnimationFrame(function step(ts){
+      if (t0 === null) t0 = ts;
+      var u = Math.min(1, (ts - t0)/1500);
+      prog = 1 - Math.pow(1-u, 3);
+      draw();
+      if (u < 1) requestAnimationFrame(step);
+    });
+  }
+})();
+/* ============================================================
+   07–10 — the shared linear-regression instrument
+   ============================================================ */
+var LR = (function(){
+  var S = { pts: [], b0: 0, b1: 0, subs: [] };
+  /* x is measured as a difference from the group mean, so x = 0 is an
+     average-sized hippocampus and sits in the centre of the plot. Changing
+     the slope then pivots the line about a point you can actually see. */
+  var XD = [-1.15, 1.15], YD = [0, 18];
+  S.XD = XD; S.YD = YD;
+
+  S.reset = function(){
+    var r = rng(2718);
+    S.pts = [];
+    for (var i=0;i<14;i++){
+      var x = -0.75 + (i/13)*1.5 + (r()-0.5)*0.09;
+      var y = 10.5 + 4.6*x + gauss(r)*1.5;
+      S.pts.push([Math.round(x*100)/100, Math.max(0.6, Math.min(17.4, Math.round(y*100)/100))]);
+    }
+  };
+  S.xs = function(){ return S.pts.map(function(q){ return q[0]; }); };
+  S.ys = function(){ return S.pts.map(function(q){ return q[1]; }); };
+  S.fit = function(){ return ols(S.xs(), S.ys()); };
+  S.rss = function(b0, b1){ return rssOf(S.xs(), S.ys(), b0, b1); };
+  S.on = function(f){ S.subs.push(f); };
+  S.emit = function(){ S.subs.forEach(function(f){ try{ f(); }catch(e){} }); };
+  S.set = function(b0, b1){ S.b0 = b0; S.b1 = b1; S.emit(); };
+  S.reset();
+  var f0 = S.fit(); S.b0 = f0.b0 - 4.0; S.b1 = f0.b1 - 3.2;
+  return S;
+})();
+
+/* -- shared residual renderer: one vertical stick per point, from the
+      observation down (or up) to the line, same as in part 1 -- */
+function drawResiduals(p, b0, b1, opt){
+  opt = opt || {};
+  var ctx = p.ctx;
+  p.clip(); ctx.save();
+  ctx.lineCap = "round";
+  LR.pts.forEach(function(q){
+    var X = p.x(q[0]), Y = p.y(q[1]), Yh = p.y(b0 + b1*q[0]);
+    if (Math.abs(Y - Yh) < 0.6) return;
+    ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X, Yh);
+    ctx.strokeStyle = alpha(col("--c-error"), opt.strong ? 0.75 : 0.5);
+    ctx.lineWidth = opt.strong ? 2 : 1.4;
+    ctx.stroke();
+  });
+  ctx.restore(); p.unclip();
+}
+function lrAxes(p){
+  var xt = [-1,-0.5,0,0.5,1], yt = [0,4,8,12,16];
+  p.grid(xt, yt);
+  return function(){
+    p.axes({ xt:xt, yt:yt,
+      xlabel:"x: hippocampal volume (cm³ from the group mean)",
+      ylabel:"y: delayed recall score",
+      fmt:function(v){ return v.toFixed(1); }, fmtY:function(v){ return v.toFixed(0); } });
+  };
+}
+
+/* ---- 07: move the line ---- */
+(function(){
+  var p = mkPlot("cvLine", {xd:LR.XD, yd:LR.YD, padL:46, padB:38});
+  if (!p) return;
+  var s0 = document.getElementById("lineB0"), s1 = document.getElementById("lineB1");
+  var l0 = document.getElementById("lineB0v"), l1 = document.getElementById("lineB1v");
+  var geom = document.getElementById("lineGeom");
+  var rssEl = document.getElementById("lineRSS"), bestEl = document.getElementById("lineBest");
+  s0.min = 0;   s0.max = 180; s0.step = 1;
+  s1.min = -60;  s1.max = 140; s1.step = 1;
+
+  var drag = -1;
+  function nearest(mx, my){
+    var best = -1, bd = 15;
+    LR.pts.forEach(function(q, i){
+      var d = Math.hypot(p.x(q[0]) - mx, p.y(q[1]) - my);
+      if (d < bd){ bd = d; best = i; }
+    });
+    return best;
+  }
+  function pos(e){
+    var r = p.el.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  }
+  p.el.addEventListener("pointerdown", function(e){
+    var q = pos(e), i = nearest(q[0], q[1]);
+    if (e.shiftKey){
+      if (i >= 0 && LR.pts.length > 3){ LR.pts.splice(i, 1); LR.emit(); }
+      return;
+    }
+    if (i >= 0){ drag = i; p.el.setPointerCapture(e.pointerId); }
+    else if (q[0] > p.L && q[0] < p.R && q[1] > p.T && q[1] < p.B){
+      LR.pts.push([+p.ix(q[0]).toFixed(2), +p.iy(q[1]).toFixed(2)]); LR.emit();
+    }
+  });
+  p.el.addEventListener("pointermove", function(e){
+    if (drag < 0) return;
+    var q = pos(e);
+    LR.pts[drag] = [
+      +Math.max(LR.XD[0]+0.05, Math.min(LR.XD[1]-0.05, p.ix(q[0]))).toFixed(2),
+      +Math.max(LR.YD[0]+0.2,  Math.min(LR.YD[1]-0.2,  p.iy(q[1]))).toFixed(2)
+    ];
+    LR.emit();
+  });
+  window.addEventListener("pointerup", function(){ drag = -1; });
+
+  function draw(){
+    s0.value = Math.round(LR.b0*10); s1.value = Math.round(LR.b1*10);
+    l0.textContent = LR.b0.toFixed(1); l1.textContent = LR.b1.toFixed(1);
+    var f = LR.fit();
+    rssEl.textContent = fmt(LR.rss(LR.b0, LR.b1), 1);
+    bestEl.textContent = fmt(LR.rss(f.b0, f.b1), 1);
+
+    p.sync(); p.frame();
+    var ax = lrAxes(p);
+    drawResiduals(p, LR.b0, LR.b1);
+    p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
+
+    if (geom.checked){
+      var ctx = p.ctx;
+      /* x = 0 is the pivot: moving the slope turns the line about this point,
+         and moving the intercept slides the point up and down the line. */
+      ctx.save();
+      ctx.strokeStyle = alpha(col("--ink-faint"), .8); ctx.lineWidth = 1.2; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(p.x(0), p.T); ctx.lineTo(p.x(0), p.B); ctx.stroke();
+      ctx.restore();
+      p.txt("x = 0", p.x(0) + 5, p.B - 6, {color: col("--ink-faint"), font:'10px "IBM Plex Mono", monospace'});
+
+      /* the intercept itself, sitting on the pivot line */
+      if (LR.b0 >= LR.YD[0] && LR.b0 <= LR.YD[1]){
+        ctx.save();
+        ctx.beginPath(); ctx.arc(p.x(0), p.y(LR.b0), 5.5, 0, 6.2832);
+        ctx.fillStyle = col("--surface"); ctx.fill();
+        ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.4; ctx.stroke();
+        ctx.restore();
+        p.txt("b0 = " + LR.b0.toFixed(1), p.x(0) - 8, p.y(LR.b0) - 9,
+              {align:"right", color: col("--c-model"), font:'600 11px "IBM Plex Mono", monospace'});
+      }
+    }
+    p.dots(LR.pts, {r:5, color: col("--c-data"), ring: col("--surface")});
+    ax();
+  }
+  function fromSlider(){ LR.set((+s0.value)/10, (+s1.value)/10); }
+  s0.addEventListener("input", fromSlider);
+  s1.addEventListener("input", fromSlider);
+  geom.addEventListener("change", function(){ LR.emit(); });
+  document.getElementById("lineFit").addEventListener("click", function(){ var f = LR.fit(); LR.set(f.b0, f.b1); });
+  document.getElementById("lineReset").addEventListener("click", function(){ LR.reset(); LR.emit(); });
+  LR.on(draw); reg(draw);
+})();
+
+/* ---- 08a: every residual, and their total ---- */
+(function(){
+  var p = mkPlot("cvSq", {xd:LR.XD, yd:LR.YD, padL:46, padB:38});
+  if (!p) return;
+  var s0 = document.getElementById("sqB0"), s1 = document.getElementById("sqB1");
+  var l0 = document.getElementById("sqB0v"), l1 = document.getElementById("sqB1v");
+  var rssEl = document.getElementById("sqRSS"), minEl = document.getElementById("sqMin");
+  s0.min = 0;   s0.max = 180; s0.step = 1;
+  s1.min = -60;  s1.max = 140; s1.step = 1;
+
+  function draw(){
+    s0.value = Math.round(LR.b0*10); s1.value = Math.round(LR.b1*10);
+    l0.textContent = LR.b0.toFixed(1); l1.textContent = LR.b1.toFixed(1);
+    var f = LR.fit();
+    rssEl.textContent = fmt(LR.rss(LR.b0, LR.b1), 1);
+    minEl.textContent = fmt(LR.rss(f.b0, f.b1), 1);
+    p.sync(); p.frame();
+    var ax = lrAxes(p);
+    drawResiduals(p, LR.b0, LR.b1, {strong:true});
+    p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
+    p.dots(LR.pts, {r:4.6, color: col("--c-data"), ring: col("--surface")});
+    ax();
+  }
+  function fromSlider(){ LR.set((+s0.value)/10, (+s1.value)/10); }
+  s0.addEventListener("input", fromSlider);
+  s1.addEventListener("input", fromSlider);
+  document.getElementById("sqFit").addEventListener("click", function(){ var f = LR.fit(); LR.set(f.b0, f.b1); });
+  LR.on(draw); reg(draw);
+})();
+
+/* ---- 09: derivation stepper ---- */
+(function(){
+  var steps = Array.prototype.slice.call(document.querySelectorAll("#deriv .step"));
+  if (!steps.length) return;
+  var shown = 1;
+  function render(){
+    steps.forEach(function(s, i){
+      s.classList.toggle("hid", i >= shown);
+      s.classList.toggle("live", i === shown-1 && shown < steps.length + 1);
+    });
+    document.getElementById("dNext").disabled = shown >= steps.length;
+    document.getElementById("dNext").style.opacity = shown >= steps.length ? .4 : 1;
+  }
+  document.getElementById("dNext").addEventListener("click", function(){ if (shown < steps.length){ shown++; render(); } });
+  document.getElementById("dAll").addEventListener("click", function(){ shown = steps.length; render(); });
+  document.getElementById("dReset").addEventListener("click", function(){ shown = 1; render(); });
+  render();
+})();
+
+/* ---- 09b: the formula on real numbers ---- */
+(function(){
+  var p = mkPlot("cvOrigin", {xd:[0,6.8], yd:[0,12], padL:38, padB:36});
+  if (!p) return;
+  var X = [1,2,3,4,5,6];
+  var Y = [1.8, 3.1, 5.2, 6.3, 8.4, 9.4];
+  var drag = -1;
+
+  function beta(){
+    var num = 0, den = 0;
+    for (var i=0;i<X.length;i++){ num += X[i]*Y[i]; den += X[i]*X[i]; }
+    return {num:num, den:den, b: den ? num/den : 0};
+  }
+  function pos(e){ var r = p.el.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
+  p.el.addEventListener("pointerdown", function(e){
+    var q = pos(e), best = -1, bd = 16;
+    X.forEach(function(v,i){ var d = Math.hypot(p.x(v)-q[0], p.y(Y[i])-q[1]); if (d < bd){ bd = d; best = i; } });
+    if (best >= 0){ drag = best; p.el.setPointerCapture(e.pointerId); }
+  });
+  p.el.addEventListener("pointermove", function(e){
+    if (drag < 0) return;
+    var q = pos(e);
+    Y[drag] = Math.round(Math.max(0.2, Math.min(11.6, p.iy(q[1]))) * 10)/10;
+    draw();
+  });
+  window.addEventListener("pointerup", function(){ drag = -1; });
+
+  function draw(){
+    var B = beta();
+    p.sync(); p.frame();
+    var xt = [0,1,2,3,4,5,6], yt = [0,2,4,6,8,10,12];
+    p.grid(xt, yt);
+    var ctx = p.ctx;
+    ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .6); ctx.lineWidth = 1.4;
+    for (var i=0;i<X.length;i++){
+      ctx.beginPath(); ctx.moveTo(p.x(X[i]), p.y(Y[i])); ctx.lineTo(p.x(X[i]), p.y(B.b*X[i])); ctx.stroke();
+    }
+    ctx.restore();
+    p.fnline(function(x){ return B.b*x; }, {w:2.8});
+    p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:5, color: col("--c-data"), ring: col("--surface")});
+    p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y", fmt:function(v){return v.toFixed(0);}});
+    p.txt("line forced through (0, 0)", p.L+6, p.T+13, {color: col("--ink-faint")});
+
+    var html = "<tr><th>i</th><th>x<sub>i</sub></th><th>y<sub>i</sub></th><th>x<sub>i</sub> y<sub>i</sub></th><th>x<sub>i</sub><sup>2</sup></th></tr>";
+    for (var k=0;k<X.length;k++){
+      html += "<tr><td>" + (k+1) + "</td><td>" + X[k].toFixed(1) + "</td><td>" + Y[k].toFixed(1) +
+              "</td><td class='hi'>" + (X[k]*Y[k]).toFixed(1) + "</td><td class='hi'>" + (X[k]*X[k]).toFixed(1) + "</td></tr>";
+    }
+    html += "<tr class='tot'><td>Σ</td><td></td><td></td><td>" + B.num.toFixed(1) + "</td><td>" + B.den.toFixed(1) + "</td></tr>";
+    document.getElementById("oTbl").innerHTML = html;
+    document.getElementById("oResult").innerHTML =
+      '<span class="m"><span class="hat b">&beta;</span></span> = <span class="frac"><span>' + B.num.toFixed(1) +
+      '</span><span>' + B.den.toFixed(1) + '</span></span> = <b style="color:var(--c-model)">' + B.b.toFixed(3) + '</b>';
+  }
+  reg(draw);
+})();
+
+/* ---- 10: R² as removed area ---- */
+(function(){
+  var p = mkPlot("cvR2", {xd:LR.XD, yd:LR.YD, padL:46, padB:38});
+  if (!p) return;
+  var mode = "null";
+  var tssEl = document.getElementById("r2TSS"), rssEl = document.getElementById("r2RSS");
+  var r2El = document.getElementById("r2Val"), rmseEl = document.getElementById("r2RMSE");
+
+  function draw(){
+    var ys = LR.ys(), my = mean(ys), f = LR.fit();
+    var T = tssOf(ys), R = LR.rss(f.b0, f.b1);
+    tssEl.textContent = fmt(T,1); rssEl.textContent = fmt(R,1);
+    r2El.textContent = fmt(T > 1e-9 ? 1 - R/T : 0, 3);
+    rmseEl.textContent = fmt(Math.sqrt(R/Math.max(1,ys.length)), 2);
+
+    p.sync(); p.frame();
+    var ax = lrAxes(p);
+    if (mode === "null"){
+      drawResiduals(p, my, 0, {strong:true});
+      p.fnline(function(){ return my; }, {color: col("--ink-soft"), w:2.4, dash:[7,5]});
+      p.txt("mean of y = " + my.toFixed(2), p.R - 6, p.y(my) - 8, {align:"right", color: col("--ink-soft")});
+    } else {
+      drawResiduals(p, f.b0, f.b1, {strong:true});
+      p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.8});
+      p.fnline(function(){ return my; }, {color: alpha(col("--ink-soft"), .5), w:1.4, dash:[5,5]});
+    }
+    p.dots(LR.pts, {r:4.6, color: col("--c-data"), ring: col("--surface")});
+    ax();
+    var label = mode === "null" ? "TSS = " + fmt(T,1) : "RSS = " + fmt(R,1);
+    p.txt(label, p.L + 6, p.T + 13, {color: col("--c-error"), font:'600 11px "IBM Plex Mono", monospace'});
+  }
+  var seg = document.getElementById("r2Seg");
+  seg.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
+    mode = b.dataset.v; draw();
+  });
+  LR.on(draw); reg(draw);
+})();
+
+/* ============================================================
+   11 — small samples
+   ============================================================ */
+(function(){
+  var p = mkPlot("cvSmall", {xd:[-1.7,1.7], yd:[0,20], padL:46, padB:38});
+  if (!p) return;
+  var elN = document.getElementById("smN"), elR = document.getElementById("smR");
+  var lbN = document.getElementById("smNv"), lbR = document.getElementById("smRv");
+  var trEl = document.getElementById("smTr"), teEl = document.getElementById("smTe");
+  var b1El = document.getElementById("smB1"), b1tEl = document.getElementById("smB1t");
+  var seed = 101;
+  var MUX = 0, SDX = 0.42, MUY = 10, SDY = 2.6;
+
+  function draw(){
+    var n = +elN.value, rho = (+elR.value)/100;
+    lbN.textContent = n; lbR.textContent = rho.toFixed(2);
+    var trueB1 = rho * SDY / SDX;
+    var trueB0 = MUY - trueB1*MUX;
+    var r = rng(seed);
+    function sample(m){
+      var xs = [], ys = [];
+      for (var i=0;i<m;i++){
+        var z1 = gauss(r), z2 = gauss(r);
+        var x = MUX + SDX*z1;
+        var y = MUY + SDY*(rho*z1 + Math.sqrt(Math.max(0,1-rho*rho))*z2);
+        xs.push(x); ys.push(y);
+      }
+      return {x:xs, y:ys};
+    }
+    var TR = sample(n), TE = sample(200);
+    var f = ols(TR.x, TR.y);
+    var predTr = TR.x.map(function(v){ return f.b0 + f.b1*v; });
+    var predTe = TE.x.map(function(v){ return f.b0 + f.b1*v; });
+    var r2tr = r2Of(TR.y, predTr), r2te = r2Of(TE.y, predTe);
+    trEl.textContent = fmt(r2tr, 3);
+    teEl.textContent = fmt(r2te, 3);
+    teEl.style.color = r2te < 0 ? col("--c-error") : "";
+    b1El.textContent = fmt(f.b1, 2);
+    b1tEl.textContent = fmt(trueB1, 2);
+
+    p.sync(); p.frame();
+    var xt = [-1.5,-1,-0.5,0,0.5,1,1.5], yt = [0,5,10,15,20];
+    p.grid(xt, yt);
+    p.fnline(function(x){ return trueB0 + trueB1*x; }, {color: col("--ink-faint"), w:2, dash:[6,5]});
+    p.dots(TE.x.map(function(v,k){ return [v, TE.y[k]]; }), {hollow:true, r:2.9, color: alpha(col("--c-test"), .5), lw:1.2});
+    p.dots(TR.x.map(function(v,k){ return [v, TR.y[k]]; }), {r:4.4, color: col("--c-data")});
+    p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.9});
+    p.axes({xt:xt, yt:yt, xlabel:"x: hippocampal volume (cm³ from the group mean)", ylabel:"y: recall score",
+      fmt:function(v){return v.toFixed(1);}, fmtY:function(v){return v.toFixed(0);}});
+    p.txt("n = " + n, p.L + 6, p.T + 13, {color: col("--ink-soft"), font:'600 10.5px "IBM Plex Mono", monospace'});
+  }
+  elN.addEventListener("input", draw);
+  elR.addEventListener("input", draw);
+  document.getElementById("smNew").addEventListener("click", function(){
+    seed = (seed*1664525 + 1013904223) >>> 0; draw();
+  });
+  reg(draw);
+})();
+
+
+/* first paint after fonts settle */
+window.addEventListener("load", function(){ requestAnimationFrame(redrawAll); });
+</script>
