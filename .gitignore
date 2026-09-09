@@ -1,0 +1,11 @@
+# This repo is public. Only the generated pages belong here.
+# Course materials live in the Google Drive folder and must never land in it.
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.pdf
+*.xlsx
+*.csv
+*.zip
+~$*
