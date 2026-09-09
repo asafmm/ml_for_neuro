@@ -937,7 +937,8 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
     <p>The recipe does not change: write RSS, take the partial derivative with respect to every <span class="m">&beta;</span>, set them all to zero, and solve the system. With one predictor that was one equation. With <span class="m">p</span> predictors it is <span class="m">p</span> + 1 equations, which a computer solves in microseconds.</p>
     <p>What does change is the picture.
       <br>One predictor gives a line in a plane. Two predictors give a <strong>plane</strong> in a cube: for every pair (<span class="m">x<sub>1</sub></span>, <span class="m">x<sub>2</sub></span>) the model returns a height. The residuals are still vertical distances from each point to that surface, and least squares still picks the surface leaving the smallest total.</p>
-    <p>Below, recall is predicted from hippocampal volume and age, both measured from the group mean. Drag to rotate:</p>
+    <p>Below, recall is predicted from hippocampal volume and age, both measured from the group mean.
+      <br>Three numbers now, so three sliders: one height and two tilts. Drag the figure itself to turn it.</p>
   </div>
 
   <div class="panel">
@@ -947,19 +948,33 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
     </div>
     <div class="panel-body panel-split">
       <div>
-        <div class="btnrow" style="margin-bottom:.85rem">
-          <div class="seg" id="mrSeg">
-            <button data-v="one">volume only</button>
-            <button class="on" data-v="both">volume + age</button>
-          </div>
-        </div>
         <canvas id="cvPlane" class="cv drag" height="380"></canvas>
         <div id="mrLayers"></div>
         <p class="notecap" id="mrCap"></p>
       </div>
       <div class="ctl">
-        <div class="stats" id="mrStats"></div>
-        <div class="btnrow"><button class="btn" id="mrReset">reset the view</button></div>
+        <div class="ctl-row">
+          <label>intercept <span class="m">&beta;<sub>0</sub></span> <span class="v" id="mrB0v">9.0</span></label>
+          <input type="range" id="mrB0" min="0" max="200" value="90" step="1">
+        </div>
+        <div class="ctl-row">
+          <label><span class="m">&beta;<sub>1</sub></span> per cm&sup3; of volume <span class="v" id="mrB1v">1.2</span></label>
+          <input type="range" id="mrB1" min="-40" max="120" value="12" step="1">
+        </div>
+        <div class="ctl-row">
+          <label><span class="m">&beta;<sub>2</sub></span> per year of age <span class="v" id="mrB2v">0.10</span></label>
+          <input type="range" id="mrB2" min="-60" max="40" value="10" step="1">
+        </div>
+        <div class="stats">
+          <div class="stat error"><span class="k">RSS, total squared error</span><span class="val" id="mrRSS">&mdash;</span></div>
+          <div class="stat model"><span class="k">best possible RSS</span><span class="val" id="mrBest">&mdash;</span></div>
+          <div class="stat test"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val" id="mrR2">&mdash;</span></div>
+        </div>
+        <div class="btnrow">
+          <button class="btn primary" id="mrFit">fit least squares</button>
+          <button class="btn" id="mrFit1">fit volume only</button>
+          <button class="btn" id="mrReset">reset the view</button>
+        </div>
         <p class="notecap">Each <span class="m">&beta;</span> is read the same way as before: the change in <span class="m">y</span> for a one-unit change in that feature, <em>with the other features held fixed</em>. That last clause is the whole difference between a simple and a multiple regression.</p>
       </div>
     </div>
@@ -1819,9 +1834,17 @@ function lrAxes(p){
   if (!cvs) return;
   var ctx = cvs.getContext("2d");
   var capEl = document.getElementById("mrCap");
-  var statsEl = document.getElementById("mrStats");
-  var mode = "both";                       /* "one" = volume only */
   var yaw = -0.62, pitch = 0.42;           /* radians */
+
+  var s0 = document.getElementById("mrB0"), s1 = document.getElementById("mrB1"),
+      s2 = document.getElementById("mrB2");
+  var l0 = document.getElementById("mrB0v"), l1 = document.getElementById("mrB1v"),
+      l2 = document.getElementById("mrB2v");
+  var rssEl  = document.getElementById("mrRSS"),  bestEl = document.getElementById("mrBest");
+  var r2El   = document.getElementById("mrR2");
+
+  /* the plane the reader controls */
+  var B = { b0: 9.0, b1: 1.2, b2: 0.10 };
 
   /* ---- data: recall predicted by hippocampal volume and by age ----
      Both centred on the group mean, so 0 is an average subject. */
@@ -1854,9 +1877,15 @@ function lrAxes(p){
     var c = solveLin(A, b);
     return { b0:c[0], b1:c[1], b2: useX2 ? c[2] : 0 };
   }
-  function predAll(f){
-    return Y.map(function(_, k){ return f.b0 + f.b1*X1[k] + f.b2*X2[k]; });
+  function predWith(p){
+    return Y.map(function(_, k){ return p.b0 + p.b1*X1[k] + p.b2*X2[k]; });
   }
+  function rssWith(p){
+    var s = 0;
+    for (var k=0;k<N;k++){ var e = Y[k] - (p.b0 + p.b1*X1[k] + p.b2*X2[k]); s += e*e; }
+    return s;
+  }
+  var BEST = fit(true), ONLY1 = fit(false);
 
   /* ---- axis ranges, padded a little past the data ---- */
   function span(a){
@@ -1867,7 +1896,7 @@ function lrAxes(p){
   var R1 = span(X1), R2 = span(X2), RY = span(Y);
   function n1(v){ return (v - R1[0])/(R1[1]-R1[0]) * 2 - 1; }
   function n2(v){ return (v - R2[0])/(R2[1]-R2[0]) * 2 - 1; }
-  function nY(v){ return (v - RY[0])/(RY[1]-RY[0]) * 2 - 1; }
+  function nY(v){ return Math.max(-1.6, Math.min(1.6, (v - RY[0])/(RY[1]-RY[0]) * 2 - 1)); }
 
   /* ---- 3D projection: yaw about the vertical axis, then tilt ---- */
   var W = 0, H = 0, SC = 1;
@@ -1883,10 +1912,10 @@ function lrAxes(p){
   }
 
   var L = layerToggles("mrLayers", [
-    {k:"pts",   label:"subjects",   kind:"dot",  col:"--c-data"},
-    {k:"plane", label:"fitted plane", kind:"dot", col:"--c-model"},
-    {k:"resid", label:"residuals",  kind:"ln",   col:"--c-error"},
-    {k:"box",   label:"axes",       kind:"dash", col:"--ink-faint"}
+    {k:"pts",   label:"subjects",     kind:"dot",  col:"--c-data"},
+    {k:"plane", label:"our plane",    kind:"dot",  col:"--c-model"},
+    {k:"resid", label:"residuals",    kind:"ln",   col:"--c-error"},
+    {k:"box",   label:"axes",         kind:"dash", col:"--ink-faint"}
   ], function(){ draw(); });
 
   /* ---- drag to orbit ---- */
@@ -1915,6 +1944,19 @@ function lrAxes(p){
   }
 
   function draw(){
+    s0.value = Math.round(B.b0*10);
+    s1.value = Math.round(B.b1*10);
+    s2.value = Math.round(B.b2*100);
+    l0.textContent = B.b0.toFixed(1);
+    l1.textContent = B.b1.toFixed(1);
+    l2.textContent = B.b2.toFixed(2);
+
+    var pred = predWith(B);
+    var rss = rssWith(B), best = rssWith(BEST);
+    rssEl.textContent  = fmt(rss, 1);
+    bestEl.textContent = fmt(best, 1);
+    r2El.textContent   = fmt(r2Of(Y, pred), 3);
+
     if (!cvs.style.height) cvs.style.height = "380px";
     var rect = cvs.getBoundingClientRect();
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1924,9 +1966,6 @@ function lrAxes(p){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,W,H);
     SC = Math.min(W, H) * 0.36;
-
-    var f = fit(mode === "both");
-    var pred = predAll(f);
 
     /* floor grid and the vertical axis */
     if (L.on("box")){
@@ -1959,7 +1998,7 @@ function lrAxes(p){
           var u0 = R1[0] + (R1[1]-R1[0])*gi/G,     u1 = R1[0] + (R1[1]-R1[0])*(gi+1)/G;
           var v0 = R2[0] + (R2[1]-R2[0])*gj/G,     v1 = R2[0] + (R2[1]-R2[0])*(gj+1)/G;
           var quad = [[u0,v0],[u1,v0],[u1,v1],[u0,v1]].map(function(q){
-            return proj(n1(q[0]), nY(f.b0 + f.b1*q[0] + f.b2*q[1]), n2(q[1]));
+            return proj(n1(q[0]), nY(B.b0 + B.b1*q[0] + B.b2*q[1]), n2(q[1]));
           });
           var d = (quad[0].d + quad[1].d + quad[2].d + quad[3].d)/4;
           items.push({ d:d, kind:"quad", q:quad });
@@ -1970,7 +2009,7 @@ function lrAxes(p){
     for (var k=0;k<N;k++){
       var pp = proj(n1(X1[k]), nY(Y[k]), n2(X2[k]));
       var ph = proj(n1(X1[k]), nY(pred[k]), n2(X2[k]));
-      items.push({ d: Math.min(pp.d, ph.d), kind:"pt", p:pp, h:ph, above: Y[k] >= pred[k] });
+      items.push({ d: Math.min(pp.d, ph.d), kind:"pt", p:pp, h:ph });
     }
 
     items.sort(function(a,b){ return b.d - a.d; });
@@ -2005,31 +2044,31 @@ function lrAxes(p){
       }
     });
 
-    /* readouts */
-    var r2 = r2Of(Y, pred);
-    var one = fit(false), both = fit(true);
-    var r2one = r2Of(Y, predAll(one)), r2both = r2Of(Y, predAll(both));
-    statsEl.innerHTML =
-      '<div class="stat model"><span class="k">intercept &beta;<sub>0</sub></span><span class="val">' + fmt(f.b0,2) + '</span></div>' +
-      '<div class="stat model"><span class="k">&beta;<sub>1</sub> per cm<sup>3</sup> of volume</span><span class="val">' + fmt(f.b1,2) + '</span></div>' +
-      '<div class="stat ' + (mode === "both" ? "model" : "plain") + '"><span class="k">&beta;<sub>2</sub> per year of age</span><span class="val">' +
-        (mode === "both" ? fmt(f.b2,3) : "not used") + '</span></div>' +
-      '<div class="stat test"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val">' + fmt(r2,3) + '</span></div>';
-
-    capEl.innerHTML = mode === "both"
-      ? "Both predictors: the plane tilts along <b>x<sub>1</sub></b> and along <b>x<sub>2</sub></b>. " +
-        "R<sup>2</sup> = " + fmt(r2both,3) + ", against " + fmt(r2one,3) + " for volume alone."
-      : "Volume only: the plane still tilts along <b>x<sub>1</sub></b>, but it is flat along " +
-        "<b>x<sub>2</sub></b>, because age is not in the model. R<sup>2</sup> falls to " + fmt(r2one,3) +
-        ". Notice &beta;<sub>1</sub> also changes, from " + fmt(both.b1,2) + " to " + fmt(one.b1,2) +
-        ": with age missing, volume quietly absorbs part of age&rsquo;s effect.";
+    var gap = rss / best;
+    capEl.innerHTML = Math.abs(B.b2) < 0.005
+      ? "With <b>&beta;<sub>2</sub> = 0</b> the plane is flat along the age axis: age has no say. " +
+        "Least squares would rather use it, and sets &beta;<sub>2</sub> = " + fmt(BEST.b2, 3) + "."
+      : (gap < 1.02
+          ? "This is the least-squares plane. No other tilt of any kind leaves a smaller RSS."
+          : "RSS is " + fmt(gap, 2) + " times the smallest achievable. Keep tilting, or press " +
+            "&ldquo;fit least squares&rdquo;.");
   }
 
-  var seg = document.getElementById("mrSeg");
-  seg.addEventListener("click", function(e){
-    var b = e.target.closest("button"); if (!b) return;
-    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c === b); });
-    mode = b.getAttribute("data-v"); draw();
+  function fromSliders(){
+    B.b0 = (+s0.value)/10;
+    B.b1 = (+s1.value)/10;
+    B.b2 = (+s2.value)/100;
+    draw();
+  }
+  s0.addEventListener("input", fromSliders);
+  s1.addEventListener("input", fromSliders);
+  s2.addEventListener("input", fromSliders);
+
+  document.getElementById("mrFit").addEventListener("click", function(){
+    B = { b0:BEST.b0, b1:BEST.b1, b2:BEST.b2 }; draw();
+  });
+  document.getElementById("mrFit1").addEventListener("click", function(){
+    B = { b0:ONLY1.b0, b1:ONLY1.b1, b2:0 }; draw();
   });
   document.getElementById("mrReset").addEventListener("click", function(){
     yaw = -0.62; pitch = 0.42; draw();
