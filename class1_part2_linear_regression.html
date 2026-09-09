@@ -1901,9 +1901,11 @@ function lrAxes(p){
   /* ---- 3D projection: yaw about the vertical axis, then tilt ---- */
   var W = 0, H = 0, SC = 1;
   /* Rotation without scale or centring, so the fit can be measured first. */
-  function raw(x, y, z){
-    var cy = Math.cos(yaw),  sy = Math.sin(yaw);
-    var cp = Math.cos(pitch), sp = Math.sin(pitch);
+  function raw(x, y, z, yw, pt){
+    if (yw === undefined) yw = yaw;
+    if (pt === undefined) pt = pitch;
+    var cy = Math.cos(yw),  sy = Math.sin(yw);
+    var cp = Math.cos(pt),  sp = Math.sin(pt);
     var X  =  x*cy - z*sy;
     var Z  =  x*sy + z*cy;
     var Y2 =  y*cp - Z*sp;
@@ -1915,19 +1917,24 @@ function lrAxes(p){
     var r = raw(x, y, z);
     return { x: W/2 + r.X*SC, y: H/2 - r.Y*SC, d: r.d };
   }
-  /* Pick the scale from the projected size of the cube's eight corners, so
-     the figure fills the panel at every rotation and never runs off it.
-     Cheaper than guessing a constant that has to survive the worst tilt. */
-  function fitScale(){
-    var mx = 0.001, my = 0.001;
-    for (var a = -1; a <= 1; a += 2)
-      for (var b = -1; b <= 1; b += 2)
-        for (var c = -1; c <= 1; c += 2){
-          var r = raw(a, b, c);
-          mx = Math.max(mx, Math.abs(r.X));
-          my = Math.max(my, Math.abs(r.Y));
+
+  /* How far a cube corner can ever project, over every rotation. Measured
+     once, so the scale below is a constant: turning the figure moves it
+     without resizing it. Fitting per frame instead would make the cube
+     breathe in and out as you drag, which reads as a zoom wobble. */
+  var MAXR = (function(){
+    var m = 0, a, b, i, r;
+    for (a = 0; a < 6.2832; a += 0.13)
+      for (b = -3.1416; b < 3.1416; b += 0.13)
+        for (i = 0; i < 8; i++){
+          r = raw((i & 1) ? 1 : -1, (i & 2) ? 1 : -1, (i & 4) ? 1 : -1, a, b);
+          if (Math.abs(r.X) > m) m = Math.abs(r.X);
+          if (Math.abs(r.Y) > m) m = Math.abs(r.Y);
         }
-    return Math.min((W/2 - 14)/mx, (H/2 - 24)/my);
+    return m;
+  })();
+  function fitScale(){
+    return Math.min((W/2 - 14)/MAXR, (H/2 - 24)/MAXR);
   }
 
   var L = layerToggles("mrLayers", [
