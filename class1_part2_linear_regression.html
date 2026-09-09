@@ -948,7 +948,7 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
     </div>
     <div class="panel-body panel-split">
       <div>
-        <canvas id="cvPlane" class="cv drag" height="380"></canvas>
+        <canvas id="cvPlane" class="cv drag" height="440"></canvas>
         <div id="mrLayers"></div>
         <p class="notecap" id="mrCap"></p>
       </div>
@@ -1900,15 +1900,34 @@ function lrAxes(p){
 
   /* ---- 3D projection: yaw about the vertical axis, then tilt ---- */
   var W = 0, H = 0, SC = 1;
-  function proj(x, y, z){
+  /* Rotation without scale or centring, so the fit can be measured first. */
+  function raw(x, y, z){
     var cy = Math.cos(yaw),  sy = Math.sin(yaw);
     var cp = Math.cos(pitch), sp = Math.sin(pitch);
-    var X =  x*cy - z*sy;
-    var Z =  x*sy + z*cy;
-    var Y2 = y*cp - Z*sp;
-    var Z2 = y*sp + Z*cp;
-    var k = 1/(1 + Z2*0.18);               /* gentle perspective */
-    return { x: W/2 + X*SC*k, y: H/2 - Y2*SC*k + H*0.04, d: Z2 };
+    var X  =  x*cy - z*sy;
+    var Z  =  x*sy + z*cy;
+    var Y2 =  y*cp - Z*sp;
+    var Z2 =  y*sp + Z*cp;
+    var k  = 1/(1 + Z2*0.18);              /* gentle perspective */
+    return { X: X*k, Y: Y2*k, d: Z2 };
+  }
+  function proj(x, y, z){
+    var r = raw(x, y, z);
+    return { x: W/2 + r.X*SC, y: H/2 - r.Y*SC, d: r.d };
+  }
+  /* Pick the scale from the projected size of the cube's eight corners, so
+     the figure fills the panel at every rotation and never runs off it.
+     Cheaper than guessing a constant that has to survive the worst tilt. */
+  function fitScale(){
+    var mx = 0.001, my = 0.001;
+    for (var a = -1; a <= 1; a += 2)
+      for (var b = -1; b <= 1; b += 2)
+        for (var c = -1; c <= 1; c += 2){
+          var r = raw(a, b, c);
+          mx = Math.max(mx, Math.abs(r.X));
+          my = Math.max(my, Math.abs(r.Y));
+        }
+    return Math.min((W/2 - 14)/mx, (H/2 - 24)/my);
   }
 
   var L = layerToggles("mrLayers", [
@@ -1957,15 +1976,15 @@ function lrAxes(p){
     bestEl.textContent = fmt(best, 1);
     r2El.textContent   = fmt(r2Of(Y, pred), 3);
 
-    if (!cvs.style.height) cvs.style.height = "380px";
+    if (!cvs.style.height) cvs.style.height = "440px";
     var rect = cvs.getBoundingClientRect();
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = rect.width; H = 380;
+    W = rect.width; H = 440;
     cvs.width = Math.max(1, Math.round(W*dpr));
     cvs.height = Math.max(1, Math.round(H*dpr));
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,W,H);
-    SC = Math.min(W, H) * 0.36;
+    SC = fitScale();
 
     /* floor grid and the vertical axis */
     if (L.on("box")){
@@ -1976,15 +1995,22 @@ function lrAxes(p){
         line3([-1,-1,t],[1,-1,t], g, 1);
       }
       line3([-1,-1,-1],[-1,1,-1], alpha(col("--ink-faint"), .6), 1.2, [4,4]);
-      var oy = proj(-1, 1, -1);
       ctx.save();
       ctx.fillStyle = col("--ink-soft");
       ctx.font = '10.5px "IBM Plex Mono", monospace';
       ctx.textAlign = "center";
-      ctx.fillText("y: recall", oy.x, oy.y - 8);
-      var e1 = proj(1,-1,-1), e2 = proj(-1,-1,1);
-      ctx.fillText("x1: volume", e1.x, e1.y + 16);
-      ctx.fillText("x2: age", e2.x, e2.y + 16);
+      /* Rotating swings the corners around, so a label placed blindly can end
+         up off-canvas. Clamp each one into the visible area. */
+      function label3(text, x, y, z, dy){
+        var q = proj(x, y, z);
+        var half = ctx.measureText(text).width/2 + 4;
+        ctx.fillText(text,
+          Math.max(half, Math.min(W - half, q.x)),
+          Math.max(13, Math.min(H - 6, q.y + dy)));
+      }
+      label3("y: recall",  -1,  1, -1, -9);
+      label3("x1: volume",  1, -1, -1, 17);
+      label3("x2: age",    -1, -1,  1, 17);
       ctx.restore();
     }
 
