@@ -289,6 +289,26 @@ input[type=range]::-moz-range-thumb{
 .legend i.dot{border-radius:50%}
 .legend i.ln{height:0;border-top:2.5px solid var(--c-model);border-radius:0;width:14px}
 .legend i.dash{height:0;border-top:2px dashed var(--ink-faint);border-radius:0;width:14px}
+/* ------------------------------------------------------------------
+   Layer toggles: a legend you can switch off. Each row doubles as the
+   key for its figure, so the colour beside the label is the colour on
+   the plot. Built by layerToggles() in core.js.
+   ------------------------------------------------------------------ */
+.layers{display:flex;flex-wrap:wrap;gap:.32rem .95rem;margin:.7rem 0 0}
+.lay{
+  display:inline-flex;align-items:center;gap:.42rem;cursor:pointer;
+  font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);
+  -webkit-user-select:none;user-select:none;transition:opacity .15s;
+}
+.lay:hover{color:var(--ink)}
+.lay input{accent-color:var(--c-model);width:13px;height:13px;cursor:pointer;margin:0;flex:none}
+.lay i.sw{width:11px;height:11px;border-radius:3px;flex:none;display:inline-block}
+.lay i.sw.dot{border-radius:50%}
+.lay i.sw.ring{background:transparent;border:1.5px solid;border-radius:50%}
+.lay i.sw.ln{height:0;width:15px;border-top:2.5px solid;border-radius:0}
+.lay i.sw.dash{height:0;width:15px;border-top:2px dashed;border-radius:0}
+.lay:has(input:not(:checked)){opacity:.4}
+
 .notecap{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);margin:.55rem 0 0;line-height:1.5}
 
 /* ============================================================
@@ -587,6 +607,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvLine" class="cv drag" height="340"></canvas>
+        <div id="lineLayers"></div>
         <p class="notecap">Hippocampal volume against a delayed-recall score, 14 simulated subjects. Volume is measured as the difference from the group mean, so <span class="m">x</span> = 0 is an average-sized hippocampus. Drag a point to move it, click empty space to add one, shift-click a point to delete it.</p>
       </div>
       <div class="ctl">
@@ -598,7 +619,6 @@ section.tabpanel{padding:2.6rem 0 0}
           <label>slope <span class="m">&beta;<sub>1</sub></span> <span class="v" id="lineB1v">0.0</span></label>
           <input type="range" id="lineB1" min="-3000" max="3000" value="0" step="1">
         </div>
-        <label class="chk"><input type="checkbox" id="lineGeom" checked> mark the intercept at <span class="m">x</span> = 0</label>
         <div class="stats">
           <div class="stat error"><span class="k">RSS, total squared error</span><span class="val" id="lineRSS">&mdash;</span></div>
           <div class="stat model"><span class="k">best possible RSS</span><span class="val" id="lineBest">&mdash;</span></div>
@@ -642,6 +662,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvSq" class="cv" height="360"></canvas>
+        <div id="sqLayers"></div>
         <p class="notecap">Each stick is one residual. RSS squares every length and adds them up, so the long sticks dominate the total. Least squares is the line that leaves the smallest total.</p>
       </div>
       <div class="ctl">
@@ -750,6 +771,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-split wide-ctl">
       <div>
         <canvas id="cvOrigin" class="cv drag" height="290"></canvas>
+        <div id="originLayers"></div>
         <p class="notecap">Six points, one parameter. Drag any of them vertically and watch the two sums, and <span class="m"><span class="hat b">&beta;</span></span>, recompute.</p>
       </div>
       <div>
@@ -828,6 +850,7 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <canvas id="cvR2" class="cv" height="330"></canvas>
+        <div id="r2Layers"></div>
       </div>
       <div class="ctl">
         <div class="stats">
@@ -862,12 +885,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-split wide-ctl">
       <div>
         <canvas id="cvSmall" class="cv" height="330"></canvas>
-        <div class="legend" style="margin-top:.65rem">
-          <span><i class="dot" style="background:var(--c-data)"></i>training subjects</span>
-          <span><i class="ring"></i>held-out subjects</span>
-          <span><i class="ln"></i>fit on training only</span>
-          <span><i class="dash"></i>true relationship</span>
-        </div>
+        <div id="smLayers"></div>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -1237,6 +1255,37 @@ function kernelFit(xs, ys, h){
   };
 }
 
+/* ---------- layer toggles ----------
+   layerToggles("hostId", [{k,label,kind,col,on}], redraw)
+   kind: "dot" | "ring" | "ln" | "dash"   col: a CSS custom property name.
+   Returns { on(key) } so a draw function can ask what to render. */
+function layerToggles(hostId, spec, onChange){
+  var host = document.getElementById(hostId);
+  if (!host) return { on: function(){ return true; } };
+  var state = {};
+  host.className = "layers";
+  host.innerHTML = spec.map(function(s){
+    state[s.k] = s.on !== false;
+    var kind = s.kind || "dot";
+    var v = "var(" + (s.col || "--c-data") + ")";
+    var style = (kind === "ln" || kind === "dash") ? "border-top-color:" + v
+              : (kind === "ring") ? "border-color:" + v
+              : "background:" + v;
+    return '<label class="lay"><input type="checkbox" data-k="' + s.k + '"' +
+           (s.on !== false ? " checked" : "") +
+           '><i class="sw ' + kind + '" style="' + style + '"></i>' + s.label + "</label>";
+  }).join("");
+  host.addEventListener("change", function(e){
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    var k = t.getAttribute("data-k");
+    if (k === null) return;
+    state[k] = t.checked;
+    onChange();
+  });
+  return { on: function(k){ return state[k] !== false; } };
+}
+
 /* ============================================================
    THEME
    ============================================================ */
@@ -1472,8 +1521,13 @@ function lrAxes(p){
   if (!p) return;
   var s0 = document.getElementById("lineB0"), s1 = document.getElementById("lineB1");
   var l0 = document.getElementById("lineB0v"), l1 = document.getElementById("lineB1v");
-  var geom = document.getElementById("lineGeom");
   var rssEl = document.getElementById("lineRSS"), bestEl = document.getElementById("lineBest");
+  var L = layerToggles("lineLayers", [
+    {k:"data",   label:"the subjects",       kind:"dot",  col:"--c-data"},
+    {k:"line",   label:"our line",           kind:"ln",   col:"--c-model"},
+    {k:"resid",  label:"residuals",          kind:"ln",   col:"--c-error"},
+    {k:"origin", label:"intercept at x = 0", kind:"dash", col:"--ink-faint"}
+  ], function(){ LR.emit(); });
   s0.min = 0;   s0.max = 180; s0.step = 1;
   s1.min = -60;  s1.max = 140; s1.step = 1;
 
@@ -1521,10 +1575,10 @@ function lrAxes(p){
 
     p.sync(); p.frame();
     var ax = lrAxes(p);
-    drawResiduals(p, LR.b0, LR.b1);
-    p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
+    if (L.on("resid")) drawResiduals(p, LR.b0, LR.b1);
+    if (L.on("line"))  p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
 
-    if (geom.checked){
+    if (L.on("origin")){
       var ctx = p.ctx;
       /* x = 0 is the pivot: moving the slope turns the line about this point,
          and moving the intercept slides the point up and down the line. */
@@ -1545,13 +1599,12 @@ function lrAxes(p){
               {align:"right", color: col("--c-model"), font:'600 11px "IBM Plex Mono", monospace'});
       }
     }
-    p.dots(LR.pts, {r:5, color: col("--c-data"), ring: col("--surface")});
+    if (L.on("data")) p.dots(LR.pts, {r:5, color: col("--c-data"), ring: col("--surface")});
     ax();
   }
   function fromSlider(){ LR.set((+s0.value)/10, (+s1.value)/10); }
   s0.addEventListener("input", fromSlider);
   s1.addEventListener("input", fromSlider);
-  geom.addEventListener("change", function(){ LR.emit(); });
   document.getElementById("lineFit").addEventListener("click", function(){ var f = LR.fit(); LR.set(f.b0, f.b1); });
   document.getElementById("lineReset").addEventListener("click", function(){ LR.reset(); LR.emit(); });
   LR.on(draw); reg(draw);
@@ -1564,6 +1617,10 @@ function lrAxes(p){
   var s0 = document.getElementById("sqB0"), s1 = document.getElementById("sqB1");
   var l0 = document.getElementById("sqB0v"), l1 = document.getElementById("sqB1v");
   var rssEl = document.getElementById("sqRSS"), minEl = document.getElementById("sqMin");
+  var L = layerToggles("sqLayers", [
+    {k:"resid", label:"residuals", kind:"ln", col:"--c-error"},
+    {k:"line",  label:"our line",  kind:"ln", col:"--c-model"}
+  ], function(){ LR.emit(); });
   s0.min = 0;   s0.max = 180; s0.step = 1;
   s1.min = -60;  s1.max = 140; s1.step = 1;
 
@@ -1575,8 +1632,8 @@ function lrAxes(p){
     minEl.textContent = fmt(LR.rss(f.b0, f.b1), 1);
     p.sync(); p.frame();
     var ax = lrAxes(p);
-    drawResiduals(p, LR.b0, LR.b1, {strong:true});
-    p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
+    if (L.on("resid")) drawResiduals(p, LR.b0, LR.b1, {strong:true});
+    if (L.on("line"))  p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
     p.dots(LR.pts, {r:4.6, color: col("--c-data"), ring: col("--surface")});
     ax();
   }
@@ -1613,6 +1670,10 @@ function lrAxes(p){
   var X = [1,2,3,4,5,6];
   var Y = [1.8, 3.1, 5.2, 6.3, 8.4, 9.4];
   var drag = -1;
+  var L = layerToggles("originLayers", [
+    {k:"resid", label:"residuals",               kind:"ln", col:"--c-error"},
+    {k:"line",  label:"line through the origin", kind:"ln", col:"--c-model"}
+  ], function(){ draw(); });
 
   function beta(){
     var num = 0, den = 0;
@@ -1639,12 +1700,14 @@ function lrAxes(p){
     var xt = [0,1,2,3,4,5,6], yt = [0,2,4,6,8,10,12];
     p.grid(xt, yt);
     var ctx = p.ctx;
-    ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .6); ctx.lineWidth = 1.4;
-    for (var i=0;i<X.length;i++){
-      ctx.beginPath(); ctx.moveTo(p.x(X[i]), p.y(Y[i])); ctx.lineTo(p.x(X[i]), p.y(B.b*X[i])); ctx.stroke();
+    if (L.on("resid")){
+      ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .6); ctx.lineWidth = 1.4;
+      for (var i=0;i<X.length;i++){
+        ctx.beginPath(); ctx.moveTo(p.x(X[i]), p.y(Y[i])); ctx.lineTo(p.x(X[i]), p.y(B.b*X[i])); ctx.stroke();
+      }
+      ctx.restore();
     }
-    ctx.restore();
-    p.fnline(function(x){ return B.b*x; }, {w:2.8});
+    if (L.on("line")) p.fnline(function(x){ return B.b*x; }, {w:2.8});
     p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:5, color: col("--c-data"), ring: col("--surface")});
     p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y", fmt:function(v){return v.toFixed(0);}});
     p.txt("line forced through (0, 0)", p.L+6, p.T+13, {color: col("--ink-faint")});
@@ -1670,6 +1733,11 @@ function lrAxes(p){
   var mode = "null";
   var tssEl = document.getElementById("r2TSS"), rssEl = document.getElementById("r2RSS");
   var r2El = document.getElementById("r2Val"), rmseEl = document.getElementById("r2RMSE");
+  var L = layerToggles("r2Layers", [
+    {k:"resid", label:"residuals", kind:"ln",   col:"--c-error"},
+    {k:"line",  label:"the model", kind:"ln",   col:"--c-model"},
+    {k:"mean",  label:"mean of y", kind:"dash", col:"--ink-soft"}
+  ], function(){ LR.emit(); });
 
   function draw(){
     var ys = LR.ys(), my = mean(ys), f = LR.fit();
@@ -1681,13 +1749,15 @@ function lrAxes(p){
     p.sync(); p.frame();
     var ax = lrAxes(p);
     if (mode === "null"){
-      drawResiduals(p, my, 0, {strong:true});
-      p.fnline(function(){ return my; }, {color: col("--ink-soft"), w:2.4, dash:[7,5]});
-      p.txt("mean of y = " + my.toFixed(2), p.R - 6, p.y(my) - 8, {align:"right", color: col("--ink-soft")});
+      if (L.on("resid")) drawResiduals(p, my, 0, {strong:true});
+      if (L.on("mean")){
+        p.fnline(function(){ return my; }, {color: col("--ink-soft"), w:2.4, dash:[7,5]});
+        p.txt("mean of y = " + my.toFixed(2), p.R - 6, p.y(my) - 8, {align:"right", color: col("--ink-soft")});
+      }
     } else {
-      drawResiduals(p, f.b0, f.b1, {strong:true});
-      p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.8});
-      p.fnline(function(){ return my; }, {color: alpha(col("--ink-soft"), .5), w:1.4, dash:[5,5]});
+      if (L.on("resid")) drawResiduals(p, f.b0, f.b1, {strong:true});
+      if (L.on("line"))  p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.8});
+      if (L.on("mean"))  p.fnline(function(){ return my; }, {color: alpha(col("--ink-soft"), .5), w:1.4, dash:[5,5]});
     }
     p.dots(LR.pts, {r:4.6, color: col("--c-data"), ring: col("--surface")});
     ax();
@@ -1713,6 +1783,12 @@ function lrAxes(p){
   var lbN = document.getElementById("smNv"), lbR = document.getElementById("smRv");
   var trEl = document.getElementById("smTr"), teEl = document.getElementById("smTe");
   var b1El = document.getElementById("smB1"), b1tEl = document.getElementById("smB1t");
+  var L = layerToggles("smLayers", [
+    {k:"train", label:"training subjects",     kind:"dot",  col:"--c-data"},
+    {k:"test",  label:"held-out subjects",     kind:"ring", col:"--c-test"},
+    {k:"fit",   label:"fit on training only",  kind:"ln",   col:"--c-model"},
+    {k:"truth", label:"true relationship",     kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
   var seed = 101;
   var MUX = 0, SDX = 0.42, MUY = 10, SDY = 2.6;
 
@@ -1746,10 +1822,10 @@ function lrAxes(p){
     p.sync(); p.frame();
     var xt = [-1.5,-1,-0.5,0,0.5,1,1.5], yt = [0,5,10,15,20];
     p.grid(xt, yt);
-    p.fnline(function(x){ return trueB0 + trueB1*x; }, {color: col("--ink-faint"), w:2, dash:[6,5]});
-    p.dots(TE.x.map(function(v,k){ return [v, TE.y[k]]; }), {hollow:true, r:2.9, color: alpha(col("--c-test"), .5), lw:1.2});
-    p.dots(TR.x.map(function(v,k){ return [v, TR.y[k]]; }), {r:4.4, color: col("--c-data")});
-    p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.9});
+    if (L.on("truth")) p.fnline(function(x){ return trueB0 + trueB1*x; }, {color: col("--ink-faint"), w:2, dash:[6,5]});
+    if (L.on("test"))  p.dots(TE.x.map(function(v,k){ return [v, TE.y[k]]; }), {hollow:true, r:2.9, color: alpha(col("--c-test"), .5), lw:1.2});
+    if (L.on("train")) p.dots(TR.x.map(function(v,k){ return [v, TR.y[k]]; }), {r:4.4, color: col("--c-data")});
+    if (L.on("fit"))   p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.9});
     p.axes({xt:xt, yt:yt, xlabel:"x: hippocampal volume (cm³ from the group mean)", ylabel:"y: recall score",
       fmt:function(v){return v.toFixed(1);}, fmtY:function(v){return v.toFixed(0);}});
     p.txt("n = " + n, p.L + 6, p.T + 13, {color: col("--ink-soft"), font:'600 10.5px "IBM Plex Mono", monospace'});

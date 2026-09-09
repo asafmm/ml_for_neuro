@@ -289,6 +289,26 @@ input[type=range]::-moz-range-thumb{
 .legend i.dot{border-radius:50%}
 .legend i.ln{height:0;border-top:2.5px solid var(--c-model);border-radius:0;width:14px}
 .legend i.dash{height:0;border-top:2px dashed var(--ink-faint);border-radius:0;width:14px}
+/* ------------------------------------------------------------------
+   Layer toggles: a legend you can switch off. Each row doubles as the
+   key for its figure, so the colour beside the label is the colour on
+   the plot. Built by layerToggles() in core.js.
+   ------------------------------------------------------------------ */
+.layers{display:flex;flex-wrap:wrap;gap:.32rem .95rem;margin:.7rem 0 0}
+.lay{
+  display:inline-flex;align-items:center;gap:.42rem;cursor:pointer;
+  font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);
+  -webkit-user-select:none;user-select:none;transition:opacity .15s;
+}
+.lay:hover{color:var(--ink)}
+.lay input{accent-color:var(--c-model);width:13px;height:13px;cursor:pointer;margin:0;flex:none}
+.lay i.sw{width:11px;height:11px;border-radius:3px;flex:none;display:inline-block}
+.lay i.sw.dot{border-radius:50%}
+.lay i.sw.ring{background:transparent;border:1.5px solid;border-radius:50%}
+.lay i.sw.ln{height:0;width:15px;border-top:2.5px solid;border-radius:0}
+.lay i.sw.dash{height:0;width:15px;border-top:2px dashed;border-radius:0}
+.lay:has(input:not(:checked)){opacity:.4}
+
 .notecap{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);margin:.55rem 0 0;line-height:1.5}
 
 /* ============================================================
@@ -598,16 +618,12 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="panel">
     <div class="panel-bar">
       <div class="t">The unknown function</div>
-      <div class="hint">drag the sample-size slider &rarr;</div>
+      <div class="hint">switch the layers on and off under the plot</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvTruth" class="cv" height="330"></canvas>
-        <div class="legend" style="margin-top:.65rem">
-          <span><i class="dot" style="background:var(--c-data)"></i>one trial</span>
-          <span><i class="ln"></i><span class="hat f">f</span>, what we estimate</span>
-          <span><i class="dash"></i>f, the truth (hidden)</span>
-        </div>
+        <div id="truthLayers"></div>
         <p class="notecap">This cell is not a textbook bell. It has a best frequency near 7 kHz, a suppressed band around 15 kHz, and a second response region near 23 kHz. Not a shape we could guess from a handful of trials.</p>
       </div>
       <div class="ctl">
@@ -619,8 +635,6 @@ section.tabpanel{padding:2.6rem 0 0}
           <label>noise <span class="m">&sigma;</span> (spikes/s) <span class="v" id="truthSv">10</span></label>
           <input type="range" id="truthS" min="0" max="20" value="10" step="1">
         </div>
-        <label class="chk"><input type="checkbox" id="truthShowHat"> show the estimate <span class="m"><span class="hat f">f</span></span></label>
-        <label class="chk"><input type="checkbox" id="truthReveal"> reveal the true <span class="m">f</span></label>
         <div class="btnrow"><button class="btn" id="truthNew">new sample</button></div>
         <div class="stats">
           <div class="stat model"><span class="k">how far <span class="hat f">f</span> is from f</span><span class="val" id="truthGap">&mdash;</span></div>
@@ -657,12 +671,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <div>
         <canvas id="cvOver" class="cv" height="330"></canvas>
         <canvas id="cvOverU" class="cv" height="160" style="margin-top:.7rem"></canvas>
-        <div class="legend" style="margin-top:.65rem">
-          <span><i class="dot" style="background:var(--c-data)"></i>train (20 pts)</span>
-          <span><i class="ring"></i>test (60 pts, unseen)</span>
-          <span><i class="ln"></i>fitted <span class="hat f">f</span></span>
-          <span><i class="dash"></i>true f</span>
-        </div>
+        <div id="overLayers"></div>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -714,6 +723,7 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div>
         <canvas id="cvSupB" class="cv" height="290"></canvas>
+        <div id="supLayers"></div>
         <p class="notecap"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
       </div>
     </div>
@@ -749,6 +759,7 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div>
           <canvas id="cvCluB" class="cv" height="290"></canvas>
+          <div id="cluLayers"></div>
           <p class="notecap" id="cluCap"></p>
         </div>
       </div>
@@ -783,6 +794,8 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <canvas id="cvRC" class="cv" height="320"></canvas>
+        <div id="rcLayersReg"></div>
+        <div id="rcLayersCls"></div>
         <p class="notecap" id="rcCap"></p>
       </div>
       <div class="ctl">
@@ -855,7 +868,10 @@ section.tabpanel{padding:2.6rem 0 0}
       <div class="hint">drag through the whole range</div>
     </div>
     <div class="panel-body panel-split">
-      <div><canvas id="cvCorr" class="cv" height="300"></canvas></div>
+      <div>
+        <canvas id="cvCorr" class="cv" height="300"></canvas>
+        <div id="corrLayers"></div>
+      </div>
       <div class="ctl">
         <div class="ctl-row">
           <label>correlation <span class="m">r</span> <span class="v" id="corrRv">0.30</span></label>
@@ -889,6 +905,7 @@ section.tabpanel{padding:2.6rem 0 0}
         <div><canvas id="cvAns2" class="cv" height="215"></canvas></div>
         <div><canvas id="cvAns3" class="cv" height="215"></canvas></div>
       </div>
+      <div id="ansLayers"></div>
       <div class="tblwrap" style="margin-top:1rem">
         <table class="tbl" id="ansTbl"></table>
       </div>
@@ -1172,6 +1189,37 @@ function kernelFit(xs, ys, h){
   };
 }
 
+/* ---------- layer toggles ----------
+   layerToggles("hostId", [{k,label,kind,col,on}], redraw)
+   kind: "dot" | "ring" | "ln" | "dash"   col: a CSS custom property name.
+   Returns { on(key) } so a draw function can ask what to render. */
+function layerToggles(hostId, spec, onChange){
+  var host = document.getElementById(hostId);
+  if (!host) return { on: function(){ return true; } };
+  var state = {};
+  host.className = "layers";
+  host.innerHTML = spec.map(function(s){
+    state[s.k] = s.on !== false;
+    var kind = s.kind || "dot";
+    var v = "var(" + (s.col || "--c-data") + ")";
+    var style = (kind === "ln" || kind === "dash") ? "border-top-color:" + v
+              : (kind === "ring") ? "border-color:" + v
+              : "background:" + v;
+    return '<label class="lay"><input type="checkbox" data-k="' + s.k + '"' +
+           (s.on !== false ? " checked" : "") +
+           '><i class="sw ' + kind + '" style="' + style + '"></i>' + s.label + "</label>";
+  }).join("");
+  host.addEventListener("change", function(e){
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    var k = t.getAttribute("data-k");
+    if (k === null) return;
+    state[k] = t.checked;
+    onChange();
+  });
+  return { on: function(k){ return state[k] !== false; } };
+}
+
 /* ============================================================
    THEME
    ============================================================ */
@@ -1347,9 +1395,13 @@ var TABS = (function(){
   if (!p) return;
   var elN = document.getElementById("truthN"), elS = document.getElementById("truthS");
   var lbN = document.getElementById("truthNv"), lbS = document.getElementById("truthSv");
-  var rev = document.getElementById("truthReveal"), btn = document.getElementById("truthNew");
-  var hat = document.getElementById("truthShowHat");
+  var btn = document.getElementById("truthNew");
   var gapEl = document.getElementById("truthGap");
+  var L = layerToggles("truthLayers", [
+    {k:"data",  label:"the trials",   kind:"dot",  col:"--c-data"},
+    {k:"hat",   label:"estimate f̂", kind:"ln",   col:"--c-model", on:false},
+    {k:"truth", label:"true f",       kind:"dash", col:"--ink-faint", on:false}
+  ], function(){ draw(); });
   var tblEl = document.getElementById("truthTbl");
   var seed = 7;
 
@@ -1388,14 +1440,14 @@ var TABS = (function(){
     p.sync(); p.frame();
     var xt = [4,8,12,16,20,24,28,32], yt = [0,20,40,60,80,100];
     p.grid(xt, yt);
-    if (rev.checked) p.fnline(trueF, {color: col("--ink-faint"), w:2, dash:[6,5]});
-    if (hat.checked) p.fnline(fhat, {color: col("--c-model"), w:2.8});
-    p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.8, color: alpha(col("--c-data"), 0.9)});
+    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:2, dash:[6,5]});
+    if (L.on("hat"))   p.fnline(fhat, {color: col("--c-model"), w:2.8});
+    if (L.on("data"))  p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.8, color: alpha(col("--c-data"), 0.9)});
     p.axes({xt:xt, yt:yt,
       xlabel:"x: tone frequency (kHz)",
       ylabel:"y: firing rate (spikes/s)",
       fmt:function(v){return v.toFixed(0);}});
-    if (!hat.checked && !rev.checked)
+    if (!L.on("hat") && !L.on("truth"))
       p.txt("what curve would you draw?", p.R - 8, p.T + 14,
             {align:"right", color: col("--ink-faint")});
 
@@ -1411,8 +1463,6 @@ var TABS = (function(){
     tblEl.innerHTML = html;
   }
   [elN, elS].forEach(function(e){ e.addEventListener("input", draw); });
-  rev.addEventListener("change", draw);
-  hat.addEventListener("change", draw);
   btn.addEventListener("click", function(){ seed = (seed*1664525 + 1013904223) >>> 0; draw(); });
   reg(draw);
 })();
@@ -1426,6 +1476,12 @@ var TABS = (function(){
   if (!p) return;
   var elD = document.getElementById("overD"), lbD = document.getElementById("overDv");
   var trEl = document.getElementById("overTr"), teEl = document.getElementById("overTe");
+  var L = layerToggles("overLayers", [
+    {k:"train", label:"train (20)",       kind:"dot",  col:"--c-data"},
+    {k:"test",  label:"test (60, unseen)",kind:"ring", col:"--c-test"},
+    {k:"fit",   label:"fitted f̂",       kind:"ln",   col:"--c-model"},
+    {k:"truth", label:"true f",           kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
   var seed = 42, D = { xtr:[], ytr:[], xte:[], yte:[] };
   var MAXD = 12;
 
@@ -1457,10 +1513,10 @@ var TABS = (function(){
     p.sync(); p.frame();
     var xt = [0,0.25,0.5,0.75,1], yt = ticks(-2.5,2.5,5);
     p.grid(xt, yt);
-    p.fnline(trueF, {color: col("--ink-faint"), w:1.8, dash:[6,5]});
-    p.fnline(f, {color: col("--c-model"), w:2.8, n:420});
-    p.dots(D.xte.map(function(v,k){ return [v, D.yte[k]]; }), {hollow:true, r:3.4, color: alpha(col("--c-test"), 0.75), lw:1.4});
-    p.dots(D.xtr.map(function(v,k){ return [v, D.ytr[k]]; }), {r:4.4, color: col("--c-data")});
+    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:1.8, dash:[6,5]});
+    if (L.on("fit"))   p.fnline(f, {color: col("--c-model"), w:2.8, n:420});
+    if (L.on("test"))  p.dots(D.xte.map(function(v,k){ return [v, D.yte[k]]; }), {hollow:true, r:3.4, color: alpha(col("--c-test"), 0.75), lw:1.4});
+    if (L.on("train")) p.dots(D.xtr.map(function(v,k){ return [v, D.ytr[k]]; }), {r:4.4, color: col("--c-data")});
     p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y", fmt:function(v){return v.toFixed(2);}, fmtY:function(v){return v.toFixed(1);}});
 
     /* U-curve */
@@ -1525,6 +1581,11 @@ var TABS = (function(){
   var M = [{x:0,y:0,n:0},{x:0,y:0,n:0}];
   P.forEach(function(q){ M[q.g].x+=q.x; M[q.g].y+=q.y; M[q.g].n++; });
   M.forEach(function(m){ m.x/=m.n; m.y/=m.n; });
+  var L = layerToggles("supLayers", [
+    {k:"regions",  label:"decision regions", kind:"dot",  col:"--c-model"},
+    {k:"boundary", label:"boundary",         kind:"dash", col:"--ink-soft"},
+    {k:"wrong",    label:"mistakes",         kind:"ring", col:"--c-error"}
+  ], function(){ draw(); });
   var DX = M[1].x-M[0].x, DY = M[1].y-M[0].y;
   var MX = (M[0].x+M[1].x)/2, MY = (M[0].y+M[1].y)/2;
   function predict(q){ return ((q.x-MX)*DX + (q.y-MY)*DY) > 0 ? 1 : 0; }
@@ -1549,25 +1610,31 @@ var TABS = (function(){
     pB.sync(); pB.frame(); pB.grid(xt, yt);
     var ctx = pB.ctx;
     pB.clip(); ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
-    ctx.lineTo(pB.x(XD[1]), pB.T-60); ctx.lineTo(pB.x(XD[0]), pB.T-60); ctx.closePath();
-    ctx.fillStyle = alpha(cB,.10); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
-    ctx.lineTo(pB.x(XD[1]), pB.B+60); ctx.lineTo(pB.x(XD[0]), pB.B+60); ctx.closePath();
-    ctx.fillStyle = alpha(cA,.10); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
-    ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.8; ctx.setLineDash([5,4]); ctx.stroke();
+    if (L.on("regions")){
+      ctx.beginPath();
+      ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
+      ctx.lineTo(pB.x(XD[1]), pB.T-60); ctx.lineTo(pB.x(XD[0]), pB.T-60); ctx.closePath();
+      ctx.fillStyle = alpha(cB,.10); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
+      ctx.lineTo(pB.x(XD[1]), pB.B+60); ctx.lineTo(pB.x(XD[0]), pB.B+60); ctx.closePath();
+      ctx.fillStyle = alpha(cA,.10); ctx.fill();
+    }
+    if (L.on("boundary")){
+      ctx.beginPath();
+      ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
+      ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.8; ctx.setLineDash([5,4]); ctx.stroke();
+    }
     ctx.restore(); pB.unclip();
 
     pB.dots(g0, {r:4, color: alpha(cA,.85)});
     pB.dots(g1, {r:4, color: alpha(cB,.85)});
     var wrong = P.filter(function(q){ return predict(q) !== q.g; });
-    ctx.save(); ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 1.8;
-    wrong.forEach(function(q){ ctx.beginPath(); ctx.arc(pB.x(q.x), pB.y(q.y), 7.5, 0, 6.2832); ctx.stroke(); });
-    ctx.restore();
+    if (L.on("wrong")){
+      ctx.save(); ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 1.8;
+      wrong.forEach(function(q){ ctx.beginPath(); ctx.arc(pB.x(q.x), pB.y(q.y), 7.5, 0, 6.2832); ctx.stroke(); });
+      ctx.restore();
+    }
     pB.axes({xt:xt, yt:yt, xlabel:"feature 1", ylabel:"feature 2", fmt:f0});
     pB.txt((100*(1-wrong.length/P.length)).toFixed(0) + "% correct  ·  " + wrong.length + " ringed",
            pB.R-7, pB.T+14, {align:"right", color: col("--ink-soft"),
@@ -1586,6 +1653,10 @@ var TABS = (function(){
   if (!pA) return;
   var capEl = document.getElementById("cluCap");
   var K = 3;
+  var L = layerToggles("cluLayers", [
+    {k:"clusters", label:"cluster colours", kind:"dot", col:"--c-model"},
+    {k:"centres",  label:"cluster centres", kind:"dot", col:"--ink"}
+  ], function(){ draw(); });
 
   /* three real groups. The algorithm is never told they exist. */
   var r = rng(20260907), P = [], truth = [];
@@ -1662,10 +1733,11 @@ var TABS = (function(){
     for (c=0;c<K;c++){
       var pts = [];
       for (i=0;i<P.length;i++) if (res.asg[i] === c){ pts.push(P[i]); sizes[c]++; }
-      pB.dots(pts, {r:4, color: alpha(pal[c % pal.length], .85)});
+      pB.dots(pts, {r:4, color: L.on("clusters") ? alpha(pal[c % pal.length], .85)
+                                                  : alpha(col("--ink-faint"), .75)});
     }
     var ctx = pB.ctx;
-    for (c=0;c<K;c++){
+    for (c=0; L.on("centres") && c<K; c++){
       var X = pB.x(res.C[c][0]), Y = pB.y(res.C[c][1]);
       ctx.save();
       ctx.strokeStyle = col("--surface"); ctx.lineWidth = 4.5;
@@ -1734,24 +1806,38 @@ var TABS = (function(){
     return ((q.x-mx)*dx + (q.y-my)*dy) > 0 ? 1 : 0;
   }
 
+  var LR_ = layerToggles("rcLayersReg", [
+    {k:"resid", label:"residuals", kind:"ln",  col:"--c-error"},
+    {k:"fit",   label:"fitted line", kind:"ln", col:"--c-model"}
+  ], function(){ draw(); });
+  var LC_ = layerToggles("rcLayersCls", [
+    {k:"regions", label:"decision regions", kind:"dot",  col:"--c-model"},
+    {k:"boundary",label:"boundary",         kind:"dash", col:"--ink-soft"},
+    {k:"wrong",   label:"mistakes",         kind:"ring", col:"--c-error"}
+  ], function(){ draw(); });
+
   function statRow(cls, k, v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
 
   function draw(){
     p.sync();
     if (mode === "reg"){
       regBox.style.display = ""; clsBox.style.display = "none";
+      document.getElementById("rcLayersReg").style.display = "";
+      document.getElementById("rcLayersCls").style.display = "none";
       p.dom([15,85],[20,90]);
       p.sync(); p.frame();
       var xt = ticks(15,85,5), yt = ticks(20,90,5);
       p.grid(xt, yt);
       var f = ols(RX, RY);
       var ctx = p.ctx;
-      ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .5); ctx.lineWidth = 1.3;
-      for (var i=0;i<RX.length;i++){
-        ctx.beginPath(); ctx.moveTo(p.x(RX[i]), p.y(RY[i])); ctx.lineTo(p.x(RX[i]), p.y(f.b0+f.b1*RX[i])); ctx.stroke();
+      if (LR_.on("resid")){
+        ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .5); ctx.lineWidth = 1.3;
+        for (var i=0;i<RX.length;i++){
+          ctx.beginPath(); ctx.moveTo(p.x(RX[i]), p.y(RY[i])); ctx.lineTo(p.x(RX[i]), p.y(f.b0+f.b1*RX[i])); ctx.stroke();
+        }
+        ctx.restore();
       }
-      ctx.restore();
-      p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.6});
+      if (LR_.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.6});
       p.dots(RX.map(function(v,q){ return [v, RY[q]]; }), {r:4.2, color: col("--c-data")});
       p.axes({xt:xt, yt:yt, xlabel:"x: age (years)", ylabel:"y: reaction time (ms × 10)", fmt:function(v){return v.toFixed(0);}});
       var pred = RX.map(function(v){ return f.b0 + f.b1*v; });
@@ -1763,6 +1849,8 @@ var TABS = (function(){
       capEl.innerHTML = "Every red stick is one residual. The measure has to squeeze all of them into a single number.";
     } else {
       regBox.style.display = "none"; clsBox.style.display = "";
+      document.getElementById("rcLayersReg").style.display = "none";
+      document.getElementById("rcLayersCls").style.display = "";
       p.dom([-3.4,3.4],[-3.2,3.2]);
       p.sync(); p.frame();
       var xt2 = ticks(-3.4,3.4,4), yt2 = ticks(-3.2,3.2,4);
@@ -1772,17 +1860,21 @@ var TABS = (function(){
       function yAt(x){ return my - dx*(x-mx)/dy; }
       var ctx2 = p.ctx; p.clip();
       ctx2.save();
-      ctx2.beginPath();
-      ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
-      ctx2.lineTo(p.x(3.4), p.T-50); ctx2.lineTo(p.x(-3.4), p.T-50); ctx2.closePath();
-      ctx2.fillStyle = alpha(cB, .10); ctx2.fill();
-      ctx2.beginPath();
-      ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
-      ctx2.lineTo(p.x(3.4), p.B+50); ctx2.lineTo(p.x(-3.4), p.B+50); ctx2.closePath();
-      ctx2.fillStyle = alpha(cA, .10); ctx2.fill();
-      ctx2.beginPath();
-      ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
-      ctx2.strokeStyle = col("--ink-soft"); ctx2.lineWidth = 1.8; ctx2.setLineDash([5,4]); ctx2.stroke();
+      if (LC_.on("regions")){
+        ctx2.beginPath();
+        ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
+        ctx2.lineTo(p.x(3.4), p.T-50); ctx2.lineTo(p.x(-3.4), p.T-50); ctx2.closePath();
+        ctx2.fillStyle = alpha(cB, .10); ctx2.fill();
+        ctx2.beginPath();
+        ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
+        ctx2.lineTo(p.x(3.4), p.B+50); ctx2.lineTo(p.x(-3.4), p.B+50); ctx2.closePath();
+        ctx2.fillStyle = alpha(cA, .10); ctx2.fill();
+      }
+      if (LC_.on("boundary")){
+        ctx2.beginPath();
+        ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
+        ctx2.strokeStyle = col("--ink-soft"); ctx2.lineWidth = 1.8; ctx2.setLineDash([5,4]); ctx2.stroke();
+      }
       ctx2.restore(); p.unclip();
 
       var tp=0, tn=0, fp=0, fn=0, wrong=[];
@@ -1794,9 +1886,11 @@ var TABS = (function(){
       });
       p.dots(CP.filter(function(q){return q.g===0;}).map(function(q){return [q.x,q.y];}), {r:4.2, color: alpha(cA,.9)});
       p.dots(CP.filter(function(q){return q.g===1;}).map(function(q){return [q.x,q.y];}), {r:4.2, color: alpha(cB,.9)});
-      var c3 = p.ctx; c3.save(); c3.strokeStyle = col("--c-error"); c3.lineWidth = 1.8;
-      wrong.forEach(function(q){ c3.beginPath(); c3.arc(p.x(q.x), p.y(q.y), 7.5, 0, 6.2832); c3.stroke(); });
-      c3.restore();
+      if (LC_.on("wrong")){
+        var c3 = p.ctx; c3.save(); c3.strokeStyle = col("--c-error"); c3.lineWidth = 1.8;
+        wrong.forEach(function(q){ c3.beginPath(); c3.arc(p.x(q.x), p.y(q.y), 7.5, 0, 6.2832); c3.stroke(); });
+        c3.restore();
+      }
       p.axes({xt:xt2, yt:yt2, xlabel:"feature 1", ylabel:"feature 2", fmt:function(v){return v.toFixed(0);}});
       var acc = (tp+tn)/CP.length;
       statsEl.innerHTML =
@@ -1883,6 +1977,9 @@ var TABS = (function(){
   var el = document.getElementById("corrR"), lb = document.getElementById("corrRv");
   var sEl = document.getElementById("corrSamp"), r2El = document.getElementById("corrR2");
   var seed = 3;
+  var L = layerToggles("corrLayers", [
+    {k:"fit", label:"fitted line", kind:"ln", col:"--c-model"}
+  ], function(){ draw(); });
   function draw(){
     var rho = (+el.value)/100; lb.textContent = rho.toFixed(2);
     var r = rng(seed), X = [], Y = [];
@@ -1897,7 +1994,7 @@ var TABS = (function(){
     var t = ticks(-3,3,4);
     p.grid(t, t);
     var f = ols(X, Y);
-    p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.4});
+    if (L.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.4});
     p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.4, color: alpha(col("--c-data"), .72)});
     p.axes({xt:t, yt:t, xlabel:"x  (z-scored)", ylabel:"y  (z-scored)", fmt:function(v){return v.toFixed(0);}});
   }
@@ -1921,6 +2018,9 @@ var TABS = (function(){
   ];
   var plots = Q.map(function(q, i){ return mkPlot("cvAns"+i, {xd:[2,20], yd:[2,14], padL:32, padB:30, padT:22}); });
   if (!plots[0]) return;
+  var L = layerToggles("ansLayers", [
+    {k:"fit", label:"fitted line (identical in all four)", kind:"ln", col:"--c-model"}
+  ], function(){ draw(); });
 
   function draw(){
     plots.forEach(function(p, i){
@@ -1929,7 +2029,7 @@ var TABS = (function(){
       p.sync(); p.frame();
       var xt = [5,10,15,20], yt = [4,6,8,10,12,14];
       p.grid(xt, yt);
-      p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.2});
+      if (L.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.2});
       p.dots(q.x.map(function(v,k){ return [v, q.y[k]]; }), {r:4.4, color: col("--c-data")});
       p.axes({xt:xt, yt:yt, fmt:function(v){return v.toFixed(0);}});
       p.txt("dataset " + q.name, p.L + 4, p.T - 7, {color: col("--c-model"), font:'600 10.5px "IBM Plex Mono", monospace'});
