@@ -526,7 +526,8 @@ section.tabpanel{padding:2.6rem 0 0}
     <a href="#s9"><span class="n">03</span><span>Solving it with calculus</span></a>
     <a href="#s10"><span class="n">04</span><span>How good is the fit?</span></a>
     <a href="#s11"><span class="n">05</span><span>Noisy data, small samples</span></a>
-    <a href="#s12"><span class="n">06</span><span>Glossary</span></a>
+    <a href="#s13"><span class="n">06</span><span>More than one predictor</span></a>
+    <a href="#s12"><span class="n">07</span><span>Glossary</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -917,9 +918,65 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 <span class="fn">r2_score</span>(y_tr, model.<span class="fn">predict</span>(X_tr))   <span class="cm"># the flattering number</span>
 <span class="fn">r2_score</span>(y_te, model.<span class="fn">predict</span>(X_te))   <span class="cm"># the honest one</span></div>
 </section>
+
+<!-- ==================== 13 ==================== -->
+<section id="s13">
+  <div class="shead"><div class="num">06</div><h2>More than one predictor</h2></div>
+  <div class="prose">
+    <p>Nothing so far needed <span class="m">x</span> to be a single measurement. With <span class="m">p</span> features the model just grows a term each:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">y</span> &asymp; <span class="m">&beta;<sub>0</sub></span>
+    + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>
+    + <span class="m">&beta;<sub>2</sub></span><span class="m">x<sub>2</sub></span>
+    + &hellip; + <span class="m">&beta;<sub>p</sub></span><span class="m">x<sub>p</sub></span>
+  </div>
+
+  <div class="prose">
+    <p>The recipe does not change: write RSS, take the partial derivative with respect to every <span class="m">&beta;</span>, set them all to zero, and solve the system. With one predictor that was one equation. With <span class="m">p</span> predictors it is <span class="m">p</span> + 1 equations, which a computer solves in microseconds.</p>
+    <p>What does change is the picture.
+      <br>One predictor gives a line in a plane. Two predictors give a <strong>plane</strong> in a cube: for every pair (<span class="m">x<sub>1</sub></span>, <span class="m">x<sub>2</sub></span>) the model returns a height. The residuals are still vertical distances from each point to that surface, and least squares still picks the surface leaving the smallest total.</p>
+    <p>Below, recall is predicted from hippocampal volume and age, both measured from the group mean. Drag to rotate:</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">Two predictors, one plane</div>
+      <div class="hint">drag the figure to turn it</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <div class="btnrow" style="margin-bottom:.85rem">
+          <div class="seg" id="mrSeg">
+            <button data-v="one">volume only</button>
+            <button class="on" data-v="both">volume + age</button>
+          </div>
+        </div>
+        <canvas id="cvPlane" class="cv drag" height="380"></canvas>
+        <div id="mrLayers"></div>
+        <p class="notecap" id="mrCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="stats" id="mrStats"></div>
+        <div class="btnrow"><button class="btn" id="mrReset">reset the view</button></div>
+        <p class="notecap">Each <span class="m">&beta;</span> is read the same way as before: the change in <span class="m">y</span> for a one-unit change in that feature, <em>with the other features held fixed</em>. That last clause is the whole difference between a simple and a multiple regression.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>Two features give a plane, three give a volume, and beyond that the picture runs out. The algebra does not: it is the same normal equations at every <span class="m">p</span>. Losing the ability to see the model is exactly why the checks from the previous tabs start to matter.</p>
+  </div>
+
+  <div class="warn">
+    <b>Adding a feature can only lower RSS.</b> Even a column of random noise gives the model somewhere to put a little error, so R<sup>2</sup> creeps up every single time. In neuroscience, where <span class="m">p</span> is often larger than <span class="m">n</span>, this stops being a nuisance and becomes the central problem. Next class: what to do about it.
+  </div>
+</section>
 <!-- ==================== 12 ==================== -->
 <section id="s12">
-  <div class="shead"><div class="num">06</div><h2>Glossary</h2></div>
+  <div class="shead"><div class="num">07</div><h2>Glossary</h2></div>
   <div class="prose">
     <p>Everything introduced today, in the notation the course will keep using.</p>
   </div>
@@ -951,7 +1008,7 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 
   <div class="prose" style="margin-top:1.6rem">
     <h3>Next time</h3>
-    <p>More than one predictor: what happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
+    <p>What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
   </div>
 
 
@@ -1752,6 +1809,232 @@ function lrAxes(p){
     mode = b.dataset.v; draw();
   });
   LR.on(draw); reg(draw);
+})();
+
+/* ============================================================
+   06 — multiple regression: a plane instead of a line
+   ============================================================ */
+(function(){
+  var cvs = document.getElementById("cvPlane");
+  if (!cvs) return;
+  var ctx = cvs.getContext("2d");
+  var capEl = document.getElementById("mrCap");
+  var statsEl = document.getElementById("mrStats");
+  var mode = "both";                       /* "one" = volume only */
+  var yaw = -0.62, pitch = 0.42;           /* radians */
+
+  /* ---- data: recall predicted by hippocampal volume and by age ----
+     Both centred on the group mean, so 0 is an average subject. */
+  var N = 44;
+  var X1 = [], X2 = [], Y = [];
+  (function(){
+    var r = rng(51423);
+    for (var i=0;i<N;i++){
+      var v = gauss(r)*0.42;               /* volume, cm3 from the mean */
+      var a = gauss(r)*7.5;                /* age, years from the mean  */
+      X1.push(v); X2.push(a);
+      Y.push(10.6 + 4.1*v - 0.16*a + gauss(r)*1.15);
+    }
+  })();
+
+  /* ---- least squares with one or two predictors ----
+     Same idea as the single-predictor case: write RSS, set every partial
+     derivative to zero, solve the resulting linear system. */
+  function fit(useX2){
+    var m = useX2 ? 3 : 2, i, j, k;
+    var A = [], b = [];
+    for (i=0;i<m;i++){ A.push(new Array(m).fill(0)); b.push(0); }
+    for (k=0;k<N;k++){
+      var row = useX2 ? [1, X1[k], X2[k]] : [1, X1[k]];
+      for (i=0;i<m;i++){
+        b[i] += row[i]*Y[k];
+        for (j=0;j<m;j++) A[i][j] += row[i]*row[j];
+      }
+    }
+    var c = solveLin(A, b);
+    return { b0:c[0], b1:c[1], b2: useX2 ? c[2] : 0 };
+  }
+  function predAll(f){
+    return Y.map(function(_, k){ return f.b0 + f.b1*X1[k] + f.b2*X2[k]; });
+  }
+
+  /* ---- axis ranges, padded a little past the data ---- */
+  function span(a){
+    var lo = Math.min.apply(null, a), hi = Math.max.apply(null, a);
+    var pad = (hi - lo) * 0.08;
+    return [lo - pad, hi + pad];
+  }
+  var R1 = span(X1), R2 = span(X2), RY = span(Y);
+  function n1(v){ return (v - R1[0])/(R1[1]-R1[0]) * 2 - 1; }
+  function n2(v){ return (v - R2[0])/(R2[1]-R2[0]) * 2 - 1; }
+  function nY(v){ return (v - RY[0])/(RY[1]-RY[0]) * 2 - 1; }
+
+  /* ---- 3D projection: yaw about the vertical axis, then tilt ---- */
+  var W = 0, H = 0, SC = 1;
+  function proj(x, y, z){
+    var cy = Math.cos(yaw),  sy = Math.sin(yaw);
+    var cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var X =  x*cy - z*sy;
+    var Z =  x*sy + z*cy;
+    var Y2 = y*cp - Z*sp;
+    var Z2 = y*sp + Z*cp;
+    var k = 1/(1 + Z2*0.18);               /* gentle perspective */
+    return { x: W/2 + X*SC*k, y: H/2 - Y2*SC*k + H*0.04, d: Z2 };
+  }
+
+  var L = layerToggles("mrLayers", [
+    {k:"pts",   label:"subjects",   kind:"dot",  col:"--c-data"},
+    {k:"plane", label:"fitted plane", kind:"dot", col:"--c-model"},
+    {k:"resid", label:"residuals",  kind:"ln",   col:"--c-error"},
+    {k:"box",   label:"axes",       kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
+
+  /* ---- drag to orbit ---- */
+  var dragging = false, lastX = 0, lastY = 0;
+  cvs.addEventListener("pointerdown", function(e){
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener("pointermove", function(e){
+    if (!dragging) return;
+    yaw   += (e.clientX - lastX) * 0.011;
+    pitch += (e.clientY - lastY) * 0.008;
+    pitch = Math.max(-0.15, Math.min(1.15, pitch));
+    lastX = e.clientX; lastY = e.clientY;
+    draw();
+  });
+  window.addEventListener("pointerup", function(){ dragging = false; });
+
+  function line3(a, b, style, width, dash){
+    var p = proj(a[0],a[1],a[2]), q = proj(b[0],b[1],b[2]);
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+    ctx.strokeStyle = style; ctx.lineWidth = width || 1;
+    if (dash) ctx.setLineDash(dash);
+    ctx.stroke(); ctx.restore();
+  }
+
+  function draw(){
+    if (!cvs.style.height) cvs.style.height = "380px";
+    var rect = cvs.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = rect.width; H = 380;
+    cvs.width = Math.max(1, Math.round(W*dpr));
+    cvs.height = Math.max(1, Math.round(H*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,W,H);
+    SC = Math.min(W, H) * 0.36;
+
+    var f = fit(mode === "both");
+    var pred = predAll(f);
+
+    /* floor grid and the vertical axis */
+    if (L.on("box")){
+      var g = alpha(col("--ink-faint"), .35), i;
+      for (i=0;i<=4;i++){
+        var t = -1 + i*0.5;
+        line3([t,-1,-1],[t,-1,1], g, 1);
+        line3([-1,-1,t],[1,-1,t], g, 1);
+      }
+      line3([-1,-1,-1],[-1,1,-1], alpha(col("--ink-faint"), .6), 1.2, [4,4]);
+      var oy = proj(-1, 1, -1);
+      ctx.save();
+      ctx.fillStyle = col("--ink-soft");
+      ctx.font = '10.5px "IBM Plex Mono", monospace';
+      ctx.textAlign = "center";
+      ctx.fillText("y: recall", oy.x, oy.y - 8);
+      var e1 = proj(1,-1,-1), e2 = proj(-1,-1,1);
+      ctx.fillText("x1: volume", e1.x, e1.y + 16);
+      ctx.fillText("x2: age", e2.x, e2.y + 16);
+      ctx.restore();
+    }
+
+    /* build every drawable with a depth, then paint far to near */
+    var items = [];
+
+    if (L.on("plane")){
+      var G = 8, gi, gj;
+      for (gi=0; gi<G; gi++){
+        for (gj=0; gj<G; gj++){
+          var u0 = R1[0] + (R1[1]-R1[0])*gi/G,     u1 = R1[0] + (R1[1]-R1[0])*(gi+1)/G;
+          var v0 = R2[0] + (R2[1]-R2[0])*gj/G,     v1 = R2[0] + (R2[1]-R2[0])*(gj+1)/G;
+          var quad = [[u0,v0],[u1,v0],[u1,v1],[u0,v1]].map(function(q){
+            return proj(n1(q[0]), nY(f.b0 + f.b1*q[0] + f.b2*q[1]), n2(q[1]));
+          });
+          var d = (quad[0].d + quad[1].d + quad[2].d + quad[3].d)/4;
+          items.push({ d:d, kind:"quad", q:quad });
+        }
+      }
+    }
+
+    for (var k=0;k<N;k++){
+      var pp = proj(n1(X1[k]), nY(Y[k]), n2(X2[k]));
+      var ph = proj(n1(X1[k]), nY(pred[k]), n2(X2[k]));
+      items.push({ d: Math.min(pp.d, ph.d), kind:"pt", p:pp, h:ph, above: Y[k] >= pred[k] });
+    }
+
+    items.sort(function(a,b){ return b.d - a.d; });
+
+    var cModel = col("--c-model"), cErr = col("--c-error"), cData = col("--c-data");
+    items.forEach(function(it){
+      if (it.kind === "quad"){
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(it.q[0].x, it.q[0].y);
+        for (var i=1;i<4;i++) ctx.lineTo(it.q[i].x, it.q[i].y);
+        ctx.closePath();
+        ctx.fillStyle   = alpha(cModel, .16);
+        ctx.strokeStyle = alpha(cModel, .42);
+        ctx.lineWidth = 1;
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+      } else {
+        if (L.on("resid")){
+          ctx.save();
+          ctx.beginPath(); ctx.moveTo(it.p.x, it.p.y); ctx.lineTo(it.h.x, it.h.y);
+          ctx.strokeStyle = alpha(cErr, .6); ctx.lineWidth = 1.4; ctx.lineCap = "round";
+          ctx.stroke(); ctx.restore();
+        }
+        if (L.on("pts")){
+          ctx.save();
+          ctx.beginPath(); ctx.arc(it.p.x, it.p.y, 4.2, 0, 6.2832);
+          ctx.fillStyle = cData; ctx.fill();
+          ctx.strokeStyle = col("--surface"); ctx.lineWidth = 1.3; ctx.stroke();
+          ctx.restore();
+        }
+      }
+    });
+
+    /* readouts */
+    var r2 = r2Of(Y, pred);
+    var one = fit(false), both = fit(true);
+    var r2one = r2Of(Y, predAll(one)), r2both = r2Of(Y, predAll(both));
+    statsEl.innerHTML =
+      '<div class="stat model"><span class="k">intercept &beta;<sub>0</sub></span><span class="val">' + fmt(f.b0,2) + '</span></div>' +
+      '<div class="stat model"><span class="k">&beta;<sub>1</sub> per cm<sup>3</sup> of volume</span><span class="val">' + fmt(f.b1,2) + '</span></div>' +
+      '<div class="stat ' + (mode === "both" ? "model" : "plain") + '"><span class="k">&beta;<sub>2</sub> per year of age</span><span class="val">' +
+        (mode === "both" ? fmt(f.b2,3) : "not used") + '</span></div>' +
+      '<div class="stat test"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val">' + fmt(r2,3) + '</span></div>';
+
+    capEl.innerHTML = mode === "both"
+      ? "Both predictors: the plane tilts along <b>x<sub>1</sub></b> and along <b>x<sub>2</sub></b>. " +
+        "R<sup>2</sup> = " + fmt(r2both,3) + ", against " + fmt(r2one,3) + " for volume alone."
+      : "Volume only: the plane still tilts along <b>x<sub>1</sub></b>, but it is flat along " +
+        "<b>x<sub>2</sub></b>, because age is not in the model. R<sup>2</sup> falls to " + fmt(r2one,3) +
+        ". Notice &beta;<sub>1</sub> also changes, from " + fmt(both.b1,2) + " to " + fmt(one.b1,2) +
+        ": with age missing, volume quietly absorbs part of age&rsquo;s effect.";
+  }
+
+  var seg = document.getElementById("mrSeg");
+  seg.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c === b); });
+    mode = b.getAttribute("data-v"); draw();
+  });
+  document.getElementById("mrReset").addEventListener("click", function(){
+    yaw = -0.62; pitch = 0.42; draw();
+  });
+  reg(draw);
 })();
 
 /* ============================================================
