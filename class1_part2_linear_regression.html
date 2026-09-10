@@ -332,12 +332,17 @@ input[type=range]::-moz-range-thumb{
   overflow-x:auto;line-height:1.9;
 }
 .eq.tight{padding:.7rem;font-size:1rem;margin:.8rem 0}
-.frac{display:inline-flex;flex-direction:column;vertical-align:-.62em;text-align:center;margin:0 .18em;font-size:.92em}
-.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .4em .12em}
-.frac>span:last-child{padding:.14em .4em 0}
-.sum{display:inline-flex;flex-direction:column;align-items:center;vertical-align:-.5em;margin:0 .12em;line-height:1}
-.sum .sig{font-size:1.42em;font-style:normal;font-family:var(--serif)}
-.sum .lim{font-size:.55em;font-style:normal;font-family:var(--mono);line-height:1.25}
+/* Stacked maths (fractions, sums with limits).
+   An inline-flex column takes its baseline from its FIRST item, so a summation
+   would sit with the upper limit on the text baseline and the sigma dangling a
+   line below it. vertical-align:middle centres the whole stack on the text
+   instead, which is where both a fraction bar and a sigma belong. */
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .18em;font-size:.92em;line-height:1.15}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .4em .14em}
+.frac>span:last-child{padding:.16em .4em 0}
+.sum{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .18em;line-height:1}
+.sum .sig{font-size:1.5em;font-style:normal;font-family:var(--serif);line-height:.95}
+.sum .lim{font-size:.56em;font-style:normal;font-family:var(--mono);line-height:1.35}
 sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
 
 .deriv{display:flex;flex-direction:column;gap:0;margin:1.35rem 0}
