@@ -686,7 +686,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <div class="panel-duo">
         <div>
           <canvas id="cvSurf" class="cv drag" height="360"></canvas>
-          <p class="notecap"><b>From the side.</b> Height is RSS. Drag to turn it, and look for the single low point.</p>
+          <p class="notecap"><b>From the side.</b> Height is RSS, with a scale up the nearest upright. Drag to turn it, and look for the single low point.</p>
         </div>
         <div>
           <canvas id="cvMap" class="cv drag" height="360"></canvas>
@@ -1742,12 +1742,14 @@ function lrAxes(p){
   var ctx3 = c3.getContext("2d"), ctx2 = c2.getContext("2d");
   var B0D = [0, 18], B1D = [-6, 14];
   var yaw = -0.72, pitch = 0.52;
+  var G = 16;                              /* surface mesh, 16 x 16 quads */
+  var BANDS = 11;
 
   var L = layerToggles("surfLayers", [
-    {k:"surface", label:"the surface", kind:"dot",  col:"--c-model"},
-    {k:"lines",   label:"contour lines", kind:"ln", col:"--ink-faint"},
-    {k:"here",    label:"our line",    kind:"dot",  col:"--ink"},
-    {k:"min",     label:"least squares", kind:"dot", col:"--c-test"}
+    {k:"surface", label:"the surface",    kind:"dot",  col:"--c-model"},
+    {k:"axes",    label:"axes",           kind:"dash", col:"--ink-faint"},
+    {k:"here",    label:"our line",       kind:"dot",  col:"--ink"},
+    {k:"min",     label:"least squares",  kind:"dot",  col:"--c-test"}
   ], function(){ draw(); });
 
   /* RSS is a quadratic in the two weights, so it can be evaluated from five
@@ -1766,20 +1768,26 @@ function lrAxes(p){
          + S.n*b0*b0 + 2*b0*b1*S.Sx + b1*b1*S.Sxx;
   }
 
-  /* one ramp shared by both panels, so they read as the same object */
-  function ramp(t){
-    var lo = hex2rgb(col("--c-model")), hi = hex2rgb(col("--surface-2"));
-    return [Math.round(lo[0] + (hi[0]-lo[0])*t),
-            Math.round(lo[1] + (hi[1]-lo[1])*t),
-            Math.round(lo[2] + (hi[2]-lo[2])*t)];
+  /* One ramp shared by both panels. Built once per repaint: reading a CSS
+     custom property means a getComputedStyle call, which is far too slow to
+     do per pixel. */
+  function palette(){
+    var lo = hex2rgb(col("--c-model")), hi = hex2rgb(col("--surface-2")), out = [];
+    for (var i=0;i<BANDS;i++){
+      var t = i/(BANDS-1);
+      out.push([Math.round(lo[0]+(hi[0]-lo[0])*t),
+                Math.round(lo[1]+(hi[1]-lo[1])*t),
+                Math.round(lo[2]+(hi[2]-lo[2])*t)]);
+    }
+    return out;
   }
-  var BANDS = 11;
   /* Even bands in RSS would put the whole bowl floor in one colour, because a
      paraboloid climbs so fast. Banding the square root keeps the bottom
      legible without misreporting the shape. */
-  function band(z, zmin, zmax){
-    var t = Math.sqrt(Math.max(0, z - zmin) / Math.max(1e-9, zmax - zmin));
-    return Math.min(BANDS - 1, Math.floor(t * BANDS)) / (BANDS - 1);
+  function bandOf(z, zmin, zspan){
+    var t = Math.sqrt(Math.max(0, z - zmin) / zspan);
+    var i = (t * BANDS) | 0;
+    return i < 0 ? 0 : (i >= BANDS ? BANDS-1 : i);
   }
 
   /* ---------- 3D ---------- */
@@ -1829,12 +1837,11 @@ function lrAxes(p){
 
   /* ---------- the map is clickable: it sets the line ---------- */
   var mapDrag = false;
-  var MP = { L:44, R:0, T:14, B:0 };
+  var MP = { L:46, R:0, T:14, B:0 };
   function setFromMap(e){
     var r = c2.getBoundingClientRect();
-    var px = e.clientX - r.left, py = e.clientY - r.top;
-    var b0 = B0D[0] + (px - MP.L)/(MP.R - MP.L) * (B0D[1]-B0D[0]);
-    var b1 = B1D[1] - (py - MP.T)/(MP.B - MP.T) * (B1D[1]-B1D[0]);
+    var b0 = B0D[0] + (e.clientX - r.left - MP.L)/(MP.R - MP.L) * (B0D[1]-B0D[0]);
+    var b1 = B1D[1] - (e.clientY - r.top  - MP.T)/(MP.B - MP.T) * (B1D[1]-B1D[0]);
     LR.set(Math.max(B0D[0], Math.min(B0D[1], Math.round(b0*10)/10)),
            Math.max(B1D[0], Math.min(B1D[1], Math.round(b1*10)/10)));
   }
@@ -1859,81 +1866,52 @@ function lrAxes(p){
     ctx.restore();
   }
 
+  /* Repainting only when something actually changed. Moving the sliders does
+     not alter the surface or the map, only the two markers, so both heavy
+     renders are cached and reused. */
+  var surfCache = { key:"", cv:null }, mapCache = { key:"", cv:null };
+  function themeKey(){ return col("--c-model") + col("--surface-2"); }
+  function dataKey(S){ return [S.n,S.Sx,S.Sy,S.Sxx,S.Sxy,S.Syy].join(","); }
+
   function draw(){
     var S = sums(), f = LR.fit();
     var zmin = rssAt(S, f.b0, f.b1);
     var zmax = Math.max(rssAt(S, B0D[0], B1D[0]), rssAt(S, B0D[1], B1D[1]),
                         rssAt(S, B0D[0], B1D[1]), rssAt(S, B0D[1], B1D[0]));
     if (zmax - zmin < 1e-6) zmax = zmin + 1;
-    function nz(z){ return (z - zmin)/(zmax - zmin) * 2 - 1; }
+    var zspan = zmax - zmin;
+    function nz(z){ return (z - zmin)/zspan * 2 - 1; }
+    function u0(b0){ return (b0-B0D[0])/(B0D[1]-B0D[0])*2 - 1; }
+    function u1(b1){ return (b1-B1D[0])/(B1D[1]-B1D[0])*2 - 1; }
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dk = dataKey(S), tk = themeKey();
 
     /* ============ 3D bowl ============ */
     if (!c3.style.height) c3.style.height = "360px";
     var r3 = c3.getBoundingClientRect();
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     W3 = r3.width; H3 = 360;
     c3.width  = Math.max(1, Math.round(W3*dpr));
     c3.height = Math.max(1, Math.round(H3*dpr));
     ctx3.setTransform(dpr,0,0,dpr,0,0);
     ctx3.clearRect(0,0,W3,H3);
-    SC3 = Math.min((W3/2 - 14)/MAXR, (H3/2 - 22)/MAXR);
+    SC3 = Math.min((W3/2 - 16)/MAXR, (H3/2 - 24)/MAXR);
 
-    var G = 20, i, j;
-    var quads = [];
-    if (L.on("surface")){
-      for (i=0;i<G;i++){
-        for (j=0;j<G;j++){
-          var u0 = B0D[0] + (B0D[1]-B0D[0])*i/G,     u1 = B0D[0] + (B0D[1]-B0D[0])*(i+1)/G;
-          var v0 = B1D[0] + (B1D[1]-B1D[0])*j/G,     v1 = B1D[0] + (B1D[1]-B1D[0])*(j+1)/G;
-          var zs = [rssAt(S,u0,v0), rssAt(S,u1,v0), rssAt(S,u1,v1), rssAt(S,u0,v1)];
-          var uu = [[u0,v0],[u1,v0],[u1,v1],[u0,v1]];
-          var q = uu.map(function(p, kk){
-            return proj((p[0]-B0D[0])/(B0D[1]-B0D[0])*2-1,
-                        nz(zs[kk]),
-                        (p[1]-B1D[0])/(B1D[1]-B1D[0])*2-1);
-          });
-          var zc = (zs[0]+zs[1]+zs[2]+zs[3])/4;
-          quads.push({ d:(q[0].d+q[1].d+q[2].d+q[3].d)/4, q:q, t:band(zc, zmin, zmax) });
-        }
-      }
-      quads.sort(function(a,b){ return b.d - a.d; });
-      quads.forEach(function(it){
-        var rgb = ramp(it.t);
-        ctx3.save();
-        ctx3.beginPath();
-        ctx3.moveTo(it.q[0].x, it.q[0].y);
-        for (var k=1;k<4;k++) ctx3.lineTo(it.q[k].x, it.q[k].y);
-        ctx3.closePath();
-        ctx3.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-        ctx3.fill();
-        if (L.on("lines")){
-          ctx3.strokeStyle = alpha(col("--ink"), .10); ctx3.lineWidth = 0.6; ctx3.stroke();
-        }
-        ctx3.restore();
-      });
+    var key3 = [dk, tk, W3, yaw.toFixed(3), pitch.toFixed(3), L.on("surface"), L.on("axes")].join("|");
+    if (surfCache.key !== key3){
+      var off3 = surfCache.cv || document.createElement("canvas");
+      off3.width = c3.width; off3.height = c3.height;
+      var o3 = off3.getContext("2d");
+      o3.setTransform(dpr,0,0,dpr,0,0);
+      o3.clearRect(0,0,W3,H3);
+      paintSurface(o3, S, zmin, zspan, nz);
+      surfCache.cv = off3; surfCache.key = key3;
     }
+    ctx3.drawImage(surfCache.cv, 0, 0, W3, H3);
 
-    /* markers sit on the surface */
-    function on3(b0, b1){
-      return proj((b0-B0D[0])/(B0D[1]-B0D[0])*2-1, nz(rssAt(S,b0,b1)),
-                  (b1-B1D[0])/(B1D[1]-B1D[0])*2-1);
-    }
+    function on3(b0, b1){ return proj(u0(b0), nz(rssAt(S,b0,b1)), u1(b1)); }
     if (L.on("min"))  { var m3 = on3(f.b0, f.b1);   marker(ctx3, m3.x, m3.y, "cross", col("--c-test")); }
     if (L.on("here")) { var h3 = on3(LR.b0, LR.b1); marker(ctx3, h3.x, h3.y, "dot",   col("--ink")); }
-
-    ctx3.save();
-    ctx3.fillStyle = col("--ink-soft");
-    ctx3.font = '10.5px "IBM Plex Mono", monospace';
-    ctx3.textAlign = "center";
-    function lab3(text, x, y, z, dy){
-      var q = proj(x,y,z), half = ctx3.measureText(text).width/2 + 4;
-      ctx3.fillText(text, Math.max(half, Math.min(W3-half, q.x)),
-                          Math.max(13, Math.min(H3-5, q.y + dy)));
-    }
-    lab3("RSS", -1, 1, -1, -9);
-    lab3("b0",   1, -1, -1, 16);
-    lab3("b1",  -1, -1,  1, 16);
-    ctx3.restore();
 
     /* ============ 2D contour map ============ */
     if (!c2.style.height) c2.style.height = "360px";
@@ -1945,29 +1923,36 @@ function lrAxes(p){
     ctx2.clearRect(0,0,W2,H2);
     MP.L = 46; MP.R = W2 - 14; MP.T = 14; MP.B = H2 - 36;
 
-    var pw = Math.max(1, Math.round(MP.R - MP.L)), ph = Math.max(1, Math.round(MP.B - MP.T));
-    if (L.on("surface")){
-      var img = ctx2.createImageData(pw, ph), d = img.data;
-      for (var py=0; py<ph; py++){
-        var b1v = B1D[1] - (py + 0.5)/ph * (B1D[1]-B1D[0]);
-        for (var px=0; px<pw; px++){
-          var b0v = B0D[0] + (px + 0.5)/pw * (B0D[1]-B0D[0]);
-          var rgb2 = ramp(band(rssAt(S, b0v, b1v), zmin, zmax));
-          var o = (py*pw + px)*4;
-          d[o] = rgb2[0]; d[o+1] = rgb2[1]; d[o+2] = rgb2[2]; d[o+3] = 255;
+    var key2 = [dk, tk, W2, L.on("surface")].join("|");
+    if (mapCache.key !== key2){
+      /* Half resolution: the picture is banded, so the upscale costs nothing
+         visible and quarters the number of RSS evaluations. */
+      var pw = Math.max(1, Math.round((MP.R-MP.L)/2)), ph = Math.max(1, Math.round((MP.B-MP.T)/2));
+      var offm = mapCache.cv || document.createElement("canvas");
+      offm.width = pw; offm.height = ph;
+      var om = offm.getContext("2d");
+      if (L.on("surface")){
+        var img = om.createImageData(pw, ph), d = img.data, PAL = palette();
+        for (var py=0; py<ph; py++){
+          var b1v = B1D[1] - (py + 0.5)/ph * (B1D[1]-B1D[0]);
+          for (var px=0; px<pw; px++){
+            var b0v = B0D[0] + (px + 0.5)/pw * (B0D[1]-B0D[0]);
+            var rgb = PAL[bandOf(rssAt(S, b0v, b1v), zmin, zspan)];
+            var o = (py*pw + px)*4;
+            d[o] = rgb[0]; d[o+1] = rgb[1]; d[o+2] = rgb[2]; d[o+3] = 255;
+          }
         }
+        om.putImageData(img, 0, 0);
+      } else {
+        om.clearRect(0,0,pw,ph);
       }
-      /* putImageData ignores the transform, so stage it at CSS size first */
-      var off = document.createElement("canvas");
-      off.width = pw; off.height = ph;
-      off.getContext("2d").putImageData(img, 0, 0);
-      ctx2.drawImage(off, MP.L, MP.T, MP.R-MP.L, MP.B-MP.T);
+      mapCache.cv = offm; mapCache.key = key2;
     }
+    ctx2.drawImage(mapCache.cv, MP.L, MP.T, MP.R-MP.L, MP.B-MP.T);
 
     function mx(b0){ return MP.L + (b0-B0D[0])/(B0D[1]-B0D[0]) * (MP.R-MP.L); }
     function my(b1){ return MP.B - (b1-B1D[0])/(B1D[1]-B1D[0]) * (MP.B-MP.T); }
 
-    /* axes */
     ctx2.save();
     ctx2.strokeStyle = col("--c-axis"); ctx2.lineWidth = 1;
     ctx2.strokeRect(MP.L+0.5, MP.T+0.5, MP.R-MP.L-1, MP.B-MP.T-1);
@@ -1994,6 +1979,100 @@ function lrAxes(p){
     ctx2.textAlign = "left"; ctx2.textBaseline = "top";
     ctx2.fillText("RSS " + fmt(rssAt(S, LR.b0, LR.b1), 1), MP.L + 7, MP.T + 6);
     ctx2.restore();
+  }
+
+  /* ---------- the expensive half: mesh and axes ---------- */
+  function paintSurface(ctx, S, zmin, zspan, nz){
+    var i, j, k;
+    if (L.on("surface")){
+      var PAL = palette(), quads = [];
+      for (i=0;i<G;i++){
+        for (j=0;j<G;j++){
+          var a0 = B0D[0] + (B0D[1]-B0D[0])*i/G,     a1 = B0D[0] + (B0D[1]-B0D[0])*(i+1)/G;
+          var v0 = B1D[0] + (B1D[1]-B1D[0])*j/G,     v1 = B1D[0] + (B1D[1]-B1D[0])*(j+1)/G;
+          var uu = [[a0,v0],[a1,v0],[a1,v1],[a0,v1]], zs = [], q = [];
+          for (k=0;k<4;k++){
+            zs.push(rssAt(S, uu[k][0], uu[k][1]));
+            q.push(proj((uu[k][0]-B0D[0])/(B0D[1]-B0D[0])*2-1, nz(zs[k]),
+                        (uu[k][1]-B1D[0])/(B1D[1]-B1D[0])*2-1));
+          }
+          quads.push({ d:(q[0].d+q[1].d+q[2].d+q[3].d)/4, q:q,
+                       c: PAL[bandOf((zs[0]+zs[1]+zs[2]+zs[3])/4, zmin, zspan)] });
+        }
+      }
+      quads.sort(function(a,b){ return b.d - a.d; });
+      var edge = alpha(col("--ink"), .10);
+      quads.forEach(function(it){
+        ctx.beginPath();
+        ctx.moveTo(it.q[0].x, it.q[0].y);
+        for (var m=1;m<4;m++) ctx.lineTo(it.q[m].x, it.q[m].y);
+        ctx.closePath();
+        ctx.fillStyle = "rgb(" + it.c[0] + "," + it.c[1] + "," + it.c[2] + ")";
+        ctx.fill();
+        ctx.strokeStyle = edge; ctx.lineWidth = 0.6; ctx.stroke();
+      });
+    }
+    if (L.on("axes")) paintAxes(ctx, zmin, zspan);
+  }
+
+  function paintAxes(ctx, zmin, zspan){
+    var faint = alpha(col("--ink-faint"), .55);
+    var ink   = col("--ink-soft");
+    function seg(a, b, style, w){
+      var p = proj(a[0],a[1],a[2]), q = proj(b[0],b[1],b[2]);
+      ctx.save(); ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+      ctx.strokeStyle = style; ctx.lineWidth = w || 1; ctx.stroke(); ctx.restore();
+    }
+    /* the floor and the four uprights, so the box reads as a box */
+    seg([-1,-1,-1],[ 1,-1,-1], faint); seg([ 1,-1,-1],[ 1,-1, 1], faint);
+    seg([ 1,-1, 1],[-1,-1, 1], faint); seg([-1,-1, 1],[-1,-1,-1], faint);
+    var cs = [[-1,-1],[1,-1],[1,1],[-1,1]];
+    cs.forEach(function(c){ seg([c[0],-1,c[1]],[c[0],1,c[1]], alpha(col("--ink-faint"), .18)); });
+
+    ctx.save();
+    ctx.fillStyle = ink;
+    ctx.font = '9.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    function put(text, x, y, z){
+      var q = proj(x,y,z), half = ctx.measureText(text).width/2 + 3;
+      ctx.fillText(text, Math.max(half, Math.min(W3-half, q.x)),
+                         Math.max(9, Math.min(H3-6, q.y)));
+    }
+    /* Free rotation swings the box around, so put each scale on whichever of
+       the two parallel edges is currently nearer the viewer. */
+    function nearer(za, zb){
+      return proj(0,-1,za).d <= proj(0,-1,zb).d ? za : zb;
+    }
+    var zEdge = nearer(-1, 1);              /* carries the b0 scale */
+    var xEdge = proj(-1,-1,0).d <= proj(1,-1,0).d ? -1 : 1;   /* carries b1 */
+
+    [0,6,12,18].forEach(function(v){
+      var x = (v-B0D[0])/(B0D[1]-B0D[0])*2 - 1;
+      seg([x,-1,zEdge],[x,-1,zEdge*1.06], faint);
+      put(String(v), x, -1, zEdge*1.16);
+    });
+    [-6,0,6,12].forEach(function(v){
+      var z = (v-B1D[0])/(B1D[1]-B1D[0])*2 - 1;
+      seg([xEdge,-1,z],[xEdge*1.06,-1,z], faint);
+      put(String(v), xEdge*1.18, -1, z);
+    });
+    /* the RSS scale climbs the nearest upright */
+    var best = cs[0], bd = 1e9;
+    cs.forEach(function(c){ var d = proj(c[0],0,c[1]).d; if (d < bd){ bd = d; best = c; } });
+    var ticks4 = [0, 0.25, 0.5, 0.75, 1];
+    ticks4.forEach(function(t){
+      var z = zmin + t*zspan;
+      seg([best[0],t*2-1,best[1]], [best[0]*1.06, t*2-1, best[1]*1.06], faint);
+      put(z >= 1000 ? (z/1000).toFixed(1) + "k" : String(Math.round(z)),
+          best[0]*1.22, t*2-1, best[1]*1.22);
+    });
+
+    ctx.font = '10.5px "IBM Plex Mono", monospace';
+    ctx.fillStyle = col("--ink-soft");
+    put("b0", 0, -1, zEdge*1.42);
+    put("b1", xEdge*1.46, -1, 0);
+    put("RSS", best[0]*1.30, 1.28, best[1]*1.30);
+    ctx.restore();
   }
 
   LR.on(draw); reg(draw);
