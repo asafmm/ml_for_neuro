@@ -663,6 +663,36 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
+
+  <h3 style="font-family:var(--serif);font-size:1.1rem;font-weight:600;margin:2.4rem 0 .55rem">The error surface</h3>
+  <div class="prose">
+    <p>Every pair (<span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span>) is one possible line, and each one has its own RSS. Treat that number as a height and the whole space of lines becomes a landscape.</p>
+    <p>It is a bowl, a paraboloid. One bottom, no local minima to get trapped in, no flat plateaus. That is a rare luxury, and it is why linear regression has an exact formula while most models in this course have to be searched for numerically.</p>
+    <p>The bowl also sits upright rather than leaning, because <span class="m">x</span> is measured from its own mean. That is the same fact as the pivot in the previous tab: with a centred predictor, the best slope does not depend on the intercept.</p>
+    <p>On the left is the surface itself. On the right is the same surface seen from directly above, drawn as a contour map. The dot is our current line and the cross is the least-squares solution, on both.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">RSS over every possible line</div>
+      <div class="hint">turn the bowl, or click the map to move the line</div>
+    </div>
+    <div class="panel-body">
+      <div class="panel-duo">
+        <div>
+          <canvas id="cvSurf" class="cv drag" height="360"></canvas>
+          <p class="notecap"><b>From the side.</b> Height is RSS. Drag to turn it, and look for the single low point.</p>
+        </div>
+        <div>
+          <canvas id="cvMap" class="cv drag" height="360"></canvas>
+          <p class="notecap"><b>From above.</b> The same bowl as a contour map, the way a hill is drawn on an Ordnance Survey sheet. Click anywhere to move the line there, and watch the sliders and the scatter above follow.</p>
+        </div>
+      </div>
+      <div id="surfLayers"></div>
+      <p class="notecap">Colour bands are evenly spaced in the square root of RSS. Even spacing in RSS itself would put the whole floor of the bowl inside one band, because a paraboloid climbs so steeply.</p>
+    </div>
+  </div>
+
 </section>
 <!-- ==================== 09 ==================== -->
 <section id="s9">
@@ -1694,6 +1724,273 @@ function lrAxes(p){
   s0.addEventListener("input", fromSlider);
   s1.addEventListener("input", fromSlider);
   document.getElementById("sqFit").addEventListener("click", function(){ var f = LR.fit(); LR.set(f.b0, f.b1); });
+  LR.on(draw); reg(draw);
+})();
+
+/* ============================================================
+   08b — the error surface, in 3D and from above
+   ============================================================ */
+(function(){
+  var c3 = document.getElementById("cvSurf");
+  var c2 = document.getElementById("cvMap");
+  if (!c3 || !c2) return;
+  var ctx3 = c3.getContext("2d"), ctx2 = c2.getContext("2d");
+  var B0D = [0, 18], B1D = [-6, 14];
+  var yaw = -0.72, pitch = 0.52;
+
+  var L = layerToggles("surfLayers", [
+    {k:"surface", label:"the surface", kind:"dot",  col:"--c-model"},
+    {k:"lines",   label:"contour lines", kind:"ln", col:"--ink-faint"},
+    {k:"here",    label:"our line",    kind:"dot",  col:"--ink"},
+    {k:"min",     label:"least squares", kind:"dot", col:"--c-test"}
+  ], function(){ draw(); });
+
+  /* RSS is a quadratic in the two weights, so it can be evaluated from five
+     running sums instead of looping over the data at every pixel. */
+  function sums(){
+    var xs = LR.xs(), ys = LR.ys(), n = xs.length;
+    var Sx=0, Sy=0, Sxx=0, Sxy=0, Syy=0;
+    for (var i=0;i<n;i++){
+      Sx += xs[i]; Sy += ys[i];
+      Sxx += xs[i]*xs[i]; Sxy += xs[i]*ys[i]; Syy += ys[i]*ys[i];
+    }
+    return {n:n, Sx:Sx, Sy:Sy, Sxx:Sxx, Sxy:Sxy, Syy:Syy};
+  }
+  function rssAt(S, b0, b1){
+    return S.Syy - 2*b0*S.Sy - 2*b1*S.Sxy
+         + S.n*b0*b0 + 2*b0*b1*S.Sx + b1*b1*S.Sxx;
+  }
+
+  /* one ramp shared by both panels, so they read as the same object */
+  function ramp(t){
+    var lo = hex2rgb(col("--c-model")), hi = hex2rgb(col("--surface-2"));
+    return [Math.round(lo[0] + (hi[0]-lo[0])*t),
+            Math.round(lo[1] + (hi[1]-lo[1])*t),
+            Math.round(lo[2] + (hi[2]-lo[2])*t)];
+  }
+  var BANDS = 11;
+  /* Even bands in RSS would put the whole bowl floor in one colour, because a
+     paraboloid climbs so fast. Banding the square root keeps the bottom
+     legible without misreporting the shape. */
+  function band(z, zmin, zmax){
+    var t = Math.sqrt(Math.max(0, z - zmin) / Math.max(1e-9, zmax - zmin));
+    return Math.min(BANDS - 1, Math.floor(t * BANDS)) / (BANDS - 1);
+  }
+
+  /* ---------- 3D ---------- */
+  var W3 = 0, H3 = 0, SC3 = 1;
+  function raw(x, y, z, yw, pt){
+    if (yw === undefined) yw = yaw;
+    if (pt === undefined) pt = pitch;
+    var cy = Math.cos(yw), sy = Math.sin(yw);
+    var cp = Math.cos(pt), sp = Math.sin(pt);
+    var X  =  x*cy - z*sy;
+    var Z  =  x*sy + z*cy;
+    var Y2 =  y*cp - Z*sp;
+    var Z2 =  y*sp + Z*cp;
+    var k  = 1/(1 + Z2*0.18);
+    return { X: X*k, Y: Y2*k, d: Z2 };
+  }
+  function proj(x, y, z){
+    var r = raw(x, y, z);
+    return { x: W3/2 + r.X*SC3, y: H3/2 - r.Y*SC3, d: r.d };
+  }
+  /* fixed scale, measured once, so turning the bowl never resizes it */
+  var MAXR = (function(){
+    var m = 0, a, b, i, r;
+    for (a = 0; a < 6.2832; a += 0.16)
+      for (b = -3.1416; b < 3.1416; b += 0.16)
+        for (i = 0; i < 8; i++){
+          r = raw((i&1)?1:-1, (i&2)?1:-1, (i&4)?1:-1, a, b);
+          if (Math.abs(r.X) > m) m = Math.abs(r.X);
+          if (Math.abs(r.Y) > m) m = Math.abs(r.Y);
+        }
+    return m;
+  })();
+
+  var dragging = false, lastX = 0, lastY = 0;
+  c3.addEventListener("pointerdown", function(e){
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    c3.setPointerCapture(e.pointerId);
+  });
+  c3.addEventListener("pointermove", function(e){
+    if (!dragging) return;
+    yaw   += (e.clientX - lastX) * 0.011;
+    pitch += (e.clientY - lastY) * 0.009;
+    lastX = e.clientX; lastY = e.clientY;
+    draw();
+  });
+  window.addEventListener("pointerup", function(){ dragging = false; });
+
+  /* ---------- the map is clickable: it sets the line ---------- */
+  var mapDrag = false;
+  var MP = { L:44, R:0, T:14, B:0 };
+  function setFromMap(e){
+    var r = c2.getBoundingClientRect();
+    var px = e.clientX - r.left, py = e.clientY - r.top;
+    var b0 = B0D[0] + (px - MP.L)/(MP.R - MP.L) * (B0D[1]-B0D[0]);
+    var b1 = B1D[1] - (py - MP.T)/(MP.B - MP.T) * (B1D[1]-B1D[0]);
+    LR.set(Math.max(B0D[0], Math.min(B0D[1], Math.round(b0*10)/10)),
+           Math.max(B1D[0], Math.min(B1D[1], Math.round(b1*10)/10)));
+  }
+  c2.addEventListener("pointerdown", function(e){
+    mapDrag = true; c2.setPointerCapture(e.pointerId); setFromMap(e);
+  });
+  c2.addEventListener("pointermove", function(e){ if (mapDrag) setFromMap(e); });
+  window.addEventListener("pointerup", function(){ mapDrag = false; });
+
+  function marker(ctx, x, y, kind, color){
+    ctx.save();
+    if (kind === "cross"){
+      ctx.strokeStyle = col("--surface"); ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(x-9,y); ctx.lineTo(x+9,y); ctx.moveTo(x,y-9); ctx.lineTo(x,y+9); ctx.stroke();
+      ctx.strokeStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x-9,y); ctx.lineTo(x+9,y); ctx.moveTo(x,y-9); ctx.lineTo(x,y+9); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(x, y, 6, 0, 6.2832);
+      ctx.fillStyle = col("--surface"); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function draw(){
+    var S = sums(), f = LR.fit();
+    var zmin = rssAt(S, f.b0, f.b1);
+    var zmax = Math.max(rssAt(S, B0D[0], B1D[0]), rssAt(S, B0D[1], B1D[1]),
+                        rssAt(S, B0D[0], B1D[1]), rssAt(S, B0D[1], B1D[0]));
+    if (zmax - zmin < 1e-6) zmax = zmin + 1;
+    function nz(z){ return (z - zmin)/(zmax - zmin) * 2 - 1; }
+
+    /* ============ 3D bowl ============ */
+    if (!c3.style.height) c3.style.height = "360px";
+    var r3 = c3.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W3 = r3.width; H3 = 360;
+    c3.width  = Math.max(1, Math.round(W3*dpr));
+    c3.height = Math.max(1, Math.round(H3*dpr));
+    ctx3.setTransform(dpr,0,0,dpr,0,0);
+    ctx3.clearRect(0,0,W3,H3);
+    SC3 = Math.min((W3/2 - 14)/MAXR, (H3/2 - 22)/MAXR);
+
+    var G = 20, i, j;
+    var quads = [];
+    if (L.on("surface")){
+      for (i=0;i<G;i++){
+        for (j=0;j<G;j++){
+          var u0 = B0D[0] + (B0D[1]-B0D[0])*i/G,     u1 = B0D[0] + (B0D[1]-B0D[0])*(i+1)/G;
+          var v0 = B1D[0] + (B1D[1]-B1D[0])*j/G,     v1 = B1D[0] + (B1D[1]-B1D[0])*(j+1)/G;
+          var zs = [rssAt(S,u0,v0), rssAt(S,u1,v0), rssAt(S,u1,v1), rssAt(S,u0,v1)];
+          var uu = [[u0,v0],[u1,v0],[u1,v1],[u0,v1]];
+          var q = uu.map(function(p, kk){
+            return proj((p[0]-B0D[0])/(B0D[1]-B0D[0])*2-1,
+                        nz(zs[kk]),
+                        (p[1]-B1D[0])/(B1D[1]-B1D[0])*2-1);
+          });
+          var zc = (zs[0]+zs[1]+zs[2]+zs[3])/4;
+          quads.push({ d:(q[0].d+q[1].d+q[2].d+q[3].d)/4, q:q, t:band(zc, zmin, zmax) });
+        }
+      }
+      quads.sort(function(a,b){ return b.d - a.d; });
+      quads.forEach(function(it){
+        var rgb = ramp(it.t);
+        ctx3.save();
+        ctx3.beginPath();
+        ctx3.moveTo(it.q[0].x, it.q[0].y);
+        for (var k=1;k<4;k++) ctx3.lineTo(it.q[k].x, it.q[k].y);
+        ctx3.closePath();
+        ctx3.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+        ctx3.fill();
+        if (L.on("lines")){
+          ctx3.strokeStyle = alpha(col("--ink"), .10); ctx3.lineWidth = 0.6; ctx3.stroke();
+        }
+        ctx3.restore();
+      });
+    }
+
+    /* markers sit on the surface */
+    function on3(b0, b1){
+      return proj((b0-B0D[0])/(B0D[1]-B0D[0])*2-1, nz(rssAt(S,b0,b1)),
+                  (b1-B1D[0])/(B1D[1]-B1D[0])*2-1);
+    }
+    if (L.on("min"))  { var m3 = on3(f.b0, f.b1);   marker(ctx3, m3.x, m3.y, "cross", col("--c-test")); }
+    if (L.on("here")) { var h3 = on3(LR.b0, LR.b1); marker(ctx3, h3.x, h3.y, "dot",   col("--ink")); }
+
+    ctx3.save();
+    ctx3.fillStyle = col("--ink-soft");
+    ctx3.font = '10.5px "IBM Plex Mono", monospace';
+    ctx3.textAlign = "center";
+    function lab3(text, x, y, z, dy){
+      var q = proj(x,y,z), half = ctx3.measureText(text).width/2 + 4;
+      ctx3.fillText(text, Math.max(half, Math.min(W3-half, q.x)),
+                          Math.max(13, Math.min(H3-5, q.y + dy)));
+    }
+    lab3("RSS", -1, 1, -1, -9);
+    lab3("b0",   1, -1, -1, 16);
+    lab3("b1",  -1, -1,  1, 16);
+    ctx3.restore();
+
+    /* ============ 2D contour map ============ */
+    if (!c2.style.height) c2.style.height = "360px";
+    var r2 = c2.getBoundingClientRect();
+    var W2 = r2.width, H2 = 360;
+    c2.width  = Math.max(1, Math.round(W2*dpr));
+    c2.height = Math.max(1, Math.round(H2*dpr));
+    ctx2.setTransform(dpr,0,0,dpr,0,0);
+    ctx2.clearRect(0,0,W2,H2);
+    MP.L = 46; MP.R = W2 - 14; MP.T = 14; MP.B = H2 - 36;
+
+    var pw = Math.max(1, Math.round(MP.R - MP.L)), ph = Math.max(1, Math.round(MP.B - MP.T));
+    if (L.on("surface")){
+      var img = ctx2.createImageData(pw, ph), d = img.data;
+      for (var py=0; py<ph; py++){
+        var b1v = B1D[1] - (py + 0.5)/ph * (B1D[1]-B1D[0]);
+        for (var px=0; px<pw; px++){
+          var b0v = B0D[0] + (px + 0.5)/pw * (B0D[1]-B0D[0]);
+          var rgb2 = ramp(band(rssAt(S, b0v, b1v), zmin, zmax));
+          var o = (py*pw + px)*4;
+          d[o] = rgb2[0]; d[o+1] = rgb2[1]; d[o+2] = rgb2[2]; d[o+3] = 255;
+        }
+      }
+      /* putImageData ignores the transform, so stage it at CSS size first */
+      var off = document.createElement("canvas");
+      off.width = pw; off.height = ph;
+      off.getContext("2d").putImageData(img, 0, 0);
+      ctx2.drawImage(off, MP.L, MP.T, MP.R-MP.L, MP.B-MP.T);
+    }
+
+    function mx(b0){ return MP.L + (b0-B0D[0])/(B0D[1]-B0D[0]) * (MP.R-MP.L); }
+    function my(b1){ return MP.B - (b1-B1D[0])/(B1D[1]-B1D[0]) * (MP.B-MP.T); }
+
+    /* axes */
+    ctx2.save();
+    ctx2.strokeStyle = col("--c-axis"); ctx2.lineWidth = 1;
+    ctx2.strokeRect(MP.L+0.5, MP.T+0.5, MP.R-MP.L-1, MP.B-MP.T-1);
+    ctx2.fillStyle = col("--ink-faint");
+    ctx2.font = '10px "IBM Plex Mono", monospace';
+    ctx2.textAlign = "center"; ctx2.textBaseline = "top";
+    [0,6,12,18].forEach(function(v){ ctx2.fillText(String(v), mx(v), MP.B+6); });
+    ctx2.textAlign = "right"; ctx2.textBaseline = "middle";
+    [-6,0,6,12].forEach(function(v){ ctx2.fillText(String(v), MP.L-7, my(v)); });
+    ctx2.fillStyle = col("--ink-soft");
+    ctx2.font = '10.5px "IBM Plex Mono", monospace';
+    ctx2.textAlign = "center"; ctx2.textBaseline = "bottom";
+    ctx2.fillText("b0: intercept", (MP.L+MP.R)/2, H2-1);
+    ctx2.save(); ctx2.translate(11, (MP.T+MP.B)/2); ctx2.rotate(-Math.PI/2);
+    ctx2.textBaseline = "top"; ctx2.fillText("b1: slope", 0, 0); ctx2.restore();
+    ctx2.restore();
+
+    if (L.on("min"))  marker(ctx2, mx(f.b0),  my(f.b1),  "cross", col("--c-test"));
+    if (L.on("here")) marker(ctx2, mx(LR.b0), my(LR.b1), "dot",   col("--ink"));
+
+    ctx2.save();
+    ctx2.fillStyle = col("--ink");
+    ctx2.font = '600 10.5px "IBM Plex Mono", monospace';
+    ctx2.textAlign = "left"; ctx2.textBaseline = "top";
+    ctx2.fillText("RSS " + fmt(rssAt(S, LR.b0, LR.b1), 1), MP.L + 7, MP.T + 6);
+    ctx2.restore();
+  }
+
   LR.on(draw); reg(draw);
 })();
 
