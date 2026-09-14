@@ -1801,8 +1801,11 @@ function lrAxes(p){
     var Z  =  x*sy + z*cy;
     var Y2 =  y*cp - Z*sp;
     var Z2 =  y*sp + Z*cp;
-    var k  = 1/(1 + Z2*0.18);
-    return { X: X*k, Y: Y2*k, d: Z2 };
+    /* Orthographic: no perspective divide. A divide makes parallel edges
+       converge and stretches whatever is nearer the camera, so a flat plane
+       reads as curved and the box stops looking rigid. A data plot wants
+       parallel edges to stay parallel. */
+    return { X: X, Y: Y2, d: Z2 };
   }
   function proj(x, y, z){
     var r = raw(x, y, z);
@@ -2279,7 +2282,7 @@ function lrAxes(p){
   var R1 = span(X1), R2 = span(X2), RY = span(Y);
   function n1(v){ return (v - R1[0])/(R1[1]-R1[0]) * 2 - 1; }
   function n2(v){ return (v - R2[0])/(R2[1]-R2[0]) * 2 - 1; }
-  function nY(v){ return Math.max(-1.6, Math.min(1.6, (v - RY[0])/(RY[1]-RY[0]) * 2 - 1)); }
+  function nY(v){ return (v - RY[0])/(RY[1]-RY[0]) * 2 - 1; }
 
   /* ---- 3D projection: yaw about the vertical axis, then tilt ---- */
   var W = 0, H = 0, SC = 1;
@@ -2293,8 +2296,11 @@ function lrAxes(p){
     var Z  =  x*sy + z*cy;
     var Y2 =  y*cp - Z*sp;
     var Z2 =  y*sp + Z*cp;
-    var k  = 1/(1 + Z2*0.18);              /* gentle perspective */
-    return { X: X*k, Y: Y2*k, d: Z2 };
+    /* Orthographic: no perspective divide. A divide makes parallel edges
+       converge and stretches whatever is nearer the camera, so a flat plane
+       reads as curved and the box stops looking rigid. A data plot wants
+       parallel edges to stay parallel. */
+    return { X: X, Y: Y2, d: Z2 };
   }
   function proj(x, y, z){
     var r = raw(x, y, z);
@@ -2414,9 +2420,13 @@ function lrAxes(p){
         for (gj=0; gj<G; gj++){
           var u0 = R1[0] + (R1[1]-R1[0])*gi/G,     u1 = R1[0] + (R1[1]-R1[0])*(gi+1)/G;
           var v0 = R2[0] + (R2[1]-R2[0])*gj/G,     v1 = R2[0] + (R2[1]-R2[0])*(gj+1)/G;
-          var quad = [[u0,v0],[u1,v0],[u1,v1],[u0,v1]].map(function(q){
-            return proj(n1(q[0]), nY(B.b0 + B.b1*q[0] + B.b2*q[1]), n2(q[1]));
-          });
+          var corners = [[u0,v0],[u1,v0],[u1,v1],[u0,v1]];
+          var hs = corners.map(function(q){ return nY(B.b0 + B.b1*q[0] + B.b2*q[1]); });
+          /* Draw only the part of the plane that is inside the box. Clamping
+             the height instead would bend the plane along the ceiling, which
+             is exactly the kink that made it stop looking flat. */
+          if (Math.max.apply(null, hs) > 1.3 || Math.min.apply(null, hs) < -1.3) continue;
+          var quad = corners.map(function(q, qi){ return proj(n1(q[0]), hs[qi], n2(q[1])); });
           var d = (quad[0].d + quad[1].d + quad[2].d + quad[3].d)/4;
           items.push({ d:d, kind:"quad", q:quad });
         }
@@ -2425,7 +2435,7 @@ function lrAxes(p){
 
     for (var k=0;k<N;k++){
       var pp = proj(n1(X1[k]), nY(Y[k]), n2(X2[k]));
-      var ph = proj(n1(X1[k]), nY(pred[k]), n2(X2[k]));
+      var ph = proj(n1(X1[k]), Math.max(-1.3, Math.min(1.3, nY(pred[k]))), n2(X2[k]));
       items.push({ d: Math.min(pp.d, ph.d), kind:"pt", p:pp, h:ph });
     }
 
