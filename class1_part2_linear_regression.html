@@ -2056,9 +2056,11 @@ function lrAxes(p){
       seg([xEdge,-1,z],[xEdge*1.06,-1,z], faint);
       put(String(v), xEdge*1.18, -1, z);
     });
-    /* the RSS scale climbs the nearest upright */
-    var best = cs[0], bd = 1e9;
-    cs.forEach(function(c){ var d = proj(c[0],0,c[1]).d; if (d < bd){ bd = d; best = c; } });
+    /* The RSS scale stays on one fixed upright. Re-picking the nearest corner
+       every frame made the whole scale jump from edge to edge while turning,
+       which is far more distracting than occasionally reading it from behind
+       the bowl. This corner is the front one at the default view. */
+    var best = [1, -1];
     var ticks4 = [0, 0.25, 0.5, 0.75, 1];
     ticks4.forEach(function(t){
       var z = zmin + t*zspan;
