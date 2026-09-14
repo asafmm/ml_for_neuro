@@ -28,7 +28,12 @@ h1{
 }
 h1 em{font-style:italic;color:var(--c-model)}
 .lede{color:var(--ink-soft);margin:1rem 0 0;max-width:46ch}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:2.2rem 0 0}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.7rem 0 0}
+.cards .wide{grid-column:1 / -1}
+h3.clsx{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:500;margin:2.1rem 0 0;
+}
 a.card{
   display:flex;flex-direction:column;gap:.45rem;text-decoration:none;color:inherit;
   background:var(--surface);border:1px solid var(--hairline);
@@ -48,10 +53,11 @@ footer{
 </style>
 
 <div class="wrap">
-  <div class="kicker">1501.1027 &middot; Class 1</div>
+  <div class="kicker">1501.1027</div>
   <h1>Machine Learning<br>for <em>Neuroscience</em></h1>
-  <p class="lede">Interactive companions to the first class. Every figure is live: drag the points, move the sliders, and watch the numbers follow.</p>
+  <p class="lede">Interactive companions to the lectures. Every figure is live: drag the points, move the sliders, and watch the numbers follow.</p>
 
+  <h3 class="clsx">Class 1</h3>
   <div class="cards">
     <a class="card" href="class1_part1_what_is_ml.html">
       <span class="n">Part 1</span>
@@ -63,6 +69,16 @@ footer{
       <span class="n">Part 2</span>
       <h2>Linear regression</h2>
       <p>The linear model, least squares, deriving the slope with calculus, R&sup2;, and what small samples do to all of it.</p>
+      <span class="go">Open &rarr;</span>
+    </a>
+  </div>
+
+  <h3 class="clsx">Class 2</h3>
+  <div class="cards">
+    <a class="card wide" href="class2_interactions_and_flexibility.html">
+      <span class="n">Interactions, KNN, bias and variance</span>
+      <h2>The price of flexibility</h2>
+      <p>Interactions with a group and between two continuous predictors, nearest-neighbour regression, and the trade that decides how much flexibility is worth paying for.</p>
       <span class="go">Open &rarr;</span>
     </a>
   </div>

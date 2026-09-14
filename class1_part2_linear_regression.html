@@ -343,6 +343,20 @@ input[type=range]::-moz-range-thumb{
 .sum{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .18em;line-height:1}
 .sum .sig{font-size:1.5em;font-style:normal;font-family:var(--serif);line-height:.95}
 .sum .lim{font-size:.56em;font-style:normal;font-family:var(--mono);line-height:1.35}
+/* a piecewise definition, the way a brace would set it */
+.cases{
+  display:inline-grid;grid-template-columns:auto auto;gap:.18rem 1.1rem;
+  vertical-align:middle;text-align:left;border-left:2px solid currentColor;
+  padding-left:.75rem;margin-left:.4rem;font-size:.92em;
+}
+.cases>span:nth-child(odd){font-family:var(--serif);font-style:italic}
+.cases>span:nth-child(even){
+  font-family:var(--sans);font-style:normal;font-size:.74em;color:var(--ink-soft);
+  align-self:center;
+}
+/* several equations stacked inside one .eq block, left aligned as a group */
+.mline{display:block;width:fit-content;margin:.32rem auto;text-align:left}
+
 sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
 
 .deriv{display:flex;flex-direction:column;gap:0;margin:1.35rem 0}
@@ -1064,6 +1078,14 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 
   <div class="crosslink">
     <div>
+      <div class="cl-t">Class 2: The price of flexibility</div>
+      <p class="cl-d">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
+    </div>
+    <a href="https://claude.ai/code/artifact/c747a30a-ce77-4fee-8339-d8726a4e94e2" data-local="class2_interactions_and_flexibility.html">On to class 2 &rarr;</a>
+  </div>
+
+  <div class="crosslink">
+    <div>
       <div class="cl-t">Part 1: What is machine learning</div>
       <p class="cl-d">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
     </div>
@@ -1302,6 +1324,22 @@ function solveLin(A, c){
   }
   return out;
 }
+/* Least squares for any design matrix. rows[k] is one observation's predictor
+   vector, including its own leading 1 for the intercept. Same normal equations
+   as the single-predictor case, just larger. */
+function lstsq(rows, y){
+  var m = rows[0].length, i, j, k;
+  var A = [], b = [];
+  for (i=0;i<m;i++){ A.push(new Array(m).fill(0)); b.push(0); }
+  for (k=0;k<rows.length;k++){
+    for (i=0;i<m;i++){
+      b[i] += rows[k][i]*y[k];
+      for (j=0;j<m;j++) A[i][j] += rows[k][i]*rows[k][j];
+    }
+  }
+  for (i=0;i<m;i++) A[i][i] += 1e-9;      /* keeps a degenerate design solvable */
+  return solveLin(A, b);
+}
 /* Chebyshev polynomial regression — well-conditioned up to high degree */
 function chebBasis(t, m){
   var T = new Array(m); T[0] = 1;
@@ -1338,6 +1376,101 @@ function kernelFit(xs, ys, h){
     }
     return den > 1e-12 ? num/den : NaN;
   };
+}
+
+/* ---------- a small orthographic 3D stage ----------
+   mk3d("canvasId", height) gives a rotatable unit cube, -1..1 on every axis.
+   Orthographic on purpose: parallel edges stay parallel and a flat surface
+   reads as flat, which a perspective divide would spoil. The scale is measured
+   once from the worst rotation, so turning the figure never resizes it. */
+function mk3d(id, height){
+  var el = document.getElementById(id);
+  if (!el) return null;
+  var ctx = el.getContext("2d");
+  var S = { el:el, ctx:ctx, yaw:-0.68, pitch:0.46, W:0, H:height || 360, SC:1 };
+  var HOME = { yaw:S.yaw, pitch:S.pitch };
+
+  S.raw = function(x, y, z, yw, pt){
+    if (yw === undefined) yw = S.yaw;
+    if (pt === undefined) pt = S.pitch;
+    var cy = Math.cos(yw), sy = Math.sin(yw), cp = Math.cos(pt), sp = Math.sin(pt);
+    var X = x*cy - z*sy, Z = x*sy + z*cy;
+    return { X: X, Y: y*cp - Z*sp, d: y*sp + Z*cp };
+  };
+  S.at = function(x, y, z){
+    var r = S.raw(x, y, z);
+    return { x: S.W/2 + r.X*S.SC, y: S.H/2 - r.Y*S.SC, d: r.d };
+  };
+  /* worst projected radius of the cube over every rotation: exactly sqrt(3),
+     but measured rather than assumed so the stage survives a changed projection */
+  var MAXR = (function(){
+    var m = 0, a, b, i, r;
+    for (a=0; a<6.2832; a+=0.16)
+      for (b=-3.1416; b<3.1416; b+=0.16)
+        for (i=0;i<8;i++){
+          r = S.raw((i&1)?1:-1, (i&2)?1:-1, (i&4)?1:-1, a, b);
+          if (Math.abs(r.X) > m) m = Math.abs(r.X);
+          if (Math.abs(r.Y) > m) m = Math.abs(r.Y);
+        }
+    return m;
+  })();
+
+  S.sync = function(){
+    if (!el.style.height) el.style.height = S.H + "px";
+    var r = el.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    S.W = r.width;
+    el.width  = Math.max(1, Math.round(S.W*dpr));
+    el.height = Math.max(1, Math.round(S.H*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,S.W,S.H);
+    S.SC = Math.min((S.W/2 - 16)/MAXR, (S.H/2 - 24)/MAXR);
+  };
+  S.seg = function(a, b, style, w, dash){
+    var p = S.at(a[0],a[1],a[2]), q = S.at(b[0],b[1],b[2]);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+    ctx.strokeStyle = style; ctx.lineWidth = w || 1;
+    if (dash) ctx.setLineDash(dash);
+    ctx.stroke(); ctx.restore();
+  };
+  /* labels are clamped: free rotation can swing a corner off the canvas */
+  S.label = function(text, x, y, z, dy, font, color){
+    ctx.save();
+    ctx.font = font || '10px "IBM Plex Mono", monospace';
+    ctx.fillStyle = color || col("--ink-soft");
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    var q = S.at(x,y,z), half = ctx.measureText(text).width/2 + 3;
+    ctx.fillText(text, Math.max(half, Math.min(S.W-half, q.x)),
+                       Math.max(10, Math.min(S.H-6, q.y + (dy||0))));
+    ctx.restore();
+  };
+  /* the floor square and four uprights, so the box reads as a box */
+  S.box = function(){
+    var f = alpha(col("--ink-faint"), .5), g = alpha(col("--ink-faint"), .18);
+    S.seg([-1,-1,-1],[1,-1,-1], f); S.seg([1,-1,-1],[1,-1,1], f);
+    S.seg([1,-1,1],[-1,-1,1], f);   S.seg([-1,-1,1],[-1,-1,-1], f);
+    [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(function(c){ S.seg([c[0],-1,c[1]],[c[0],1,c[1]], g); });
+  };
+  /* which of two parallel floor edges currently faces the viewer */
+  S.frontZ = function(){ return S.at(0,-1,-1).d <= S.at(0,-1,1).d ? -1 : 1; };
+  S.frontX = function(){ return S.at(-1,-1,0).d <= S.at(1,-1,0).d ? -1 : 1; };
+
+  S.orbit = function(redraw){
+    var down = false, lx = 0, ly = 0;
+    el.addEventListener("pointerdown", function(e){
+      down = true; lx = e.clientX; ly = e.clientY; el.setPointerCapture(e.pointerId);
+    });
+    el.addEventListener("pointermove", function(e){
+      if (!down) return;
+      S.yaw   += (e.clientX - lx) * 0.011;
+      S.pitch += (e.clientY - ly) * 0.009;
+      lx = e.clientX; ly = e.clientY;
+      redraw();
+    });
+    window.addEventListener("pointerup", function(){ down = false; });
+  };
+  S.home = function(){ S.yaw = HOME.yaw; S.pitch = HOME.pitch; };
+  return S;
 }
 
 /* ---------- layer toggles ----------

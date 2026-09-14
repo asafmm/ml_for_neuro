@@ -1,4 +1,4 @@
-<title>Estimating f</title>
+<title>The Price of Flexibility</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
@@ -534,17 +534,17 @@ section.tabpanel{padding:2.6rem 0 0}
 
 <aside class="rail">
   <div class="rail-head">
-    <div class="course">1501.1027 &middot; Class 1 &middot; Part 1</div>
-    <div class="name">What is<br>Machine Learning</div>
+    <div class="course">1501.1027 &middot; Class 2</div>
+    <div class="name">Interactions,<br>KNN, Bias &amp; Variance</div>
     <div class="meta">Machine Learning for Neuroscience<br>Tel Aviv University</div>
   </div>
 
   <nav class="toc" id="toc">
-    <a href="#s1"><span class="n">01</span><span>What is machine learning?</span></a>
-    <a href="#s3"><span class="n">02</span><span>Fitting vs. predicting</span></a>
-    <a href="#s4"><span class="n">03</span><span>Supervised vs. unsupervised</span></a>
-    <a href="#s5"><span class="n">04</span><span>Regression vs. classification</span></a>
-    <a href="#s6"><span class="n">05</span><span>Look before you model</span></a>
+    <a href="#s21"><span class="n">01</span><span>Interaction with a group</span></a>
+    <a href="#s22"><span class="n">02</span><span>Two continuous predictors</span></a>
+    <a href="#s23"><span class="n">03</span><span>KNN regression</span></a>
+    <a href="#s24"><span class="n">04</span><span>Bias and variance</span></a>
+    <a href="#s25"><span class="n">05</span><span>Glossary</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -558,369 +558,394 @@ section.tabpanel{padding:2.6rem 0 0}
 <div class="hero">
   <div class="wrap">
     <div>
-      <div class="kicker">Class 1 &middot; Part 1 of 2</div>
-      <h1>Estimating <em>f</em></h1>
-      <p class="lede">Every model in this course is an attempt to guess a function you will never actually see. Six ideas that decide what kind of guess you are making.</p>
+      <div class="kicker">Class 2 &middot; Interactive companion</div>
+      <h1>The Price of<br><em>Flexibility</em></h1>
+      <p class="lede">Four ways of letting a model bend, and the bill that arrives with each one. Interactions, nearest neighbours, and the trade that decides how much bending is worth paying for.</p>
       <p class="credits">
         Dr. Asaf Madar &middot; lecturer
       </p>
     </div>
     <div class="hero-fig">
-      <div class="hero-cap">n = 40 &middot; least-squares fit</div>
-      <canvas id="cvHero" height="290"></canvas>
+      <div class="hero-cap">18 cohorts &middot; one average fit</div>
+      <canvas id="cvHeroC" height="290"></canvas>
     </div>
   </div>
 </div>
 
 <div class="wrap">
-<!-- ==================== 01 ==================== -->
-<section id="s1">
-  <div class="shead"><div class="num">01</div><h2>What is machine learning?</h2></div>
+
+<!-- ==================== 21 ==================== -->
+<section id="s21">
+  <div class="shead"><div class="num">01</div><h2>Interaction with a group</h2></div>
   <div class="prose">
-    <p>In Machine Learning, we are interested in estimating the function that maps between inputs <span class="m">X</span> and an output <span class="m">y</span>. 
-      <br><span class="m">X</span> could be cortical thickness, and <span class="m">y</span> could be age. Firing rate to stimulus contrast. Voxel patterns to what a person is looking at. 
-      <br>We call this connecting function <span class="m">f</span>:</p>
+    <p>Last class every predictor was a number. Plenty are not: sex, diagnosis, scanner site, task condition.</p>
+    <p>A two-category variable becomes a <strong>dummy</strong>: one column that is 0 or 1.</p>
   </div>
 
-  <div class="eq"><span class="m">y</span> = <span class="m">f</span>(<span class="m">x</span>) + <span class="m">&epsilon;</span></div>
+  <div class="eq">
+    <span class="m">d<sub>i</sub></span> =
+    <span class="cases">
+      <span>0</span><span>subject <span class="m">i</span> is a control</span>
+      <span>1</span><span>subject <span class="m">i</span> is a patient</span>
+    </span>
+  </div>
 
   <div class="prose">
-    <p><span class="m">x</span> here is list of measurements of one feature (or "predictor"). 
-      <br><span class="m">y</span> is another list of meausrements, or labels, which represent the outcome (or "target"). 
-      <br><span class="m">&epsilon;</span> is everything that we cannot, or did not measure and control for: measurement noise, biological variability, the variables we did not record. 
-      <br><span class="m">&epsilon;</span> is why two subjects with identical <span class="m">x</span> still give you different <span class="m">y</span>, and why two measurements from the same subject still give you different <span class="m">y</span>.</p>
-    <p>Importantly, we never get to see <span class="m">f</span>.
-      <br>We only see a list of noisy <span class="m">(x, y)</span> pairs. Machine learning is the process of using that list to build an estimation of <span class="m">f</span>, called <span class="m"><span class="hat f">f</span></span> (f-hat), that is good enough to be useful.</p>
-    <p>For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function f that maps the two is a fifth-degree polynomial. 
-      <br>The simulation knows that polynomial, but we just get a table of observations:</p>
+    <p>With <span class="m">k</span> categories we need <span class="m">k</span> &minus; 1 dummies, never <span class="m">k</span>. Three sites take two columns, and the category left out becomes the <strong>baseline</strong>: the one <span class="m">&beta;<sub>0</sub></span> describes. Adding the third column would let the model write the same prediction in infinitely many ways, and there would be no unique answer to solve for.</p>
+    <p>Now put the dummy next to a continuous predictor. There are three models we could write, and the difference between them is the point of this tab:</p>
+  </div>
+
+  <div class="eq">
+    <span class="mline">1&nbsp;&nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span></span>
+    <span class="mline">2&nbsp;&nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> + <span class="m">&beta;<sub>2</sub></span><span class="m">d</span></span>
+    <span class="mline">3&nbsp;&nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> + <span class="m">&beta;<sub>2</sub></span><span class="m">d</span> + <span class="m">&beta;<sub>3</sub></span><span class="m">x</span><span class="m">d</span></span>
+  </div>
+
+  <div class="prose">
+    <p>Read model 3 by substituting the two values of <span class="m">d</span>:</p>
+    <ul>
+      <li>Controls, <span class="m">d</span> = 0: &nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span></li>
+      <li>Patients, <span class="m">d</span> = 1: &nbsp;<span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span>) + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span>)<span class="m">x</span></li>
+    </ul>
+    <p>Two separate lines. <span class="m">&beta;<sub>2</sub></span> shifts one up or down, and <span class="m">&beta;<sub>3</sub></span> tilts it. That tilt is the <strong>interaction</strong>: the effect of age on memory is not the same in the two groups.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Your data</div>
-      <div class="hint">live: it tracks the controls below</div>
-    </div>
-    <div class="panel-body dfsplit">
-      <div class="tblwrap" style="margin:0">
-        <table class="tbl df" id="truthTbl"></table>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <p>Plotted, those rows become a scatter.
-      <br><strong>Try to draw the curve yourself first</strong>, then switch on the estimate, and only then reveal the truth.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">The unknown function</div>
-      <div class="hint">switch the layers on and off under the plot</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <canvas id="cvTruth" class="cv" height="330"></canvas>
-        <div id="truthLayers"></div>
-        <p class="notecap">This cell is not a textbook bell. It has a best frequency near 7 kHz, a suppressed band around 15 kHz, and a second response region near 23 kHz. Not a shape we could guess from a handful of trials.</p>
-      </div>
-      <div class="ctl">
-        <div class="ctl-row">
-          <label>trials recorded <span class="v" id="truthNv">12</span></label>
-          <input type="range" id="truthN" min="4" max="200" value="12" step="1">
-        </div>
-        <div class="ctl-row">
-          <label>noise <span class="m">&sigma;</span> (spikes/s) <span class="v" id="truthSv">10</span></label>
-          <input type="range" id="truthS" min="0" max="20" value="10" step="1">
-        </div>
-        <div class="btnrow"><button class="btn" id="truthNew">new sample</button></div>
-        <div class="stats">
-          <div class="stat model"><span class="k">how far <span class="hat f">f</span> is from f</span><span class="val" id="truthGap">&mdash;</span></div>
-        </div>
-        <p class="notecap">Root-mean-square gap between the two curves. More trials, or less noise, pulls it down. It never reaches zero: a smooth estimate can only chase so many bends.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>Many different curves are compatible with our data. Adding data does not change the underlying <span class="m">f</span>, but it narrows down which <span class="m"><span class="hat f">f</span></span> can be estimated.</p>
-  </div>
-</section>
-
-<!-- ==================== 03 ==================== -->
-<section id="s3">
-  <div class="shead"><div class="num">02</div><h2>Fitting vs. predicting</h2></div>
-  <div class="prose">
-    <p>In <strong>fitting</strong>, we have all our data, we fit a model to it, and we interpret the coefficients:
-      <br>Does salary rise with years of education, and by how much? Does accuracy drop as memory load increases?
-      <br>The model describes the data in front of us, and the coefficient is the answer. This is what psychology and economics usually ask for.</p>
-    <p>In <strong>predicting</strong>, we fit on one part of the data, called the <strong>training set</strong>, then ask the model for <span class="m">y</span> on points it has never seen, called the <strong>test set</strong>.
-      <br>Here it does not matter how well the model described the training data. What matters is whether it works on the next subject.</p>
-    <p>The two come apart quickly. A flexible enough model can pass through every training point exactly, so its training error goes to zero. It has learned the noise.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">Overfitting, live</div>
-      <div class="hint">push flexibility to the right and watch the two errors split</div>
+      <div class="t">One line, two parallel lines, or two free lines</div>
+      <div class="hint">change how different the groups really are</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
-        <canvas id="cvOver" class="cv" height="330"></canvas>
-        <canvas id="cvOverU" class="cv" height="160" style="margin-top:.7rem"></canvas>
-        <div id="overLayers"></div>
+        <div class="btnrow" style="margin-bottom:.85rem">
+          <div class="seg" id="ixSeg">
+            <button data-v="1">1 &nbsp;no group</button>
+            <button data-v="2">2 &nbsp;+ dummy</button>
+            <button class="on" data-v="3">3 &nbsp;+ interaction</button>
+          </div>
+        </div>
+        <canvas id="cvIx" class="cv" height="330"></canvas>
+        <div id="ixLayers"></div>
+        <p class="notecap" id="ixCap"></p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>model flexibility: polynomial degree <span class="v" id="overDv">1</span></label>
-          <input type="range" id="overD" min="1" max="12" value="1" step="1">
+          <label>true group difference at the mean age <span class="v" id="ixGv">3.0</span></label>
+          <input type="range" id="ixG" min="-40" max="80" value="30" step="1">
         </div>
-        <div class="stats">
-          <div class="stat plain"><span class="k">train MSE<br><span style="color:var(--ink-faint)">how well it fits</span></span><span class="val" id="overTr">&mdash;</span></div>
-          <div class="stat error"><span class="k">test MSE<br><span style="color:var(--ink-faint)">how well it predicts</span></span><span class="val" id="overTe">&mdash;</span></div>
+        <div class="ctl-row">
+          <label>true difference in slope <span class="v" id="ixSv">-0.12</span></label>
+          <input type="range" id="ixS" min="-30" max="30" value="-12" step="1">
         </div>
-        <div class="btnrow">
-          <button class="btn" id="overBest">jump to the sweet spot</button>
-          <button class="btn" id="overNew">new sample</button>
-        </div>
-        <p class="notecap">Degree 1 is a straight line. Degree 12 is a curve with twelve bends, and it can be dragged through almost anything.</p>
+        <div class="stats" id="ixStats"></div>
+        <div class="btnrow"><button class="btn" id="ixNew">new cohort</button></div>
+        <p class="notecap">Set the slope difference to zero and model 3 stops earning its extra parameter: the two lines come out parallel, and <span class="m">&beta;<sub>3</sub></span> is just noise.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
     <div class="lbl">Key idea</div>
-    <p>Training error always improves as we add flexibility. Test error goes down, bottoms out, then climbs back up. That U-shape is the <strong>bias-variance tradeoff</strong>, and finding its bottom is most of applied ML.</p>
-  </div>
-
-  <div class="prose">
-    <p>Often we want both: estimate <span class="m"><span class="hat f">f</span></span> on a training set, check on a test set that it really predicts, then interpret the coefficients to see which features carried the signal.
-      <br>The third step is only honest if the second one passed.</p>
-  </div>
-</section>
-
-<!-- ==================== 04 ==================== -->
-<section id="s4">
-  <div class="shead"><div class="num">03</div><h2>Supervised vs. unsupervised</h2></div>
-  <div class="prose">
-    <p>The dividing question is simple: <strong>do we have <span class="m">y</span>?</strong></p>
-    <p>If every observation arrives with a label (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
-      <br>Someone already decided what the right answer is, so we can measure how often we get it wrong, and then minimise that.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">Supervised: the labels come with the data</div>
-      <div class="hint">120 subjects, two known groups</div>
-    </div>
-    <div class="panel-body panel-duo">
-      <div>
-        <canvas id="cvSupA" class="cv" height="290"></canvas>
-        <p class="notecap"><b>What we have.</b> Colour is the diagnosis, and it was given to us. No algorithm worked it out.</p>
-      </div>
-      <div>
-        <canvas id="cvSupB" class="cv" height="290"></canvas>
-        <div id="supLayers"></div>
-        <p class="notecap"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <p>If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">x</span>.
-      <br>Which brain regions behave alike? How many cell types are in this recording?
-      <br>Nothing here is right or wrong, so there is no error to minimise.</p>
-    <p><strong>Clustering</strong> is the usual first step. We hand over the points and one number, <span class="m">k</span>, the number of groups to look for, and the algorithm splits the data so that points in a group sit close together.
-      <br>It repeats two steps until nothing moves: assign every point to its nearest centre, then recompute each centre from the points assigned to it.</p>
-    <p>The data below really has three groups, but the algorithm is never told that. Ask it for the wrong number and see what happens:</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">Unsupervised: no labels anywhere</div>
-      <div class="hint">choose how many clusters to look for</div>
-    </div>
-    <div class="panel-body">
-      <div class="btnrow" style="margin-bottom:.95rem">
-        <div class="seg" id="cluSeg">
-          <button data-v="2">k = 2</button>
-          <button class="on" data-v="3">k = 3</button>
-          <button data-v="4">k = 4</button>
-          <button data-v="5">k = 5</button>
-        </div>
-      </div>
-      <div class="panel-duo">
-        <div>
-          <canvas id="cvCluA" class="cv" height="290"></canvas>
-          <p class="notecap"><b>What we have.</b> 150 recordings, two measurements each. No colour, because there is no label to colour by.</p>
-        </div>
-        <div>
-          <canvas id="cvCluB" class="cv" height="290"></canvas>
-          <div id="cluLayers"></div>
-          <p class="notecap" id="cluCap"></p>
-        </div>
-      </div>
-    </div>
+    <p>Without the interaction term, the model is forced to give both groups the same slope. It can move the lines apart but never let them converge or cross. If the groups really do differ in slope, that constraint shows up as a systematic pattern in the residuals.</p>
   </div>
 
   <div class="warn">
-    <b>It always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Both times it hands back tidy clusters and crisp centres, with no hint that anything went wrong. Deciding whether the structure is real, and whether <span class="m">k</span> was right, is on us, not the algorithm.
+    <b>A significant interaction changes how the other coefficients read.</b> In model 3, <span class="m">&beta;<sub>1</sub></span> is no longer &ldquo;the effect of age&rdquo;. It is the effect of age <em>in the baseline group only</em>, and <span class="m">&beta;<sub>2</sub></span> is the group gap <em>at <span class="m">x</span> = 0</em>. Centre your predictors and those two numbers become readable again.
   </div>
 </section>
 
-<!-- ==================== 05 ==================== -->
-<section id="s5">
-  <div class="shead"><div class="num">04</div><h2>Regression vs. classification</h2></div>
+<!-- ==================== 22 ==================== -->
+<section id="s22">
+  <div class="shead"><div class="num">02</div><h2>Two continuous predictors</h2></div>
   <div class="prose">
-    <p>Within supervised learning, the split is about the type of <span class="m">y</span>:
-      <br>Continuous <span class="m">y</span> gives us <strong>regression</strong>. Categorical <span class="m">y</span> gives us <strong>classification</strong>.
-      <br>That choice decides which model we reach for, and which number we report.</p>
+    <p>Nothing about an interaction needs a category. Multiply two continuous predictors together and the same thing happens, only now the moderator varies smoothly instead of switching between two values.</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span>
+    + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>
+    + <span class="m">&beta;<sub>2</sub></span><span class="m">x<sub>2</sub></span>
+    + <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>
+  </div>
+
+  <div class="prose">
+    <p>The trick from the previous tab still works. Collect the <span class="m">x<sub>1</sub></span> terms together:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span><span class="m">x<sub>2</sub></span>)
+    + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>2</sub></span>) <span class="m">x<sub>1</sub></span>
+  </div>
+
+  <div class="prose">
+    <p>Read it as a line in <span class="m">x<sub>1</sub></span> whose slope is itself a straight-line function of <span class="m">x<sub>2</sub></span>.
+      <br>Every value of <span class="m">x<sub>2</sub></span> gives a different line, so instead of two lines we get a whole family of them. With <span class="m">&beta;<sub>3</sub></span> = 0 the family is parallel. Turn <span class="m">&beta;<sub>3</sub></span> up and it fans out.</p>
+    <p>Below, sleep predicts a memory score, and age is the moderator: an interaction means a night of sleep is worth more to some ages than to others.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Two tasks, two error measures</div>
-      <div class="hint">switch tasks</div>
+      <div class="t">A family of lines, one per age</div>
+      <div class="hint">turn the interaction on and watch them fan out</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvFan" class="cv" height="330"></canvas>
+        <div id="fanLayers"></div>
+        <p class="notecap" id="fanCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>interaction <span class="m">&beta;<sub>3</sub></span> <span class="v" id="fanB3v">0.00</span></label>
+          <input type="range" id="fanB3" min="-40" max="40" value="0" step="1">
+        </div>
+        <div class="stats" id="fanStats"></div>
+        <p class="notecap">Each line is the model evaluated at one age, holding age fixed and sweeping sleep. The slope of each line is <span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>2</sub></span>, printed beside it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>The same model as a surface. Without the interaction it is the flat plane from last class. With it, the plane acquires a twist: a <strong>saddle</strong>, high at two opposite corners and low at the other two.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The surface that fan describes</div>
+      <div class="hint">drag to turn it</div>
     </div>
     <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvSaddle" class="cv drag" height="360"></canvas>
+        <p class="notecap">Straight along either axis, curved along the diagonals. Every line you can draw on it parallel to an axis is still straight, which is why this is still a <em>linear</em> model.</p>
+      </div>
+      <div class="ctl">
+        <div id="saddleLayers"></div>
+        <div class="btnrow" style="margin-top:.9rem"><button class="btn" id="saddleReset">reset the view</button></div>
+        <p class="notecap">&ldquo;Linear&rdquo; has always meant linear in the <em>coefficients</em>, not in the predictors. <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> is just another column in <span class="m">X</span>, so least squares solves it with exactly the same normal equations.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>An interaction is not a new kind of model. It is one more column, built by multiplying two columns we already had. Everything from last class still applies: the same RSS, the same derivation, the same solution.</p>
+  </div>
+
+  <div class="warn">
+    <b>Keep the main effects.</b> Fitting <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> without <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span> and <span class="m">&beta;<sub>2</sub></span><span class="m">x<sub>2</sub></span> forces the family of lines to pivot about a point the data never chose. The convention, called the hierarchy principle, is to include both main effects whenever their interaction is in the model, even if one of them looks unimpressive on its own.
+  </div>
+</section>
+
+<!-- ==================== 23 ==================== -->
+<section id="s23">
+  <div class="shead"><div class="num">03</div><h2>K-nearest-neighbours regression</h2></div>
+  <div class="prose">
+    <p>Every model so far assumed a shape and then estimated its coefficients. KNN assumes nothing at all.</p>
+    <p>To predict at a point <span class="m">x<sub>0</sub></span>: find the <span class="m">K</span> training points closest to it, and average their <span class="m">y</span>.</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">f&#770;</span>(<span class="m">x<sub>0</sub></span>) =
+    <span class="frac"><span>1</span><span><span class="m">K</span></span></span>
+    <span class="sum"><span class="lim"></span><span class="sig">&Sigma;</span><span class="lim">x<sub>i</sub> &isin; N<sub>0</sub></span></span>
+    <span class="m">y<sub>i</sub></span>
+  </div>
+
+  <div class="prose">
+    <p>That is the whole method. There is no training step and nothing to solve: the model <em>is</em> the data. Methods like this are called <strong>non-parametric</strong>, because the number of things they remember grows with <span class="m">n</span> instead of being fixed at <span class="m">p</span> + 1.</p>
+    <p><span class="m">K</span> controls how much smoothing happens. <span class="m">K</span> = 1 copies the nearest neighbour exactly, noise and all. Large <span class="m">K</span> averages over a wide neighbourhood and flattens toward the overall mean.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">KNN against a straight line</div>
+      <div class="hint">switch the truth between linear and curved</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
       <div>
         <div class="btnrow" style="margin-bottom:.85rem">
-          <div class="seg" id="rcSeg">
-            <button class="on" data-v="reg">regression</button>
-            <button data-v="cls">classification</button>
+          <div class="seg" id="knSeg">
+            <button data-v="lin">the truth is linear</button>
+            <button class="on" data-v="cur">the truth is curved</button>
           </div>
         </div>
-        <canvas id="cvRC" class="cv" height="320"></canvas>
-        <div id="rcLayersReg"></div>
-        <div id="rcLayersCls"></div>
-        <p class="notecap" id="rcCap"></p>
-      </div>
-      <div class="ctl">
-        <div id="rcRegBox">
-          <div class="eq tight" style="margin-top:0">
-            MSE =
-            <span class="frac"><span>1</span><span><span class="m">n</span></span></span>
-            <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
-            (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup>
-          </div>
-          <p class="notecap">The average squared miss. Squaring means one wild error costs far more than several small ones. It also means the units are <span class="m">y</span> squared, which is why we often report the square root instead.</p>
-        </div>
-        <div id="rcClsBox" style="display:none">
-          <div class="eq tight" style="margin-top:0">
-            acc =
-            <span class="frac"><span>1</span><span><span class="m">n</span></span></span>
-            <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
-            <span class="mu">&#120128;</span>(<span class="m">y<sub>i</sub></span> = <span class="m"><span class="hat">y</span><sub>i</sub></span>)
-          </div>
-          <p class="notecap">The proportion we got right. <span class="mu">&#120128;</span> is 1 when the prediction matches and 0 when it does not.</p>
-        </div>
-        <div class="stats" id="rcStats"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="warn">
-    <b>Accuracy lies when classes are unbalanced.</b> If 5&#37; of our cohort has the disease, a model that answers &ldquo;healthy&rdquo; every time scores 95&#37; accuracy and has learned nothing. Drag the slider below and watch a useless model look excellent.
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">The always-healthy classifier</div>
-      <div class="hint">a model with no inputs at all</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <canvas id="cvBal" class="cv" height="180"></canvas>
-        <p class="notecap">Every square is a subject. This &ldquo;model&rdquo; predicts <em>healthy</em> for all of them, always.</p>
+        <canvas id="cvKnn" class="cv" height="330"></canvas>
+        <canvas id="cvKnnU" class="cv" height="160" style="margin-top:.7rem"></canvas>
+        <div id="knnLayers"></div>
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>prevalence of disease <span class="v" id="balPv">50&#37;</span></label>
-          <input type="range" id="balP" min="1" max="50" value="50" step="1">
+          <label>neighbours <span class="m">K</span> <span class="v" id="knKv">10</span></label>
+          <input type="range" id="knK" min="1" max="40" value="10" step="1">
         </div>
-        <div class="stats">
-          <div class="stat model"><span class="k">accuracy</span><span class="val" id="balAcc">&mdash;</span></div>
-          <div class="stat error"><span class="k">patients found (recall)</span><span class="val" id="balRec">0&#37;</span></div>
+        <div class="stats" id="knnStats"></div>
+        <div class="btnrow">
+          <button class="btn" id="knBest">best K</button>
+          <button class="btn" id="knNew">new sample</button>
         </div>
-        <p class="notecap">Accuracy climbs toward 99&#37; while the model catches exactly zero patients. Always report a measure that can see the class we actually care about.</p>
+        <p class="notecap" id="knnCap"></p>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== 06 ==================== -->
-<section id="s6">
-  <div class="shead"><div class="num">05</div><h2>Look before you model</h2></div>
-  <div class="prose">
-    <p>Exploratory data analysis is not a warm-up. It is where we find out that a sensor was disconnected for subject 12, that age and scanner site are confounded, or that our &ldquo;continuous&rdquo; variable is really four discrete values.</p>
-    <p>Two habits are worth building now.</p>
-
-    <h3>Know what a correlation looks like</h3>
-    <p>Neuroscience papers are full of <span class="m">r</span> = 0.3. Most of us picture a much tighter cloud than that. Calibrate your eye:</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">What does <span class="m">r</span> = 0.3 look like?</div>
-      <div class="hint">drag through the whole range</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <canvas id="cvCorr" class="cv" height="300"></canvas>
-        <div id="corrLayers"></div>
-      </div>
-      <div class="ctl">
-        <div class="ctl-row">
-          <label>correlation <span class="m">r</span> <span class="v" id="corrRv">0.30</span></label>
-          <input type="range" id="corrR" min="-95" max="95" value="30" step="1">
-        </div>
-        <div class="stats">
-          <div class="stat plain"><span class="k">sample <span class="m">r</span></span><span class="val" id="corrSamp">&mdash;</span></div>
-          <div class="stat model"><span class="k"><span class="m">r</span><sup>2</sup>: variance explained</span><span class="val" id="corrR2">&mdash;</span></div>
-        </div>
-        <div class="btnrow"><button class="btn" id="corrNew">new sample</button></div>
-        <p class="notecap">At <span class="m">r</span> = 0.3 the model accounts for 9&#37; of the variance in <span class="m">y</span>. The cloud looks close to round, and it should.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <h3>Never trust a summary statistic on its own</h3>
-    <p>These four datasets share the same mean <span class="m">x</span>, the same mean <span class="m">y</span>, the same variances, the same correlation, and the same fitted line, to two decimal places.
-      <br>Anscombe built them in 1973 to make exactly this point, and it has not aged a day.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">Anscombe&rsquo;s quartet</div>
-      <div class="hint">identical statistics, four different stories</div>
-    </div>
-    <div class="panel-body">
-      <div class="panel-quad">
-        <div><canvas id="cvAns0" class="cv" height="215"></canvas></div>
-        <div><canvas id="cvAns1" class="cv" height="215"></canvas></div>
-        <div><canvas id="cvAns2" class="cv" height="215"></canvas></div>
-        <div><canvas id="cvAns3" class="cv" height="215"></canvas></div>
-      </div>
-      <div id="ansLayers"></div>
-      <div class="tblwrap" style="margin-top:1rem">
-        <table class="tbl" id="ansTbl"></table>
-      </div>
-      <p class="notecap">I: a real linear relationship. II: a curve, badly served by a line. III: a perfect line plus one outlier that tilts it. IV: no relationship at all, plus one point with total leverage.</p>
     </div>
   </div>
 
   <div class="key">
     <div class="lbl">Key idea</div>
-    <p>Plot the data. Then plot the residuals. Two summary numbers and a <span class="m">p</span>-value cannot tell any of these four apart.</p>
+    <p>When the truth really is a line, linear regression wins and no value of <span class="m">K</span> catches it: the parametric model already knows the answer's shape, so it spends all its data estimating two numbers. When the truth curves, that assumption becomes a liability and KNN overtakes it.</p>
   </div>
+
+  <div class="prose">
+    <h3>Why this stops working in neuroscience</h3>
+    <p>KNN needs neighbours that are genuinely near. In one dimension that is easy. As <span class="m">p</span> grows, the space empties out: to capture 10&#37; of the data in a cube, you need to reach 10&#37; of the range along one axis, but 63&#37; along each of ten axes. The &ldquo;nearest&rdquo; neighbours are no longer near, and the average is taken over points that have little to do with <span class="m">x<sub>0</sub></span>.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The curse of dimensionality</div>
+      <div class="hint">how far you must reach to find 10&#37; of the data</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvCurse" class="cv" height="250"></canvas>
+        <p class="notecap">The side length of the cube you need in order to enclose a fixed fraction of a uniformly filled space, as dimensions are added.</p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>fraction of the data wanted <span class="v" id="curseFv">10&#37;</span></label>
+          <input type="range" id="curseF" min="1" max="50" value="10" step="1">
+        </div>
+        <div class="stats" id="curseStats"></div>
+        <p class="notecap">A 500-voxel pattern is 500 dimensions. This is why a flexible method that looks unbeatable on one predictor can be worse than a straight line on real imaging data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 24 ==================== -->
+<section id="s24">
+  <div class="shead"><div class="num">04</div><h2>Bias and variance</h2></div>
+  <div class="prose">
+    <p>Last class we watched test error fall, bottom out, then climb as a model got more flexible. This tab is the reason it does that.</p>
+    <p>Imagine repeating the whole study many times: same population, same design, a fresh cohort each time. Every cohort gives a slightly different fitted model. Two separate things can go wrong.</p>
+    <ul>
+      <li><strong>Bias</strong> is how far the <em>average</em> of those fits sits from the truth. It is the error the model makes by being the wrong shape, and more data will not remove it.</li>
+      <li><strong>Variance</strong> is how much the fits differ from each other. It is the error that comes from having fitted this particular cohort rather than another.</li>
+    </ul>
+    <p>Below, the study is repeated thirty times at whatever flexibility you choose.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">Thirty cohorts, thirty fits</div>
+      <div class="hint">slide flexibility from too little to far too much</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvBV" class="cv" height="340"></canvas>
+        <div id="bvLayers"></div>
+        <p class="notecap" id="bvCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>flexibility: polynomial degree <span class="v" id="bvDv">1</span></label>
+          <input type="range" id="bvD" min="1" max="10" value="1" step="1">
+        </div>
+        <div class="ctl-row">
+          <label>subjects per cohort <span class="v" id="bvNv">40</span></label>
+          <input type="range" id="bvN" min="25" max="120" value="40" step="1">
+        </div>
+        <div class="stats" id="bvStats"></div>
+        <p class="notecap">Squared bias and variance are averaged across the range of <span class="m">x</span>. Their sum, plus the noise that no model can remove, is the expected test error at a new point.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="eq">
+    E[(<span class="m">y</span> &minus; <span class="m">f&#770;</span>(<span class="m">x</span>))<sup>2</sup>]
+    &nbsp;=&nbsp; Bias(<span class="m">f&#770;</span>)<sup>2</sup>
+    &nbsp;+&nbsp; Var(<span class="m">f&#770;</span>)
+    &nbsp;+&nbsp; Var(<span class="m">&epsilon;</span>)
+  </div>
+
+  <div class="prose">
+    <p>Three terms, and only the first two are ours to trade. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
+    <p>The two we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The trade, drawn out</div>
+      <div class="hint">the dashed line marks your current degree</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvBVcurve" class="cv" height="300"></canvas>
+        <p class="notecap">Squared bias falls, variance rises, and their sum is U-shaped. Where that U bottoms out is the flexibility worth choosing. The vertical axis is logarithmic, because the two curves span two orders of magnitude across this range.</p>
+      </div>
+      <div class="ctl">
+        <div id="bvcLayers"></div>
+        <div class="stats" id="bvcStats" style="margin-top:.9rem"></div>
+        <p class="notecap">Drag the subject count in the panel above and watch the curve shift. More data lowers variance at every degree, which nudges the sweet spot rightward: bigger samples can afford more flexibility.
+          <br>Past that point the measured bias drifts upward too. With only thirty cohorts the average fit is itself an estimate, and once variance is large that estimate gets noisy. Real bias does not rise; our measurement of it does.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost you, and the cost is measured on data the model has not seen.</p>
+  </div>
+
+  <div class="warn">
+    <b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many cohorts, and in a real study you have neither. That is what a test set is for: it estimates their sum directly, without ever separating them.
+  </div>
+</section>
+
+<!-- ==================== 25 ==================== -->
+<section id="s25">
+  <div class="shead"><div class="num">05</div><h2>Glossary</h2></div>
+  <div class="prose">
+    <p>Everything introduced today, on top of the class 1 glossary.</p>
+  </div>
+
+  <div class="gloss">
+    <div class="gitem"><div class="gt">dummy</div><div class="gd">A 0/1 column standing for one category. <span class="m">k</span> categories need <span class="m">k</span> &minus; 1 of them.</div></div>
+    <div class="gitem"><div class="gt">baseline</div><div class="gd">The category left without a dummy. <span class="m">&beta;<sub>0</sub></span> describes it, and every other coefficient is a difference from it.</div></div>
+    <div class="gitem"><div class="gt">main effect</div><div class="gd">A predictor&rsquo;s own term, <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>, as opposed to its interaction.</div></div>
+    <div class="gitem"><div class="gt">interaction</div><div class="gd">A product column <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>. It lets the effect of one predictor depend on the value of another.</div></div>
+    <div class="gitem"><div class="gt">hierarchy principle</div><div class="gd">Keep both main effects whenever their interaction is in the model.</div></div>
+    <div class="gitem"><div class="gt">moderator</div><div class="gd">The predictor doing the changing. In <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> either one can be read as the moderator.</div></div>
+    <div class="gitem"><div class="gt">saddle</div><div class="gd">The surface an interaction makes: straight along each axis, twisted along the diagonals.</div></div>
+    <div class="gitem"><div class="gt">parametric</div><div class="gd">A model with a fixed number of coefficients, chosen in advance. Linear regression is parametric.</div></div>
+    <div class="gitem"><div class="gt">non-parametric</div><div class="gd">A model that keeps the data instead of summarising it. KNN is non-parametric.</div></div>
+    <div class="gitem"><div class="gt">KNN</div><div class="gd">Predict at a point by averaging the <span class="m">y</span> of its <span class="m">K</span> nearest training points.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">K</span></div><div class="gd">How many neighbours to average. Small <span class="m">K</span> is flexible and noisy, large <span class="m">K</span> is smooth and blunt.</div></div>
+    <div class="gitem"><div class="gt">curse of dimensionality</div><div class="gd">In many dimensions, the nearest neighbours are not near. Flexible local methods lose their advantage.</div></div>
+    <div class="gitem"><div class="gt">flexibility</div><div class="gd">How many shapes a model can take. Polynomial degree and 1/<span class="m">K</span> are both measures of it.</div></div>
+    <div class="gitem"><div class="gt">bias</div><div class="gd">How far the average fit sits from the truth. The error of being the wrong shape.</div></div>
+    <div class="gitem"><div class="gt">variance</div><div class="gd">How much the fit changes from one cohort to the next.</div></div>
+    <div class="gitem"><div class="gt">irreducible error</div><div class="gd">Var(<span class="m">&epsilon;</span>). The floor no model can go below.</div></div>
+    <div class="gitem"><div class="gt">bias-variance<br>tradeoff</div><div class="gd">Flexibility lowers one and raises the other. Test error is smallest where their sum is.</div></div>
+  </div>
+
+  <div class="prose" style="margin-top:1.6rem">
+    <h3>Next time</h3>
+    <p>What to do when a model has more flexibility than the data can pay for: shrinking coefficients toward zero, and choosing how much to shrink without touching the test set.</p>
+  </div>
+
   <div class="crosslink">
     <div>
-      <div class="cl-t">Part 2: Linear regression</div>
-      <p class="cl-d">The linear model, least squares, the OLS derivation, R&sup2;, and what small samples do to all of it.</p>
+      <div class="cl-t">Class 1: Least squares</div>
+      <p class="cl-d">The linear model, RSS, the OLS derivation, R&sup2;, and the plane for two predictors.</p>
     </div>
-    <a href="https://claude.ai/code/artifact/26a2f573-b6e2-40b6-ad0f-83d17b0c0305" data-local="class1_part2_linear_regression.html">Continue &rarr;</a>
+    <a href="https://claude.ai/code/artifact/26a2f573-b6e2-40b6-ad0f-83d17b0c0305" data-local="class1_part2_linear_regression.html">Back to class 1 &rarr;</a>
   </div>
+
+  <footer>
+    Machine Learning for Neuroscience &middot; 1501.1027 &middot; Semester A, 5787<br>
+    Course text: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning with Applications in Python</em> (2023). Chapter 3.3 covers interactions, 3.5 covers KNN regression, and 2.2 covers the bias-variance tradeoff.<br>
+    All data on this page is simulated.
+  </footer>
 </section>
 
 </div><!-- /wrap -->
@@ -1452,712 +1477,675 @@ var TABS = (function(){
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ redrawAll(); });
 })();
 
+
 /* ============================================================
-   HERO
+   HERO — many cohorts, many fits, one average
    ============================================================ */
 (function(){
-  var p = mkPlot("cvHero", {padL:8, padR:8, padT:12, padB:8, xd:[0,10], yd:[-1,11]});
+  var p = mkPlot("cvHeroC", {padL:8, padR:8, padT:14, padB:8, xd:[0,1], yd:[-2,2.4]});
   if (!p) return;
-  var r = rng(20260906), X = [], Y = [];
-  for (var i=0;i<40;i++){
-    var x = r()*9.4 + 0.3;
-    X.push(x); Y.push(1.1 + 0.86*x + gauss(r)*1.35);
-  }
-  var f = ols(X, Y);
-  var prog = 0;
+  function trueF(x){ return 1.2*Math.sin(2*Math.PI*0.82*x) + 0.45*x - 0.15; }
+
+  var GRID = [], i;
+  for (i=0;i<=50;i++) GRID.push(i/50);
+
+  /* eighteen cohorts of twenty, each fitted with a degree-7 polynomial:
+     flexible enough that the fits visibly disagree with one another */
+  var curves = [], mean = GRID.map(function(){ return 0; });
+  (function(){
+    var r = rng(8123), k, j;
+    for (k=0;k<18;k++){
+      var xs = [], ys = [];
+      for (j=0;j<20;j++){ var x = r(); xs.push(x); ys.push(trueF(x) + gauss(r)*0.34); }
+      var f = polyFit(xs, ys, 7, 0, 1);
+      var cv = GRID.map(f);
+      curves.push(cv);
+      for (j=0;j<GRID.length;j++) mean[j] += cv[j]/18;
+    }
+  })();
+
+  var shown = 0;
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduced) prog = 1;
+  if (reduced) shown = curves.length;
+
+  function path(ctx, cv, upto){
+    ctx.beginPath();
+    for (var g=0; g<GRID.length; g++){
+      var X = p.x(GRID[g]), Y = p.y(cv[g]);
+      if (g===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+    }
+    ctx.stroke();
+  }
 
   function draw(){
     p.sync();
     var ctx = p.ctx;
-    var b1 = f.b1 * prog + (-0.55) * (1-prog);
-    var b0 = f.b0 * prog + (8.4) * (1-prog);
-    /* residual whiskers */
-    ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), 0.34); ctx.lineWidth = 1.2;
-    for (var i=0;i<X.length;i++){
-      ctx.beginPath(); ctx.moveTo(p.x(X[i]), p.y(Y[i])); ctx.lineTo(p.x(X[i]), p.y(b0+b1*X[i])); ctx.stroke();
-    }
+    p.clip();
+    ctx.save();
+    ctx.strokeStyle = alpha(col("--c-model"), .26); ctx.lineWidth = 1.2;
+    for (var k=0;k<Math.min(shown, curves.length);k++) path(ctx, curves[k]);
     ctx.restore();
-    p.fnline(function(x){ return b0 + b1*x; }, {w:2.6});
-    var pts = X.map(function(v,i){ return [v, Y[i]]; });
-    p.dots(pts, {r:4, color: alpha(col("--c-data"), 0.85)});
+    p.unclip();
+    p.fnline(trueF, {color: col("--ink-faint"), w:1.8, dash:[6,5]});
+    if (shown >= curves.length){
+      ctx.save(); p.clip();
+      ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 2.6; ctx.lineJoin = "round";
+      path(ctx, mean);
+      p.unclip(); ctx.restore();
+    }
   }
   reg(draw);
+
   if (!reduced){
     var t0 = null;
-    function step(ts){
+    requestAnimationFrame(function step(ts){
       if (t0 === null) t0 = ts;
-      var u = Math.min(1, (ts - t0)/1200);
-      prog = 1 - Math.pow(1-u, 3);
+      var u = Math.min(1, (ts - t0)/1600);
+      shown = Math.round(u * curves.length);
       draw();
       if (u < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
+    });
   }
 })();
 
 /* ============================================================
-   01 — the unknown function
+   01 — interaction with a group
    ============================================================ */
 (function(){
-  var X0 = 4, X1 = 32;                      /* pure-tone frequency, kHz */
-  var p = mkPlot("cvTruth", {xd:[X0,X1], yd:[0,100], padL:42, padB:34});
+  var XD = [-16, 16], YD = [30, 70];
+  var p = mkPlot("cvIx", {xd:XD, yd:YD, padL:44, padB:38});
   if (!p) return;
-  var elN = document.getElementById("truthN"), elS = document.getElementById("truthS");
-  var lbN = document.getElementById("truthNv"), lbS = document.getElementById("truthSv");
-  var btn = document.getElementById("truthNew");
-  var gapEl = document.getElementById("truthGap");
-  var L = layerToggles("truthLayers", [
-    {k:"data",  label:"the trials",   kind:"dot",  col:"--c-data"},
-    {k:"hat",   label:"estimate f̂", kind:"ln",   col:"--c-model", on:false},
-    {k:"truth", label:"true f",       kind:"dash", col:"--ink-faint", on:false}
-  ], function(){ draw(); });
-  var tblEl = document.getElementById("truthTbl");
-  var seed = 7;
+  var elG = document.getElementById("ixG"), elS = document.getElementById("ixS");
+  var lbG = document.getElementById("ixGv"), lbS = document.getElementById("ixSv");
+  var statsEl = document.getElementById("ixStats"), capEl = document.getElementById("ixCap");
+  var mode = 3, seed = 909;
 
-  /* The hidden rule. A fifth-degree polynomial in t = (x-18)/14, deliberately
-     not a textbook bell: best frequency ~7 kHz at 83 spikes/s, a suppressed
-     band around 15 kHz, a second response region near 23 kHz, and the start of
-     a third at the top of the range. Stays between 7 and 83 spikes/s. */
-  function trueF(x){
-    var t = (x - 18)/14;                    /* -1 .. 1 */
-    return ((((359.924*t - 96.469)*t - 435.470)*t + 85.396)*t + 85.663)*t + 30.724;
+  var L = layerToggles("ixLayers", [
+    {k:"ctrl",  label:"controls", kind:"dot", col:"--c-test"},
+    {k:"pat",   label:"patients", kind:"dot", col:"--c-model"},
+    {k:"fit",   label:"fitted",   kind:"ln",  col:"--ink"},
+    {k:"truth", label:"the truth",kind:"dash",col:"--ink-faint"}
+  ], function(){ draw(); });
+
+  function sample(G, Sd){
+    var r = rng(seed), X = [], D = [], Y = [];
+    for (var i=0;i<64;i++){
+      var d = i < 32 ? 0 : 1;
+      var x = -14 + 28*r();
+      X.push(x); D.push(d);
+      Y.push(50 - 0.30*x + G*d + Sd*x*d + gauss(r)*2.4);
+    }
+    return {X:X, D:D, Y:Y};
+  }
+  function design(S, m){
+    return S.X.map(function(x, i){
+      if (m === 1) return [1, x];
+      if (m === 2) return [1, x, S.D[i]];
+      return [1, x, S.D[i], x*S.D[i]];
+    });
   }
 
   function draw(){
-    var n = +elN.value, sg = +elS.value;
-    lbN.textContent = n; lbS.textContent = sg;
-    var span = X1 - X0;
-    var r = rng(seed), X = [], Y = [], i;
-    for (i=0;i<n;i++){
-      var x = X0 + 0.4 + (i + r()*0.9) * ((span - 0.8)/n);
-      X.push(x);
-      Y.push(Math.max(0, trueF(x) + gauss(r)*sg));   /* a firing rate cannot be negative */
-    }
-    /* Kernel width: the usual n^(-1/5) rate, but never narrower than the gap
-       between neighbouring points — otherwise a handful of samples produces a
-       staircase rather than a curve. */
-    var h = Math.max(0.055 * span * Math.pow(n, -0.2), 1.1 * span / n);
-    var fhat = kernelFit(X, Y, h);
-
-    var acc = 0, cnt = 0;
-    for (i=0;i<=200;i++){
-      var xv = X0 + span*i/200, d = fhat(xv) - trueF(xv);
-      if (isFinite(d)){ acc += d*d; cnt++; }
-    }
-    gapEl.textContent = fmt(Math.sqrt(acc/Math.max(1,cnt)), 1) + " spk/s";
+    var G = (+elG.value)/10, Sd = (+elS.value)/100;
+    lbG.textContent = G.toFixed(1); lbS.textContent = Sd.toFixed(2);
+    var S = sample(G, Sd);
+    var rows = design(S, mode);
+    var c = lstsq(rows, S.Y);
+    var pred = rows.map(function(r0){
+      var v = 0; for (var j=0;j<r0.length;j++) v += r0[j]*c[j]; return v;
+    });
 
     p.sync(); p.frame();
-    var xt = [4,8,12,16,20,24,28,32], yt = [0,20,40,60,80,100];
+    var xt = [-15,-10,-5,0,5,10,15], yt = [30,40,50,60,70];
     p.grid(xt, yt);
-    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:2, dash:[6,5]});
-    if (L.on("hat"))   p.fnline(fhat, {color: col("--c-model"), w:2.8});
-    if (L.on("data"))  p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.8, color: alpha(col("--c-data"), 0.9)});
-    p.axes({xt:xt, yt:yt,
-      xlabel:"x: tone frequency (kHz)",
-      ylabel:"y: firing rate (spikes/s)",
-      fmt:function(v){return v.toFixed(0);}});
-    if (!L.on("hat") && !L.on("truth"))
-      p.txt("what curve would you draw?", p.R - 8, p.T + 14,
-            {align:"right", color: col("--ink-faint")});
 
-    /* the same sample, as the two-column table it would be in a notebook */
-    var shown = Math.min(8, n);
-    var html = "<tr><th></th><th>X - Tone frequency (kHz)</th><th>y - Firing rate (spikes/s)</th></tr>";
-    for (i=0;i<shown;i++){
-      html += "<tr><td class='ix'>" + i + "</td><td>" + X[i].toFixed(2) +
-              "</td><td>" + Y[i].toFixed(1) + "</td></tr>";
+    function lineFor(d){
+      if (mode === 1) return function(x){ return c[0] + c[1]*x; };
+      if (mode === 2) return function(x){ return c[0] + c[1]*x + c[2]*d; };
+      return function(x){ return c[0] + c[1]*x + c[2]*d + c[3]*x*d; };
     }
-    if (n > shown) html += "<tr><td class='ix'>&hellip;</td><td>&hellip;</td><td>&hellip;</td></tr>";
-    html += "<tr class='shape'><td colspan='3'>" + n + " rows &times; 2 columns</td></tr>";
-    tblEl.innerHTML = html;
-  }
-  [elN, elS].forEach(function(e){ e.addEventListener("input", draw); });
-  btn.addEventListener("click", function(){ seed = (seed*1664525 + 1013904223) >>> 0; draw(); });
-  reg(draw);
-})();
-
-/* ============================================================
-   03 — overfitting
-   ============================================================ */
-(function(){
-  var p  = mkPlot("cvOver",  {xd:[0,1], yd:[-2.6,2.6], padL:38, padB:34});
-  var pu = mkPlot("cvOverU", {xd:[0.5,12.5], yd:[0,1], padL:38, padB:32, padT:16});
-  if (!p) return;
-  var elD = document.getElementById("overD"), lbD = document.getElementById("overDv");
-  var trEl = document.getElementById("overTr"), teEl = document.getElementById("overTe");
-  var L = layerToggles("overLayers", [
-    {k:"train", label:"train (20)",       kind:"dot",  col:"--c-data"},
-    {k:"test",  label:"test (60, unseen)",kind:"ring", col:"--c-test"},
-    {k:"fit",   label:"fitted f̂",       kind:"ln",   col:"--c-model"},
-    {k:"truth", label:"true f",           kind:"dash", col:"--ink-faint"}
-  ], function(){ draw(); });
-  var seed = 42, D = { xtr:[], ytr:[], xte:[], yte:[] };
-  var MAXD = 12;
-
-  function trueF(x){ return 1.25*Math.sin(2*Math.PI*0.82*x) + 0.45*x - 0.15; }
-  function gen(){
-    var r = rng(seed), i;
-    D.xtr = []; D.ytr = []; D.xte = []; D.yte = [];
-    for (i=0;i<20;i++){ var x = (i+0.5)/20 + (r()-0.5)*0.035; D.xtr.push(x); D.ytr.push(trueF(x) + gauss(r)*0.34); }
-    for (i=0;i<60;i++){ var xt = r()*0.98 + 0.01; D.xte.push(xt); D.yte.push(trueF(xt) + gauss(r)*0.34); }
-  }
-  function mseOf(f, xs, ys){ var s=0; for(var i=0;i<xs.length;i++){ var e = ys[i]-f(xs[i]); s+=e*e; } return s/xs.length; }
-
-  function curves(){
-    var tr = [], te = [];
-    for (var d=1; d<=MAXD; d++){
-      var f = polyFit(D.xtr, D.ytr, d, 0, 1);
-      tr.push(mseOf(f, D.xtr, D.ytr));
-      te.push(mseOf(f, D.xte, D.yte));
+    if (L.on("truth")){
+      p.fnline(function(x){ return 50 - 0.30*x; },         {color: alpha(col("--c-test"), .55),  w:1.6, dash:[6,5]});
+      p.fnline(function(x){ return 50 - 0.30*x + G + Sd*x;}, {color: alpha(col("--c-model"), .55), w:1.6, dash:[6,5]});
     }
-    return {tr:tr, te:te};
-  }
-
-  function draw(){
-    var d = +elD.value; lbD.textContent = d;
-    var f = polyFit(D.xtr, D.ytr, d, 0, 1);
-    var mtr = mseOf(f, D.xtr, D.ytr), mte = mseOf(f, D.xte, D.yte);
-    trEl.textContent = fmt(mtr, 3); teEl.textContent = fmt(mte, 3);
-
-    p.sync(); p.frame();
-    var xt = [0,0.25,0.5,0.75,1], yt = ticks(-2.5,2.5,5);
-    p.grid(xt, yt);
-    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:1.8, dash:[6,5]});
-    if (L.on("fit"))   p.fnline(f, {color: col("--c-model"), w:2.8, n:420});
-    if (L.on("test"))  p.dots(D.xte.map(function(v,k){ return [v, D.yte[k]]; }), {hollow:true, r:3.4, color: alpha(col("--c-test"), 0.75), lw:1.4});
-    if (L.on("train")) p.dots(D.xtr.map(function(v,k){ return [v, D.ytr[k]]; }), {r:4.4, color: col("--c-data")});
-    p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y", fmt:function(v){return v.toFixed(2);}, fmtY:function(v){return v.toFixed(1);}});
-
-    /* U-curve */
-    var c = curves(), i;
-    var all = c.tr.concat(c.te).filter(function(v){ return isFinite(v) && v > 0; });
-    var lo = Math.log10(Math.max(1e-6, Math.min.apply(null, all)*0.7));
-    var hi = Math.log10(Math.max.apply(null, all)*1.4);
-    pu.dom([0.5, MAXD+0.5], [lo, hi]);
-    pu.sync(); pu.frame();
-    pu.grid(null, ticks(lo,hi,4));
-    function drawSeries(arr, color, w){
-      var ctx = pu.ctx; ctx.save(); ctx.beginPath();
-      for (i=0;i<arr.length;i++){
-        var Y = pu.y(Math.log10(Math.max(1e-6, arr[i])));
-        if (i===0) ctx.moveTo(pu.x(i+1), Y); else ctx.lineTo(pu.x(i+1), Y);
+    if (L.on("fit")){
+      if (mode === 1){
+        p.fnline(lineFor(0), {color: col("--ink"), w:2.8});
+      } else {
+        p.fnline(lineFor(0), {color: col("--c-test"),  w:2.8});
+        p.fnline(lineFor(1), {color: col("--c-model"), w:2.8});
       }
-      ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineJoin="round"; ctx.stroke(); ctx.restore();
     }
-    drawSeries(c.tr, col("--ink-faint"), 2);
-    drawSeries(c.te, col("--c-error"), 2.6);
-    var ctx = pu.ctx;
-    ctx.save();
-    ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 1.6; ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.moveTo(pu.x(d), pu.T); ctx.lineTo(pu.x(d), pu.B); ctx.stroke();
-    ctx.restore();
-    pu.dots([[d, Math.log10(Math.max(1e-6,c.te[d-1]))]], {r:4.5, color: col("--c-error")});
-    pu.dots([[d, Math.log10(Math.max(1e-6,c.tr[d-1]))]], {r:4.5, color: col("--ink-faint")});
-    pu.axes({xt:[1,2,3,4,5,6,7,8,9,10,11,12], yt:[], xlabel:"polynomial degree", fmt:function(v){return v.toFixed(0);}});
-    pu.txt("test MSE", pu.R-6, pu.T+11, {align:"right", color: col("--c-error"), font:'10px "IBM Plex Mono", monospace'});
-    pu.txt("train MSE", pu.R-6, pu.T+24, {align:"right", color: col("--ink-faint"), font:'10px "IBM Plex Mono", monospace'});
-    pu.txt("log scale", pu.L+6, pu.T+11, {color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
+    var pc = [], cc = [];
+    S.X.forEach(function(x, i){ (S.D[i] ? pc : cc).push([x, S.Y[i]]); });
+    if (L.on("ctrl")) p.dots(cc, {r:3.8, color: alpha(col("--c-test"), .85)});
+    if (L.on("pat"))  p.dots(pc, {r:3.8, color: alpha(col("--c-model"), .85)});
+    p.axes({xt:xt, yt:yt, xlabel:"x: age (years from the group mean)",
+            ylabel:"y: memory score", fmt:function(v){return v.toFixed(0);}});
+
+    function row(cls, k, v){
+      return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>';
+    }
+    var html = row("plain", "&beta;<sub>0</sub> &nbsp;intercept", fmt(c[0],2)) +
+               row("plain", "&beta;<sub>1</sub> &nbsp;per year", fmt(c[1],3));
+    if (mode >= 2) html += row("model", "&beta;<sub>2</sub> &nbsp;group shift", fmt(c[2],2));
+    if (mode >= 3) html += row("model", "&beta;<sub>3</sub> &nbsp;slope difference", fmt(c[3],3));
+    html += row("test", "R<sup>2</sup>", fmt(r2Of(S.Y, pred),3));
+    statsEl.innerHTML = html;
+
+    var truthParallel = Math.abs(Sd) < 0.015;
+    if (mode === 1)
+      capEl.innerHTML = "One line for everybody. The groups are visibly offset from it, and that offset is " +
+                        "structure the model cannot express, so it lands in the residuals.";
+    else if (mode === 2)
+      capEl.innerHTML = "Two lines, forced parallel. <b>&beta;<sub>2</sub></b> moves one up or down, but both " +
+                        "must climb at the same rate" + (truthParallel ? ", which here is exactly right."
+                        : ". The truth is not parallel, so one end fits well and the other does not.");
+    else
+      capEl.innerHTML = "Two free lines. <b>&beta;<sub>3</sub></b> = " + fmt(c[3],3) +
+                        " is the extra slope the patients get" +
+                        (truthParallel ? ", and with no real difference to find it is just noise around zero."
+                                       : ", recovering a true difference of " + fmt(Sd,2) + ".");
   }
 
-  elD.addEventListener("input", draw);
-  document.getElementById("overNew").addEventListener("click", function(){
-    seed = (seed*1664525 + 1013904223) >>> 0; gen(); draw();
-  });
-  document.getElementById("overBest").addEventListener("click", function(){
-    var c = curves(), best = 1;
-    for (var i=1;i<c.te.length;i++) if (c.te[i] < c.te[best-1]) best = i+1;
-    elD.value = best; draw();
-  });
-  gen(); reg(draw);
-})();
-
-/* ============================================================
-   04a — supervised: the labels come with the data
-   ============================================================ */
-(function(){
-  var XD = [-3.6,3.6], YD = [-3.2,3.2];
-  var pA = mkPlot("cvSupA", {xd:XD, yd:YD, padL:34, padB:32});
-  var pB = mkPlot("cvSupB", {xd:XD, yd:YD, padL:34, padB:32});
-  if (!pA) return;
-
-  var r = rng(1234), P = [];
-  for (var i=0;i<120;i++){
-    var g = i < 60 ? 0 : 1;
-    P.push({ x:(g?1.05:-1.05) + gauss(r)*1.02, y:(g?0.7:-0.55) + gauss(r)*1.0, g:g });
-  }
-  /* boundary halfway between the two class means, at right angles to the line
-     joining them - the simplest supervised classifier there is */
-  var M = [{x:0,y:0,n:0},{x:0,y:0,n:0}];
-  P.forEach(function(q){ M[q.g].x+=q.x; M[q.g].y+=q.y; M[q.g].n++; });
-  M.forEach(function(m){ m.x/=m.n; m.y/=m.n; });
-  var L = layerToggles("supLayers", [
-    {k:"regions",  label:"decision regions", kind:"dot",  col:"--c-model"},
-    {k:"boundary", label:"boundary",         kind:"dash", col:"--ink-soft"},
-    {k:"wrong",    label:"mistakes",         kind:"ring", col:"--c-error"}
-  ], function(){ draw(); });
-  var DX = M[1].x-M[0].x, DY = M[1].y-M[0].y;
-  var MX = (M[0].x+M[1].x)/2, MY = (M[0].y+M[1].y)/2;
-  function predict(q){ return ((q.x-MX)*DX + (q.y-MY)*DY) > 0 ? 1 : 0; }
-  function yAt(x){ return MY - DX*(x-MX)/DY; }
-
-  function draw(){
-    var cA = col("--c-test"), cB = col("--c-model");
-    var xt = ticks(XD[0],XD[1],4), yt = ticks(YD[0],YD[1],4);
-    var f0 = function(v){ return v.toFixed(0); };
-    var g0 = P.filter(function(q){return q.g===0;}).map(function(q){return [q.x,q.y];});
-    var g1 = P.filter(function(q){return q.g===1;}).map(function(q){return [q.x,q.y];});
-
-    /* ---- left: the labelled data ---- */
-    pA.sync(); pA.frame(); pA.grid(xt, yt);
-    pA.dots(g0, {r:4, color: alpha(cA,.85)});
-    pA.dots(g1, {r:4, color: alpha(cB,.85)});
-    pA.axes({xt:xt, yt:yt, xlabel:"feature 1", ylabel:"feature 2", fmt:f0});
-    pA.txt("control", pA.L+7, pA.T+14, {color:cA, font:'600 10.5px "IBM Plex Mono", monospace'});
-    pA.txt("patient", pA.L+7, pA.T+28, {color:cB, font:'600 10.5px "IBM Plex Mono", monospace'});
-
-    /* ---- right: the boundary it learns ---- */
-    pB.sync(); pB.frame(); pB.grid(xt, yt);
-    var ctx = pB.ctx;
-    pB.clip(); ctx.save();
-    if (L.on("regions")){
-      ctx.beginPath();
-      ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
-      ctx.lineTo(pB.x(XD[1]), pB.T-60); ctx.lineTo(pB.x(XD[0]), pB.T-60); ctx.closePath();
-      ctx.fillStyle = alpha(cB,.10); ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
-      ctx.lineTo(pB.x(XD[1]), pB.B+60); ctx.lineTo(pB.x(XD[0]), pB.B+60); ctx.closePath();
-      ctx.fillStyle = alpha(cA,.10); ctx.fill();
-    }
-    if (L.on("boundary")){
-      ctx.beginPath();
-      ctx.moveTo(pB.x(XD[0]), pB.y(yAt(XD[0]))); ctx.lineTo(pB.x(XD[1]), pB.y(yAt(XD[1])));
-      ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.8; ctx.setLineDash([5,4]); ctx.stroke();
-    }
-    ctx.restore(); pB.unclip();
-
-    pB.dots(g0, {r:4, color: alpha(cA,.85)});
-    pB.dots(g1, {r:4, color: alpha(cB,.85)});
-    var wrong = P.filter(function(q){ return predict(q) !== q.g; });
-    if (L.on("wrong")){
-      ctx.save(); ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 1.8;
-      wrong.forEach(function(q){ ctx.beginPath(); ctx.arc(pB.x(q.x), pB.y(q.y), 7.5, 0, 6.2832); ctx.stroke(); });
-      ctx.restore();
-    }
-    pB.axes({xt:xt, yt:yt, xlabel:"feature 1", ylabel:"feature 2", fmt:f0});
-    pB.txt((100*(1-wrong.length/P.length)).toFixed(0) + "% correct  ·  " + wrong.length + " ringed",
-           pB.R-7, pB.T+14, {align:"right", color: col("--ink-soft"),
-                             font:'600 10.5px "IBM Plex Mono", monospace'});
-  }
-  reg(draw);
-})();
-
-/* ============================================================
-   04b — unsupervised: clustering with k-means
-   ============================================================ */
-(function(){
-  var XD = [-3.8,3.8], YD = [-3.4,3.4];
-  var pA = mkPlot("cvCluA", {xd:XD, yd:YD, padL:34, padB:32});
-  var pB = mkPlot("cvCluB", {xd:XD, yd:YD, padL:34, padB:32});
-  if (!pA) return;
-  var capEl = document.getElementById("cluCap");
-  var K = 3;
-  var L = layerToggles("cluLayers", [
-    {k:"clusters", label:"cluster colours", kind:"dot", col:"--c-model"},
-    {k:"centres",  label:"cluster centres", kind:"dot", col:"--ink"}
-  ], function(){ draw(); });
-
-  /* three real groups. The algorithm is never told they exist. */
-  var r = rng(20260907), P = [], truth = [];
-  var CEN = [[-1.42,0.82],[1.44,0.66],[0.06,-1.44]];
-  for (var g=0; g<3; g++){
-    for (var i=0;i<50;i++){
-      P.push([CEN[g][0] + gauss(r)*0.64, CEN[g][1] + gauss(r)*0.64]);
-      truth.push(g);
-    }
-  }
-
-  /* Lloyd's algorithm with k-means++ seeding, best of 8 restarts.
-     Restarts matter: a single unlucky start lands in a bad partition. */
-  function kmeans(k, seed){
-    var best = null;
-    for (var t=0;t<8;t++){
-      var rr = rng(seed + t*7919), i, j, c;
-      var C = [P[Math.floor(rr()*P.length)].slice()];
-      while (C.length < k){
-        var d2 = [], tot = 0;
-        for (i=0;i<P.length;i++){
-          var m = Infinity;
-          for (j=0;j<C.length;j++){
-            var ax = P[i][0]-C[j][0], ay = P[i][1]-C[j][1];
-            var d = ax*ax + ay*ay;
-            if (d < m) m = d;
-          }
-          d2.push(m); tot += m;
-        }
-        var target = tot*rr(), acc = 0, pick = P.length-1;
-        for (i=0;i<d2.length;i++){ acc += d2[i]; if (acc >= target){ pick = i; break; } }
-        C.push(P[pick].slice());
-      }
-      var asg = new Array(P.length), inertia = 0;
-      for (var it=0; it<60; it++){
-        inertia = 0;
-        for (i=0;i<P.length;i++){
-          var bd = Infinity, bi = 0;
-          for (c=0;c<k;c++){
-            var dx = P[i][0]-C[c][0], dy = P[i][1]-C[c][1], dd = dx*dx+dy*dy;
-            if (dd < bd){ bd = dd; bi = c; }
-          }
-          asg[i] = bi; inertia += bd;
-        }
-        var sx = new Array(k).fill(0), sy = new Array(k).fill(0), n = new Array(k).fill(0);
-        for (i=0;i<P.length;i++){ sx[asg[i]] += P[i][0]; sy[asg[i]] += P[i][1]; n[asg[i]]++; }
-        for (c=0;c<k;c++) if (n[c]){ C[c][0] = sx[c]/n[c]; C[c][1] = sy[c]/n[c]; }
-      }
-      if (!best || inertia < best.inertia)
-        best = { C: C.map(function(v){ return v.slice(); }), asg: asg.slice(), inertia: inertia };
-    }
-    return best;
-  }
-
-  function palette(){
-    return [col("--c-model"), col("--c-test"), col("--c-error"), col("--c-alt"), col("--c-data")];
-  }
-
-  function draw(){
-    var xt = ticks(XD[0],XD[1],4), yt = ticks(YD[0],YD[1],4);
-    var f0 = function(v){ return v.toFixed(0); };
-
-    /* ---- left: what you actually have ---- */
-    pA.sync(); pA.frame(); pA.grid(xt, yt);
-    pA.dots(P, {r:4, color: alpha(col("--ink-faint"), .8)});
-    pA.axes({xt:xt, yt:yt, xlabel:"feature 1", ylabel:"feature 2", fmt:f0});
-    pA.txt("no labels", pA.L+7, pA.T+14, {color: col("--ink-faint"), font:'600 10.5px "IBM Plex Mono", monospace'});
-
-    /* ---- right: what k-means returns ---- */
-    var res = kmeans(K, 4242);
-    var pal = palette(), i, c;
-    pB.sync(); pB.frame(); pB.grid(xt, yt);
-    var sizes = new Array(K).fill(0);
-    for (c=0;c<K;c++){
-      var pts = [];
-      for (i=0;i<P.length;i++) if (res.asg[i] === c){ pts.push(P[i]); sizes[c]++; }
-      pB.dots(pts, {r:4, color: L.on("clusters") ? alpha(pal[c % pal.length], .85)
-                                                  : alpha(col("--ink-faint"), .75)});
-    }
-    var ctx = pB.ctx;
-    for (c=0; L.on("centres") && c<K; c++){
-      var X = pB.x(res.C[c][0]), Y = pB.y(res.C[c][1]);
-      ctx.save();
-      ctx.strokeStyle = col("--surface"); ctx.lineWidth = 4.5;
-      ctx.beginPath(); ctx.moveTo(X-8,Y); ctx.lineTo(X+8,Y); ctx.moveTo(X,Y-8); ctx.lineTo(X,Y+8); ctx.stroke();
-      ctx.strokeStyle = pal[c % pal.length]; ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.moveTo(X-8,Y); ctx.lineTo(X+8,Y); ctx.moveTo(X,Y-8); ctx.lineTo(X,Y+8); ctx.stroke();
-      ctx.restore();
-    }
-    pB.axes({xt:xt, yt:yt, xlabel:"feature 1", ylabel:"feature 2", fmt:f0});
-    pB.txt("k = " + K + "  ·  crosses are cluster centres", pB.R-7, pB.T+14,
-           {align:"right", color: col("--ink-soft"), font:'600 10.5px "IBM Plex Mono", monospace'});
-
-    /* how much of the real grouping survived - checkable only because the
-       data is simulated. In a real recording you would never know. */
-    var counts = [];
-    for (c=0;c<K;c++) counts.push([0,0,0]);
-    for (i=0;i<P.length;i++) counts[res.asg[i]][truth[i]]++;
-    var hit = 0;
-    for (c=0;c<K;c++) hit += Math.max(counts[c][0], counts[c][1], counts[c][2]);
-
-    var verdict;
-    if (K === 3) verdict = "With <b>k = 3</b> it lands on the real structure: " + hit +
-                           " of 150 points end up grouped the way they were generated.";
-    else if (K < 3) verdict = "With <b>k = 2</b> two real groups are forced into one cluster. " +
-                           "The split it draws is perfectly reasonable, and wrong.";
-    else verdict = "With <b>k = " + K + "</b> the real groups get carved into extra pieces. " +
-                   "The centres still look convincing, but the boundaries between them are invented.";
-    capEl.innerHTML = "<b>What the method produces.</b> Cluster sizes " + sizes.join(" / ") +
-                      ". " + verdict;
-  }
-
-  var seg = document.getElementById("cluSeg");
+  var seg = document.getElementById("ixSeg");
   seg.addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
-    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c === b); });
-    K = +b.getAttribute("data-v"); draw();
+    Array.prototype.forEach.call(seg.children, function(q){ q.classList.toggle("on", q===b); });
+    mode = +b.getAttribute("data-v"); draw();
   });
-  reg(draw);
-})();
-
-/* ============================================================
-   05 — regression vs classification
-   ============================================================ */
-(function(){
-  var p = mkPlot("cvRC", {padL:44, padB:36});
-  if (!p) return;
-  var mode = "reg";
-  var capEl = document.getElementById("rcCap");
-  var statsEl = document.getElementById("rcStats");
-  var regBox = document.getElementById("rcRegBox"), clsBox = document.getElementById("rcClsBox");
-
-  var r1 = rng(88), RX = [], RY = [];
-  for (var i=0;i<45;i++){ var x = 20 + r1()*60; RX.push(x); RY.push(24 + 0.52*x + gauss(r1)*7.5); }
-
-  var r2 = rng(991), CP = [];
-  for (var k=0;k<90;k++){
-    var g = k < 45 ? 0 : 1;
-    CP.push({ x: (g?1.0:-1.0) + gauss(r2)*0.95, y: (g?0.75:-0.6) + gauss(r2)*0.95, g:g });
-  }
-  var CM = [{x:0,y:0,n:0},{x:0,y:0,n:0}];
-  CP.forEach(function(q){ CM[q.g].x+=q.x; CM[q.g].y+=q.y; CM[q.g].n++; });
-  CM.forEach(function(m){ m.x/=m.n; m.y/=m.n; });
-  function predC(q){
-    var dx = CM[1].x-CM[0].x, dy = CM[1].y-CM[0].y;
-    var mx = (CM[0].x+CM[1].x)/2, my = (CM[0].y+CM[1].y)/2;
-    return ((q.x-mx)*dx + (q.y-my)*dy) > 0 ? 1 : 0;
-  }
-
-  var LR_ = layerToggles("rcLayersReg", [
-    {k:"resid", label:"residuals", kind:"ln",  col:"--c-error"},
-    {k:"fit",   label:"fitted line", kind:"ln", col:"--c-model"}
-  ], function(){ draw(); });
-  var LC_ = layerToggles("rcLayersCls", [
-    {k:"regions", label:"decision regions", kind:"dot",  col:"--c-model"},
-    {k:"boundary",label:"boundary",         kind:"dash", col:"--ink-soft"},
-    {k:"wrong",   label:"mistakes",         kind:"ring", col:"--c-error"}
-  ], function(){ draw(); });
-
-  function statRow(cls, k, v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
-
-  function draw(){
-    p.sync();
-    if (mode === "reg"){
-      regBox.style.display = ""; clsBox.style.display = "none";
-      document.getElementById("rcLayersReg").style.display = "";
-      document.getElementById("rcLayersCls").style.display = "none";
-      p.dom([15,85],[20,90]);
-      p.sync(); p.frame();
-      var xt = ticks(15,85,5), yt = ticks(20,90,5);
-      p.grid(xt, yt);
-      var f = ols(RX, RY);
-      var ctx = p.ctx;
-      if (LR_.on("resid")){
-        ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .5); ctx.lineWidth = 1.3;
-        for (var i=0;i<RX.length;i++){
-          ctx.beginPath(); ctx.moveTo(p.x(RX[i]), p.y(RY[i])); ctx.lineTo(p.x(RX[i]), p.y(f.b0+f.b1*RX[i])); ctx.stroke();
-        }
-        ctx.restore();
-      }
-      if (LR_.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.6});
-      p.dots(RX.map(function(v,q){ return [v, RY[q]]; }), {r:4.2, color: col("--c-data")});
-      p.axes({xt:xt, yt:yt, xlabel:"x: age (years)", ylabel:"y: reaction time (ms × 10)", fmt:function(v){return v.toFixed(0);}});
-      var pred = RX.map(function(v){ return f.b0 + f.b1*v; });
-      var mse = rssOf(RX, RY, f.b0, f.b1)/RX.length;
-      statsEl.innerHTML =
-        statRow("error","MSE", fmt(mse,1)) +
-        statRow("plain","RMSE  (units of y)", fmt(Math.sqrt(mse),2)) +
-        statRow("model","R<sup>2</sup>", fmt(r2Of(RY, pred),3));
-      capEl.innerHTML = "Every red stick is one residual. The measure has to squeeze all of them into a single number.";
-    } else {
-      regBox.style.display = "none"; clsBox.style.display = "";
-      document.getElementById("rcLayersReg").style.display = "none";
-      document.getElementById("rcLayersCls").style.display = "";
-      p.dom([-3.4,3.4],[-3.2,3.2]);
-      p.sync(); p.frame();
-      var xt2 = ticks(-3.4,3.4,4), yt2 = ticks(-3.2,3.2,4);
-      p.grid(xt2, yt2);
-      var cA = col("--c-test"), cB = col("--c-model");
-      var dx = CM[1].x-CM[0].x, dy = CM[1].y-CM[0].y, mx=(CM[0].x+CM[1].x)/2, my=(CM[0].y+CM[1].y)/2;
-      function yAt(x){ return my - dx*(x-mx)/dy; }
-      var ctx2 = p.ctx; p.clip();
-      ctx2.save();
-      if (LC_.on("regions")){
-        ctx2.beginPath();
-        ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
-        ctx2.lineTo(p.x(3.4), p.T-50); ctx2.lineTo(p.x(-3.4), p.T-50); ctx2.closePath();
-        ctx2.fillStyle = alpha(cB, .10); ctx2.fill();
-        ctx2.beginPath();
-        ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
-        ctx2.lineTo(p.x(3.4), p.B+50); ctx2.lineTo(p.x(-3.4), p.B+50); ctx2.closePath();
-        ctx2.fillStyle = alpha(cA, .10); ctx2.fill();
-      }
-      if (LC_.on("boundary")){
-        ctx2.beginPath();
-        ctx2.moveTo(p.x(-3.4), p.y(yAt(-3.4))); ctx2.lineTo(p.x(3.4), p.y(yAt(3.4)));
-        ctx2.strokeStyle = col("--ink-soft"); ctx2.lineWidth = 1.8; ctx2.setLineDash([5,4]); ctx2.stroke();
-      }
-      ctx2.restore(); p.unclip();
-
-      var tp=0, tn=0, fp=0, fn=0, wrong=[];
-      CP.forEach(function(q){
-        var pr = predC(q);
-        if (q.g===1 && pr===1) tp++; else if (q.g===0 && pr===0) tn++;
-        else if (q.g===0 && pr===1) fp++; else fn++;
-        if (pr !== q.g) wrong.push(q);
-      });
-      p.dots(CP.filter(function(q){return q.g===0;}).map(function(q){return [q.x,q.y];}), {r:4.2, color: alpha(cA,.9)});
-      p.dots(CP.filter(function(q){return q.g===1;}).map(function(q){return [q.x,q.y];}), {r:4.2, color: alpha(cB,.9)});
-      if (LC_.on("wrong")){
-        var c3 = p.ctx; c3.save(); c3.strokeStyle = col("--c-error"); c3.lineWidth = 1.8;
-        wrong.forEach(function(q){ c3.beginPath(); c3.arc(p.x(q.x), p.y(q.y), 7.5, 0, 6.2832); c3.stroke(); });
-        c3.restore();
-      }
-      p.axes({xt:xt2, yt:yt2, xlabel:"feature 1", ylabel:"feature 2", fmt:function(v){return v.toFixed(0);}});
-      var acc = (tp+tn)/CP.length;
-      statsEl.innerHTML =
-        statRow("model","accuracy", (100*acc).toFixed(1)+"%") +
-        statRow("error","misclassified", (CP.length-tp-tn) + " of " + CP.length) +
-        statRow("test","recall  (patients found)", (100*tp/(tp+fn)).toFixed(0)+"%") +
-        statRow("plain","confusion  TP / FP / TN / FN", tp+" / "+fp+" / "+tn+" / "+fn);
-      capEl.innerHTML = "Red rings mark the mistakes. There is no notion of &ldquo;close&rdquo; here: a prediction is either right or wrong.";
-    }
-  }
-  var seg = document.getElementById("rcSeg");
-  seg.addEventListener("click", function(e){
-    var b = e.target.closest("button"); if (!b) return;
-    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
-    mode = b.dataset.v; draw();
-  });
-  reg(draw);
-})();
-
-/* ============================================================
-   05b — the always-healthy classifier
-   ============================================================ */
-(function(){
-  var cvs = document.getElementById("cvBal");
-  if (!cvs) return;
-  var ctx = cvs.getContext("2d");
-  var el = document.getElementById("balP"), lb = document.getElementById("balPv");
-  var accEl = document.getElementById("balAcc"), recEl = document.getElementById("balRec");
-  var order = [];
-  (function(){
-    var r = rng(555), idx = [];
-    for (var i=0;i<100;i++) idx.push(i);
-    for (var j=idx.length-1;j>0;j--){ var k = Math.floor(r()*(j+1)); var t=idx[j]; idx[j]=idx[k]; idx[k]=t; }
-    order = idx;
-  })();
-
-  function draw(){
-    var pct = +el.value; lb.textContent = pct + "%";
-    accEl.textContent = (100-pct).toFixed(0) + "%";
-    recEl.textContent = "0%";
-    if (!cvs.style.height) cvs.style.height = "160px";
-    var rect = cvs.getBoundingClientRect();
-    var dpr = Math.min(window.devicePixelRatio||1, 2);
-    cvs.width = Math.max(1, Math.round(rect.width*dpr));
-    cvs.height = Math.max(1, Math.round(160*dpr));
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    var W = rect.width, H = 160;
-    ctx.clearRect(0,0,W,H);
-    var cols = 20, rows = 5, pad = 4;
-    var cw = (W - 8) / cols, ch = Math.min(cw, (H - 34) / rows);
-    var ox = (W - cw*cols)/2, oy = 8;
-    var sick = new Set(order.slice(0, pct));
-    for (var i=0;i<100;i++){
-      var c = i % cols, rr = Math.floor(i/cols);
-      var X = ox + c*cw, Y = oy + rr*ch;
-      var isSick = sick.has(i);
-      ctx.fillStyle = isSick ? col("--c-error") : alpha(col("--ink-faint"), .3);
-      ctx.beginPath();
-      var s = Math.min(cw,ch) - pad;
-      ctx.roundRect ? ctx.roundRect(X + (cw-s)/2, Y + (ch-s)/2, s, s, 2) : ctx.rect(X + (cw-s)/2, Y + (ch-s)/2, s, s);
-      ctx.fill();
-    }
-    ctx.font = '10.5px "IBM Plex Mono", monospace';
-    ctx.textBaseline = "bottom"; ctx.textAlign = "left";
-    ctx.fillStyle = col("--c-error");
-    ctx.fillRect(4, H - 15, 9, 9);
-    ctx.fillText(pct + " patients, all missed", 18, H - 5);
-    var rightTxt = (100-pct) + " healthy, all correct";
-    ctx.textAlign = "right"; ctx.fillStyle = col("--ink-faint");
-    ctx.fillText(rightTxt, W - 4, H - 5);
-    ctx.fillStyle = alpha(col("--ink-faint"), .5);
-    ctx.fillRect(W - 13 - ctx.measureText(rightTxt).width, H - 15, 9, 9);
-  }
-  el.addEventListener("input", draw);
-  reg(draw);
-})();
-
-/* ============================================================
-   06a — what does r look like
-   ============================================================ */
-(function(){
-  var p = mkPlot("cvCorr", {xd:[-3.2,3.2], yd:[-3.2,3.2], padL:36, padB:34});
-  if (!p) return;
-  var el = document.getElementById("corrR"), lb = document.getElementById("corrRv");
-  var sEl = document.getElementById("corrSamp"), r2El = document.getElementById("corrR2");
-  var seed = 3;
-  var L = layerToggles("corrLayers", [
-    {k:"fit", label:"fitted line", kind:"ln", col:"--c-model"}
-  ], function(){ draw(); });
-  function draw(){
-    var rho = (+el.value)/100; lb.textContent = rho.toFixed(2);
-    var r = rng(seed), X = [], Y = [];
-    for (var i=0;i<150;i++){
-      var z1 = gauss(r), z2 = gauss(r);
-      X.push(z1); Y.push(rho*z1 + Math.sqrt(Math.max(0,1-rho*rho))*z2);
-    }
-    var sr = corr(X, Y);
-    sEl.textContent = fmt(sr, 3);
-    r2El.textContent = (100*sr*sr).toFixed(1) + "%";
-    p.sync(); p.frame();
-    var t = ticks(-3,3,4);
-    p.grid(t, t);
-    var f = ols(X, Y);
-    if (L.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.4});
-    p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.4, color: alpha(col("--c-data"), .72)});
-    p.axes({xt:t, yt:t, xlabel:"x  (z-scored)", ylabel:"y  (z-scored)", fmt:function(v){return v.toFixed(0);}});
-  }
-  el.addEventListener("input", draw);
-  document.getElementById("corrNew").addEventListener("click", function(){
+  elG.addEventListener("input", draw);
+  elS.addEventListener("input", draw);
+  document.getElementById("ixNew").addEventListener("click", function(){
     seed = (seed*1664525 + 1013904223) >>> 0; draw();
   });
   reg(draw);
 })();
 
+
 /* ============================================================
-   06b — Anscombe's quartet
+   02 — two continuous predictors: the fan, and the saddle
    ============================================================ */
+var FAN = { b0:50, b1:2.0, b2:-0.25, b3:0 };
+
 (function(){
-  var AX = [10,8,13,9,11,14,6,4,12,7,5];
-  var Q = [
-    { name:"I",   x:AX, y:[8.04,6.95,7.58,8.81,8.33,9.96,7.24,4.26,10.84,4.82,5.68] },
-    { name:"II",  x:AX, y:[9.14,8.14,8.74,8.77,9.26,8.10,6.13,3.10,9.13,7.26,4.74] },
-    { name:"III", x:AX, y:[7.46,6.77,12.74,7.11,7.81,8.84,6.08,5.39,8.15,6.42,5.73] },
-    { name:"IV",  x:[8,8,8,8,8,8,8,19,8,8,8], y:[6.58,5.76,7.71,8.84,8.47,7.04,5.25,12.50,5.56,7.91,6.89] }
-  ];
-  var plots = Q.map(function(q, i){ return mkPlot("cvAns"+i, {xd:[2,20], yd:[2,14], padL:32, padB:30, padT:22}); });
-  if (!plots[0]) return;
-  var L = layerToggles("ansLayers", [
-    {k:"fit", label:"fitted line (identical in all four)", kind:"ln", col:"--c-model"}
+  var XD = [-3.2, 3.2], YD = [30, 70];
+  var p = mkPlot("cvFan", {xd:XD, yd:YD, padL:44, padB:38});
+  if (!p) return;
+  var el = document.getElementById("fanB3"), lb = document.getElementById("fanB3v");
+  var statsEl = document.getElementById("fanStats"), capEl = document.getElementById("fanCap");
+  var AGES = [-14, -7, 0, 7, 14];
+
+  var L = layerToggles("fanLayers", [
+    {k:"lines", label:"one line per age", kind:"ln",  col:"--c-model"},
+    {k:"pts",   label:"subjects",         kind:"dot", col:"--c-data"}
   ], function(){ draw(); });
 
-  function draw(){
-    plots.forEach(function(p, i){
-      if (!p) return;
-      var q = Q[i], f = ols(q.x, q.y);
-      p.sync(); p.frame();
-      var xt = [5,10,15,20], yt = [4,6,8,10,12,14];
-      p.grid(xt, yt);
-      if (L.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.2});
-      p.dots(q.x.map(function(v,k){ return [v, q.y[k]]; }), {r:4.4, color: col("--c-data")});
-      p.axes({xt:xt, yt:yt, fmt:function(v){return v.toFixed(0);}});
-      p.txt("dataset " + q.name, p.L + 4, p.T - 7, {color: col("--c-model"), font:'600 10.5px "IBM Plex Mono", monospace'});
-    });
-    var t = document.getElementById("ansTbl");
-    var rowsHTML = "<tr><th>dataset</th><th>mean x</th><th>mean y</th><th>sd x</th><th>sd y</th><th>corr r</th><th>fitted line</th></tr>";
-    Q.forEach(function(q){
-      var f = ols(q.x, q.y);
-      rowsHTML += "<tr><td>" + q.name + "</td><td>" + fmt(mean(q.x),2) + "</td><td>" + fmt(mean(q.y),2) +
-        "</td><td>" + fmt(sd(q.x),2) + "</td><td>" + fmt(sd(q.y),2) + "</td><td>" + fmt(corr(q.x,q.y),3) +
-        "</td><td class='hi'>y = " + fmt(f.b0,2) + " + " + fmt(f.b1,2) + "x</td></tr>";
-    });
-    t.innerHTML = rowsHTML;
+  var DATA = (function(){
+    var r = rng(4711), out = [];
+    for (var i=0;i<90;i++){
+      var s = -2.8 + 5.6*r(), a = -14 + 28*r();
+      out.push({s:s, a:a});
+    }
+    return out;
+  })();
+
+  /* age -> colour, so a point and its line match */
+  function ageCol(a){
+    var t = (a + 14)/28;
+    var lo = hex2rgb(col("--c-test")), hi = hex2rgb(col("--c-model"));
+    return "rgb(" + Math.round(lo[0]+(hi[0]-lo[0])*t) + "," +
+                    Math.round(lo[1]+(hi[1]-lo[1])*t) + "," +
+                    Math.round(lo[2]+(hi[2]-lo[2])*t) + ")";
   }
+
+  function draw(){
+    FAN.b3 = (+el.value)/200;
+    lb.textContent = FAN.b3.toFixed(2);
+    p.sync(); p.frame();
+    var xt = [-3,-2,-1,0,1,2,3], yt = [30,40,50,60,70];
+    p.grid(xt, yt);
+
+    if (L.on("pts")){
+      DATA.forEach(function(q){
+        var y = FAN.b0 + FAN.b1*q.s + FAN.b2*q.a + FAN.b3*q.s*q.a;
+        p.dots([[q.s, y]], {r:2.6, color: alpha(ageCol(q.a), .5)});
+      });
+    }
+    if (L.on("lines")){
+      AGES.forEach(function(a){
+        var slope = FAN.b1 + FAN.b3*a;
+        p.fnline(function(s){ return FAN.b0 + FAN.b1*s + FAN.b2*a + FAN.b3*s*a; },
+                 {color: ageCol(a), w:2.4});
+        var yEnd = FAN.b0 + FAN.b1*3.05 + FAN.b2*a + FAN.b3*3.05*a;
+        if (yEnd > YD[0]+1 && yEnd < YD[1]-1)
+          p.txt((a<0?"":"+") + a + "y", p.x(3.05) + 5, p.y(yEnd),
+                {color: ageCol(a), baseline:"middle", font:'600 10px "IBM Plex Mono", monospace'});
+      });
+    }
+    p.axes({xt:xt, yt:yt, xlabel:"x1: sleep (hours from 7)",
+            ylabel:"y: memory score", fmt:function(v){return v.toFixed(0);}});
+
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    statsEl.innerHTML =
+      row("test",  "slope at age &minus;14", fmt(FAN.b1 + FAN.b3*(-14), 2)) +
+      row("plain", "slope at the mean age",  fmt(FAN.b1, 2)) +
+      row("model", "slope at age +14",       fmt(FAN.b1 + FAN.b3*(14), 2));
+
+    capEl.innerHTML = Math.abs(FAN.b3) < 0.005
+      ? "With <b>&beta;<sub>3</sub> = 0</b> the lines are parallel. Age moves the whole line up or down, but never changes what an hour of sleep is worth."
+      : "Every line has its own slope now. An hour of sleep is worth " +
+        fmt(FAN.b1 + FAN.b3*14, 2) + " points at the oldest age and " +
+        fmt(FAN.b1 + FAN.b3*(-14), 2) + " at the youngest.";
+    if (SADDLE) SADDLE();
+  }
+  el.addEventListener("input", draw);
   reg(draw);
 })();
 
+var SADDLE = null;
+(function(){
+  var S3 = mk3d("cvSaddle", 360);
+  if (!S3) return;
+  var ctx = S3.ctx;
+  var L = layerToggles("saddleLayers", [
+    {k:"surface", label:"the surface", kind:"dot",  col:"--c-model"},
+    {k:"mesh",    label:"grid lines",  kind:"ln",   col:"--ink-faint"},
+    {k:"box",     label:"axes",        kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
+
+  var S1 = [-3, 3], S2 = [-14, 14], G = 12;
+  function zOf(s, a){ return FAN.b0 + FAN.b1*s + FAN.b2*a + FAN.b3*s*a; }
+  function zRange(){
+    var lo = 1e9, hi = -1e9;
+    [[S1[0],S2[0]],[S1[1],S2[0]],[S1[1],S2[1]],[S1[0],S2[1]]].forEach(function(c){
+      var z = zOf(c[0], c[1]); if (z<lo) lo=z; if (z>hi) hi=z;
+    });
+    if (hi - lo < 1) { hi = lo + 1; }
+    var pad = (hi-lo)*0.12;
+    return [lo-pad, hi+pad];
+  }
+
+  function draw(){
+    S3.sync();
+    var ZR = zRange();
+    function n1(v){ return (v-S1[0])/(S1[1]-S1[0])*2-1; }
+    function n2(v){ return (v-S2[0])/(S2[1]-S2[0])*2-1; }
+    function nz(v){ return (v-ZR[0])/(ZR[1]-ZR[0])*2-1; }
+
+    if (L.on("box")) S3.box();
+
+    if (L.on("surface")){
+      var quads = [], i, j;
+      for (i=0;i<G;i++){
+        for (j=0;j<G;j++){
+          var a0 = S1[0]+(S1[1]-S1[0])*i/G,     a1 = S1[0]+(S1[1]-S1[0])*(i+1)/G;
+          var c0 = S2[0]+(S2[1]-S2[0])*j/G,     c1 = S2[0]+(S2[1]-S2[0])*(j+1)/G;
+          var cs = [[a0,c0],[a1,c0],[a1,c1],[a0,c1]];
+          var q = cs.map(function(c){ return S3.at(n1(c[0]), nz(zOf(c[0],c[1])), n2(c[1])); });
+          var zc = (zOf(a0,c0)+zOf(a1,c0)+zOf(a1,c1)+zOf(a0,c1))/4;
+          quads.push({ d:(q[0].d+q[1].d+q[2].d+q[3].d)/4, q:q,
+                       t:(zc-ZR[0])/(ZR[1]-ZR[0]) });
+        }
+      }
+      quads.sort(function(a,b){ return b.d - a.d; });
+      var lo = hex2rgb(col("--c-test")), hi = hex2rgb(col("--c-model"));
+      var mesh = alpha(col("--ink"), L.on("mesh") ? .16 : 0);
+      quads.forEach(function(it){
+        var t = Math.max(0, Math.min(1, it.t));
+        ctx.beginPath();
+        ctx.moveTo(it.q[0].x, it.q[0].y);
+        for (var k=1;k<4;k++) ctx.lineTo(it.q[k].x, it.q[k].y);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(" + Math.round(lo[0]+(hi[0]-lo[0])*t) + "," +
+                                  Math.round(lo[1]+(hi[1]-lo[1])*t) + "," +
+                                  Math.round(lo[2]+(hi[2]-lo[2])*t) + ",0.82)";
+        ctx.fill();
+        if (L.on("mesh")){ ctx.strokeStyle = mesh; ctx.lineWidth = 0.7; ctx.stroke(); }
+      });
+    }
+    if (L.on("box")){
+      var z = S3.frontZ(), x = S3.frontX();
+      S3.label("x1: sleep", 0, -1, z*1.32, 0);
+      S3.label("x2: age", x*1.34, -1, 0, 0);
+      S3.label("y", -1, 1.24, -1, 0, '10.5px "IBM Plex Mono", monospace');
+    }
+  }
+  S3.orbit(draw);
+  document.getElementById("saddleReset").addEventListener("click", function(){ S3.home(); draw(); });
+  SADDLE = draw;
+  reg(draw);
+})();
+
+
+/* ============================================================
+   03 — KNN regression
+   ============================================================ */
+(function(){
+  var p  = mkPlot("cvKnn",  {xd:[0,1], yd:[-2.4,3.2], padL:40, padB:34});
+  var pu = mkPlot("cvKnnU", {xd:[0,1], yd:[0,1], padL:44, padB:34, padT:16});
+  if (!p) return;
+  var elK = document.getElementById("knK"), lbK = document.getElementById("knKv");
+  var statsEl = document.getElementById("knnStats"), capEl = document.getElementById("knnCap");
+  var mode = "cur", seed = 31, KMAX = 40;
+  var D = {};
+
+  var L = layerToggles("knnLayers", [
+    {k:"train", label:"training points", kind:"dot",  col:"--c-data"},
+    {k:"knn",   label:"KNN fit",         kind:"ln",   col:"--c-model"},
+    {k:"ols",   label:"linear fit",      kind:"ln",   col:"--c-test"},
+    {k:"truth", label:"true f",          kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
+
+  function trueF(x){
+    return mode === "lin" ? (-0.9 + 2.6*x)
+                          : (1.25*Math.sin(2*Math.PI*0.85*x) + 0.45*x - 0.3);
+  }
+  function gen(){
+    var r = rng(seed), i;
+    D = {xtr:[], ytr:[], xte:[], yte:[]};
+    for (i=0;i<60;i++){ var x=(i+0.5)/60 + (r()-0.5)*0.012; D.xtr.push(x); D.ytr.push(trueF(x)+gauss(r)*0.36); }
+    for (i=0;i<250;i++){ var t=r(); D.xte.push(t); D.yte.push(trueF(t)+gauss(r)*0.36); }
+  }
+  /* KNN on one predictor: the K training points with the closest x */
+  function knn(K){
+    var order = D.xtr.map(function(v,i){ return i; });
+    return function(x0){
+      var ds = order.map(function(i){ return {d:Math.abs(D.xtr[i]-x0), y:D.ytr[i]}; });
+      ds.sort(function(a,b){ return a.d - b.d; });
+      var s = 0;
+      for (var i=0;i<K;i++) s += ds[i].y;
+      return s/K;
+    };
+  }
+  function mse(f, xs, ys){ var s=0; for (var i=0;i<xs.length;i++){ var e=ys[i]-f(xs[i]); s+=e*e; } return s/xs.length; }
+
+  function sweep(){
+    var out = [];
+    for (var K=1; K<=KMAX; K++) out.push(mse(knn(K), D.xte, D.yte));
+    return out;
+  }
+
+  function draw(){
+    var K = +elK.value; lbK.textContent = K;
+    var f = knn(K), o = ols(D.xtr, D.ytr);
+    var olsF = function(x){ return o.b0 + o.b1*x; };
+    var teK = mse(f, D.xte, D.yte), teO = mse(olsF, D.xte, D.yte);
+
+    p.sync(); p.frame();
+    var xt = [0,0.25,0.5,0.75,1], yt = [-2,-1,0,1,2,3];
+    p.grid(xt, yt);
+    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:1.8, dash:[6,5]});
+    if (L.on("ols"))   p.fnline(olsF,  {color: col("--c-test"), w:2.4});
+    if (L.on("knn"))   p.fnline(f,     {color: col("--c-model"), w:2.6, n:400});
+    if (L.on("train")) p.dots(D.xtr.map(function(v,i){ return [v, D.ytr[i]]; }),
+                              {r:3.4, color: alpha(col("--c-data"), .85)});
+    p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y",
+            fmt:function(v){return v.toFixed(2);}, fmtY:function(v){return v.toFixed(0);}});
+
+    /* test error against flexibility, which is 1/K */
+    var sw = sweep();
+    var all = sw.concat([teO]);
+    var hi = Math.max.apply(null, all)*1.08, lo = Math.min.apply(null, all)*0.9;
+    pu.dom([0, 1], [lo, hi]);
+    pu.sync(); pu.frame();
+    pu.grid(null, ticks(lo, hi, 4));
+    var ctx = pu.ctx;
+    ctx.save(); ctx.beginPath();
+    for (var K2=KMAX; K2>=1; K2--){
+      var X = pu.x(1/K2), Y = pu.y(sw[K2-1]);
+      if (K2 === KMAX) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+    }
+    ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.4; ctx.lineJoin="round"; ctx.stroke();
+    ctx.restore();
+    pu.seg(0, teO, 1, teO, {color: col("--c-test"), w:2, dash:[6,4]});
+    ctx.save();
+    ctx.strokeStyle = alpha(col("--ink"), .45); ctx.lineWidth = 1.4; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(pu.x(1/K), pu.T); ctx.lineTo(pu.x(1/K), pu.B); ctx.stroke();
+    ctx.restore();
+    pu.dots([[1/K, sw[K-1]]], {r:4.5, color: col("--c-model")});
+    var tk = [1,2,5,10,20,40];
+    pu.axes({xt: tk.map(function(v){ return 1/v; }), yt: ticks(lo,hi,4),
+             xlabel:"more flexible  ->  fewer neighbours",
+             fmt:function(v){ return String(Math.round(1/v)); }});
+    pu.txt("KNN test MSE", pu.R-6, pu.T+11, {align:"right", color: col("--c-model"), font:'10px "IBM Plex Mono", monospace'});
+    pu.txt("linear test MSE", pu.R-6, pu.T+24, {align:"right", color: col("--c-test"), font:'10px "IBM Plex Mono", monospace'});
+
+    var bestK = 1, i;
+    for (i=1;i<sw.length;i++) if (sw[i] < sw[bestK-1]) bestK = i+1;
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    statsEl.innerHTML =
+      row("model", "KNN test MSE", fmt(teK,3)) +
+      row("test",  "linear test MSE", fmt(teO,3)) +
+      row("plain", "best K here", String(bestK));
+
+    capEl.innerHTML = mode === "lin"
+      ? "The truth is a line, so the straight line wins at every K, though only just at the best K. It already knows the shape of the answer and spends all its data on two numbers."
+      : "The truth curves, so the straight line has a bias no amount of data removes. KNN gets under it for a wide range of K.";
+  }
+
+  var seg = document.getElementById("knSeg");
+  seg.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(q){ q.classList.toggle("on", q===b); });
+    mode = b.getAttribute("data-v"); gen(); draw();
+  });
+  elK.addEventListener("input", draw);
+  document.getElementById("knNew").addEventListener("click", function(){
+    seed = (seed*1664525 + 1013904223) >>> 0; gen(); draw();
+  });
+  document.getElementById("knBest").addEventListener("click", function(){
+    var sw = sweep(), best = 1;
+    for (var i=1;i<sw.length;i++) if (sw[i] < sw[best-1]) best = i+1;
+    elK.value = best; draw();
+  });
+  gen(); reg(draw);
+})();
+
+
+/* ============================================================
+   03b — the curse of dimensionality
+   ============================================================ */
+(function(){
+  var p = mkPlot("cvCurse", {xd:[1,15], yd:[0,1], padL:46, padB:36});
+  if (!p) return;
+  var el = document.getElementById("curseF"), lb = document.getElementById("curseFv");
+  var statsEl = document.getElementById("curseStats");
+
+  function draw(){
+    var f = (+el.value)/100;
+    lb.textContent = (f*100).toFixed(0) + "&#37;";
+    p.sync(); p.frame();
+    var xt = [1,3,5,7,9,11,13,15], yt = [0,0.25,0.5,0.75,1];
+    p.grid(xt, yt);
+    /* side of the sub-cube holding a fraction f of a uniformly filled p-cube */
+    p.fnline(function(d){ return Math.pow(f, 1/Math.max(1,d)); }, {w:2.8, n:300});
+    [1,2,5,10,15].forEach(function(d){
+      p.dots([[d, Math.pow(f, 1/d)]], {r:4.2, color: col("--c-model"), ring: col("--surface")});
+    });
+    p.seg(1, 1, 15, 1, {color: alpha(col("--c-error"), .5), w:1.4, dash:[5,4]});
+    p.txt("the whole range", p.R-6, p.y(1)+13, {align:"right", color: col("--c-error"), font:'10px "IBM Plex Mono", monospace'});
+    p.axes({xt:xt, yt:yt, xlabel:"p: number of predictors",
+            ylabel:"side length needed, per axis",
+            fmt:function(v){return v.toFixed(0);}, fmtY:function(v){return v.toFixed(2);}});
+
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    statsEl.innerHTML =
+      row("plain", "1 predictor",   (100*Math.pow(f,1/1)).toFixed(0) + "&#37;") +
+      row("plain", "5 predictors",  (100*Math.pow(f,1/5)).toFixed(0) + "&#37;") +
+      row("model", "10 predictors", (100*Math.pow(f,1/10)).toFixed(0) + "&#37;") +
+      row("error", "100 predictors",(100*Math.pow(f,1/100)).toFixed(0) + "&#37;");
+  }
+  el.addEventListener("input", draw);
+  reg(draw);
+})();
+
+
+/* ============================================================
+   04 — bias and variance
+   ============================================================ */
+(function(){
+  var p  = mkPlot("cvBV",      {xd:[0,1], yd:[-3.2,3.6], padL:40, padB:34});
+  var pc = mkPlot("cvBVcurve", {xd:[0.5,14.5], yd:[0,1], padL:46, padB:36, padT:16});
+  if (!p) return;
+  var elD = document.getElementById("bvD"), lbD = document.getElementById("bvDv");
+  var elN = document.getElementById("bvN"), lbN = document.getElementById("bvNv");
+  var statsEl = document.getElementById("bvStats"), capEl = document.getElementById("bvCap");
+  var cStats = document.getElementById("bvcStats");
+  var REPS = 30, DMAX = 10, SIG = 0.35, seed = 77;
+  var GRID = [], gi;
+  for (gi=0; gi<=60; gi++) GRID.push(gi/60);
+
+  var L = layerToggles("bvLayers", [
+    {k:"fits",  label:"the thirty fits", kind:"ln", col:"--c-model"},
+    {k:"mean",  label:"average fit",  kind:"ln",   col:"--c-error"},
+    {k:"truth", label:"true f",       kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
+  var Lc = layerToggles("bvcLayers", [
+    {k:"bias", label:"bias&sup2;",     kind:"ln", col:"--c-test"},
+    {k:"var",  label:"variance",       kind:"ln", col:"--c-model"},
+    {k:"sum",  label:"their sum",      kind:"ln", col:"--c-error"}
+  ], function(){ draw(); });
+
+  function trueF(x){ return 1.25*Math.sin(2*Math.PI*0.82*x) + 0.45*x - 0.15; }
+
+  /* one set of cohorts, reused by both panels and by every degree */
+  var cohorts = null, cohortKey = "";
+  function makeCohorts(n){
+    var key = n + "|" + seed;
+    if (cohortKey === key) return cohorts;
+    var r = rng(seed), out = [], i, k;
+    for (k=0;k<REPS;k++){
+      var xs = [], ys = [];
+      for (i=0;i<n;i++){ var x = r(); xs.push(x); ys.push(trueF(x) + gauss(r)*SIG); }
+      out.push({x:xs, y:ys});
+    }
+    cohorts = out; cohortKey = key;
+    return out;
+  }
+  /* fit every cohort at one degree and split the error into its two parts */
+  function analyse(n, d){
+    var cs = makeCohorts(n), curves = [], k, g;
+    for (k=0;k<REPS;k++){
+      var f = polyFit(cs[k].x, cs[k].y, d, 0, 1);
+      curves.push(GRID.map(f));
+    }
+    var mean = GRID.map(function(_, g2){
+      var s = 0; for (k=0;k<REPS;k++) s += curves[k][g2];
+      return s/REPS;
+    });
+    var bias2 = 0, vari = 0;
+    for (g=0; g<GRID.length; g++){
+      var b = mean[g] - trueF(GRID[g]);
+      bias2 += b*b;
+      var v = 0;
+      for (k=0;k<REPS;k++){ var e = curves[k][g] - mean[g]; v += e*e; }
+      vari += v/REPS;
+    }
+    return { curves:curves, mean:mean, bias2:bias2/GRID.length, vari:vari/GRID.length };
+  }
+  var sweepCache = {}, sweepKey = "";
+  function sweep(n){
+    var key = n + "|" + seed;
+    if (sweepKey === key) return sweepCache;
+    var b = [], v = [];
+    for (var d=1; d<=DMAX; d++){ var a = analyse(n, d); b.push(a.bias2); v.push(a.vari); }
+    sweepCache = {b:b, v:v}; sweepKey = key;
+    return sweepCache;
+  }
+
+  function draw(){
+    var d = +elD.value, n = +elN.value;
+    lbD.textContent = d; lbN.textContent = n;
+    var A = analyse(n, d);
+
+    p.sync(); p.frame();
+    var xt = [0,0.25,0.5,0.75,1], yt = [-3,-2,-1,0,1,2,3];
+    p.grid(xt, yt);
+    var ctx = p.ctx;
+    if (L.on("fits")){
+      ctx.save();
+      ctx.strokeStyle = alpha(col("--c-model"), .22); ctx.lineWidth = 1.1;
+      p.clip();
+      A.curves.forEach(function(cv){
+        ctx.beginPath();
+        for (var g=0; g<GRID.length; g++){
+          var X = p.x(GRID[g]), Y = p.y(cv[g]);
+          if (g===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+        }
+        ctx.stroke();
+      });
+      p.unclip(); ctx.restore();
+    }
+    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:2, dash:[6,5]});
+    if (L.on("mean")){
+      ctx.save(); p.clip(); ctx.beginPath();
+      for (var g2=0; g2<GRID.length; g2++){
+        var X2 = p.x(GRID[g2]), Y2 = p.y(A.mean[g2]);
+        if (g2===0) ctx.moveTo(X2,Y2); else ctx.lineTo(X2,Y2);
+      }
+      ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 2.8; ctx.lineJoin="round"; ctx.stroke();
+      p.unclip(); ctx.restore();
+    }
+    p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y",
+            fmt:function(v){return v.toFixed(2);}, fmtY:function(v){return v.toFixed(0);}});
+
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    var irr = SIG*SIG;
+    statsEl.innerHTML =
+      row("test",  "bias&sup2;",          fmt(A.bias2,3)) +
+      row("model", "variance",            fmt(A.vari,3)) +
+      row("plain", "irreducible noise",   fmt(irr,3)) +
+      row("error", "expected test error", fmt(A.bias2 + A.vari + irr,3));
+
+    capEl.innerHTML = A.bias2 > A.vari*2.2
+      ? "Every cohort gives almost the same fit, and every one of them misses the truth the same way. That is <b>bias</b>: the model is the wrong shape, and more subjects will not help."
+      : (A.vari > A.bias2*2.2
+        ? "The fits chase their own cohort and disagree wildly with each other. That is <b>variance</b>: the average is close to the truth, but no single study lands there."
+        : "Near the balance point: the average fit tracks the truth and the individual fits stay close to the average.");
+
+    /* ---- the trade curve ---- */
+    var S = sweep(n);
+    var sum = S.b.map(function(b, i){ return b + S.v[i]; });
+    /* Bias and variance differ by two orders of magnitude across the range,
+       so a linear axis would flatten the bottom of the U into the baseline. */
+    var all = sum.concat(S.v, S.b).filter(function(v){ return v > 0; });
+    var lo = Math.log10(Math.min.apply(null, all)*0.6);
+    var hi = Math.log10(Math.max.apply(null, all)*1.7);
+    pc.dom([0.5, DMAX+0.5], [lo, hi]);
+    pc.sync(); pc.frame();
+    var yt2 = ticks(lo, hi, 4);
+    pc.grid(null, yt2);
+    function series(arr, color, w){
+      var c2 = pc.ctx; c2.save(); c2.beginPath();
+      for (var i=0;i<arr.length;i++){
+        var X = pc.x(i+1), Y = pc.y(Math.log10(Math.max(1e-6, arr[i])));
+        if (i===0) c2.moveTo(X,Y); else c2.lineTo(X,Y);
+      }
+      c2.strokeStyle = color; c2.lineWidth = w; c2.lineJoin = "round"; c2.stroke(); c2.restore();
+    }
+    if (Lc.on("bias")) series(S.b, col("--c-test"), 2.2);
+    if (Lc.on("var"))  series(S.v, col("--c-model"), 2.2);
+    if (Lc.on("sum"))  series(sum, col("--c-error"), 2.8);
+    var c3 = pc.ctx;
+    c3.save(); c3.strokeStyle = alpha(col("--ink"), .45); c3.lineWidth = 1.4; c3.setLineDash([4,4]);
+    c3.beginPath(); c3.moveTo(pc.x(d), pc.T); c3.lineTo(pc.x(d), pc.B); c3.stroke(); c3.restore();
+    var bestD = 1, i2;
+    for (i2=1;i2<sum.length;i2++) if (sum[i2] < sum[bestD-1]) bestD = i2+1;
+    pc.dots([[bestD, Math.log10(Math.max(1e-6, sum[bestD-1]))]], {r:4.5, color: col("--c-error"), ring: col("--surface")});
+    pc.axes({xt:[1,2,3,4,5,6,7,8,9,10], yt:yt2, xlabel:"polynomial degree  (log scale on the vertical)",
+             fmt:function(v){return v.toFixed(0);},
+             fmtY:function(v){ var z=Math.pow(10,v); return z>=1?z.toFixed(0):z.toFixed(z<0.1?3:2); }});
+
+    cStats.innerHTML =
+      row("error", "lowest sum at degree", String(bestD)) +
+      row("plain", "your degree", String(d));
+  }
+
+  elD.addEventListener("input", draw);
+  elN.addEventListener("input", draw);
+  reg(draw);
+})();
 
 /* first paint after fonts settle */
 window.addEventListener("load", function(){ requestAnimationFrame(redrawAll); });
