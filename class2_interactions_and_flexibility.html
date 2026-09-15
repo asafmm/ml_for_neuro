@@ -29,6 +29,8 @@
   --c-test-wash:rgba(14,124,123,.14);
   --c-data:#3A3452;
   --c-alt:#3E63A8;
+  --c-seq-lo:#F2CDAC;
+  --c-seq-hi:#7A2E06;
   --c-grid:#DEDEE9;
   --c-axis:#9C96B2;
 
@@ -56,6 +58,8 @@
   --c-test-wash:rgba(62,184,178,.16);
   --c-data:#C3BCD8;
   --c-alt:#89A9E8;
+  --c-seq-lo:#553318;
+  --c-seq-hi:#FFD3AE;
   --c-grid:#2C2639;
   --c-axis:#6B6382;
 
@@ -916,7 +920,8 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="nbKs" min="1" max="30" value="8" step="1">
         </div>
         <div class="stats" id="nbrStats"></div>
-        <p class="notecap">The background is the model&rsquo;s prediction everywhere, not just at the pointer. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point. Raising <span class="m">K</span> blurs the tiles together.</p>
+        <p class="notecap">Colour is the outcome <span class="m">y</span>: pale for low, dark for high, on the scale beside the plot. The arrow on that scale is the current prediction.
+          <br>The background is the model&rsquo;s prediction everywhere, not just at the pointer. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point. Raising <span class="m">K</span> blurs the tiles together.</p>
       </div>
     </div>
   </div>
@@ -2292,7 +2297,7 @@ var SADDLE = null;
    04b — what a neighbourhood looks like, in two dimensions
    ============================================================ */
 (function(){
-  var p = mkPlot("cvNbr", {xd:[-1,1], yd:[-1,1], padL:38, padB:34, padR:16, padT:14});
+  var p = mkPlot("cvNbr", {xd:[-1,1], yd:[-1,1], padL:38, padB:34, padR:66, padT:22});
   if (!p) return;
   var elK = document.getElementById("nbKs"), lbK = document.getElementById("nbK");
   var statsEl = document.getElementById("nbrStats"), capEl = document.getElementById("nbrCap");
@@ -2322,8 +2327,10 @@ var SADDLE = null;
     t = t < 0 ? 0 : (t > 1 ? 1 : t);
     return PAL[Math.min(PAL.length-1, (t*PAL.length)|0)];
   }
+  /* One hue, ordered by lightness. Two different hues would read as two
+     classes, which is the wrong message for a continuous y. */
   function palette(){
-    var lo = hex2rgb(col("--c-test")), hi = hex2rgb(col("--c-model")), out = [];
+    var lo = hex2rgb(col("--c-seq-lo")), hi = hex2rgb(col("--c-seq-hi")), out = [];
     for (var i=0;i<24;i++){
       var t = i/23;
       out.push([Math.round(lo[0]+(hi[0]-lo[0])*t),
@@ -2331,6 +2338,41 @@ var SADDLE = null;
                 Math.round(lo[2]+(hi[2]-lo[2])*t)]);
     }
     return out;
+  }
+  function rgbStr(c){ return "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"; }
+
+  /* the scale, so the colours are readable as numbers */
+  function colourbar(ctx, PAL, mark){
+    var bx = p.R + 14, bw = 15, by = p.T + 4, bh = (p.B - p.T) - 8;
+    var i;
+    for (i=0;i<PAL.length;i++){
+      var y0 = by + bh*(1 - (i+1)/PAL.length), y1 = by + bh*(1 - i/PAL.length);
+      ctx.fillStyle = rgbStr(PAL[i]);
+      ctx.fillRect(bx, y0, bw, (y1-y0) + 0.6);
+    }
+    ctx.save();
+    ctx.strokeStyle = col("--c-axis"); ctx.lineWidth = 1;
+    ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
+    ctx.fillStyle = col("--ink-faint");
+    ctx.font = '9.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    [VHI, (VHI+VLO)/2, VLO].forEach(function(v){
+      var yy = by + bh*(1 - (v - VLO)/(VHI - VLO));
+      ctx.fillText(v.toFixed(1), bx + bw + 4, yy);
+    });
+    ctx.fillStyle = col("--ink-soft");
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    ctx.fillText("y", bx + bw/2, by - 5);
+    /* where the current prediction sits on the scale */
+    if (mark !== null && mark !== undefined){
+      var my = by + bh*(1 - (Math.max(VLO, Math.min(VHI, mark)) - VLO)/(VHI - VLO));
+      ctx.beginPath();
+      ctx.moveTo(bx - 3, my); ctx.lineTo(bx - 9, my - 4.5); ctx.lineTo(bx - 9, my + 4.5);
+      ctx.closePath();
+      ctx.fillStyle = col("--ink"); ctx.fill();
+    }
+    ctx.restore();
   }
 
   /* the K nearest training points to (a,b), as indices, nearest first */
@@ -2438,7 +2480,7 @@ var SADDLE = null;
         var rgb = ramp(pt.v, PAL);
         ctx.save();
         ctx.beginPath(); ctx.arc(p.x(pt.x), p.y(pt.y), inSet[i] ? 5.5 : 3.6, 0, 6.2832);
-        ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+        ctx.fillStyle = rgbStr(rgb);
         ctx.fill();
         ctx.strokeStyle = inSet[i] ? col("--ink") : alpha(col("--surface"), .9);
         ctx.lineWidth = inSet[i] ? 1.8 : 1.1;
@@ -2446,14 +2488,15 @@ var SADDLE = null;
       });
     }
     /* the query point, filled with what the model predicts there */
-    var PAL2 = palette(), rgb2 = ramp(res.v, PAL2);
+    var PAL2 = palette();
     ctx.save();
     ctx.beginPath(); ctx.arc(p.x(q.x), p.y(q.y), 8, 0, 6.2832);
-    ctx.fillStyle = "rgb(" + rgb2[0] + "," + rgb2[1] + "," + rgb2[2] + ")";
+    ctx.fillStyle = rgbStr(ramp(res.v, PAL2));
     ctx.fill();
     ctx.strokeStyle = col("--ink"); ctx.lineWidth = 2.6; ctx.stroke();
     ctx.restore();
 
+    colourbar(ctx, PAL2, res.v);
     p.axes({xt:[-1,-0.5,0,0.5,1], yt:[-1,-0.5,0,0.5,1],
             xlabel:"x1", ylabel:"x2", fmt:function(v){ return v.toFixed(1); }});
 
