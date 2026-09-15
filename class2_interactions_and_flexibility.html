@@ -900,13 +900,13 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="prose">
     <h3>What a neighbourhood actually looks like</h3>
     <p>With one predictor the neighbours are just the points to the left and right, which hides what the method is really doing. Give it two predictors and the idea becomes visible: a neighbourhood is a disc, and the prediction is the average height of whatever falls inside it.</p>
-    <p>Move the pointer over the panel to put the query point somewhere new.</p>
+    <p>Click anywhere in the panel to move the query point.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
       <div class="t">The neighbourhood, and what it predicts</div>
-      <div class="hint">move the pointer across the square</div>
+      <div class="hint">click anywhere to move the query point</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -921,7 +921,7 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="nbrStats"></div>
         <p class="notecap">Colour is the outcome <span class="m">y</span>: pale for low, dark for high, on the scale beside the plot. The arrow on that scale is the current prediction.
-          <br>The background is the model&rsquo;s prediction everywhere, not just at the pointer. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point. Raising <span class="m">K</span> blurs the tiles together.</p>
+          <br>Switch on the prediction surface to see what the model says <em>everywhere</em>, not just where you clicked. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point, and raising <span class="m">K</span> blurs them together.</p>
       </div>
     </div>
   </div>
@@ -2304,7 +2304,7 @@ var SADDLE = null;
   var q = { x: -0.15, y: 0.2 };               /* the query point */
 
   var L = layerToggles("nbrLayers", [
-    {k:"surf",  label:"prediction surface", kind:"dot",  col:"--c-model"},
+    {k:"surf",  label:"prediction surface", kind:"dot",  col:"--c-seq-hi", on:false},
     {k:"pts",   label:"training points",    kind:"dot",  col:"--c-data"},
     {k:"disc",  label:"the neighbourhood",  kind:"dash", col:"--ink"},
     {k:"links", label:"links to neighbours",kind:"ln",   col:"--ink-soft"}
@@ -2434,8 +2434,9 @@ var SADDLE = null;
     q.y = Math.max(-1, Math.min(1, t.y));
     draw();
   }
-  p.el.addEventListener("pointermove", setQ);
-  p.el.addEventListener("pointerdown", function(e){ p.el.setPointerCapture(e.pointerId); setQ(e); });
+  /* on click only: a query point that chases the cursor is hard to read from,
+     and impossible to point at while talking */
+  p.el.addEventListener("pointerdown", setQ);
 
   function draw(){
     var K = +elK.value; lbK.textContent = K;
