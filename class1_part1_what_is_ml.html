@@ -1514,7 +1514,7 @@ var TABS = (function(){
   var gapEl = document.getElementById("truthGap");
   var L = layerToggles("truthLayers", [
     {k:"data",  label:"the trials",   kind:"dot",  col:"--c-data"},
-    {k:"hat",   label:"estimate f̂", kind:"ln",   col:"--c-model", on:false},
+    {k:"hat",   label:"estimate <span class='hat f'>f</span>", kind:"ln",   col:"--c-model", on:false},
     {k:"truth", label:"true f",       kind:"dash", col:"--ink-faint", on:false}
   ], function(){ draw(); });
   var tblEl = document.getElementById("truthTbl");
@@ -1594,7 +1594,7 @@ var TABS = (function(){
   var L = layerToggles("overLayers", [
     {k:"train", label:"train (20)",       kind:"dot",  col:"--c-data"},
     {k:"test",  label:"test (60, unseen)",kind:"ring", col:"--c-test"},
-    {k:"fit",   label:"fitted f̂",       kind:"ln",   col:"--c-model"},
+    {k:"fit",   label:"fitted <span class='hat f'>f</span>",       kind:"ln",   col:"--c-model"},
     {k:"truth", label:"true f",           kind:"dash", col:"--ink-faint"}
   ], function(){ draw(); });
   var seed = 42, D = { xtr:[], ytr:[], xte:[], yte:[] };

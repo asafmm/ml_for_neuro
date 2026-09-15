@@ -848,7 +848,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="eq">
-    <span class="m">f&#770;</span>(<span class="m">x<sub>0</sub></span>) =
+    <span class="m"><span class="hat f">f</span></span>(<span class="m">x<sub>0</sub></span>) =
     <span class="frac"><span>1</span><span><span class="m">K</span></span></span>
     <span class="sum"><span class="lim"></span><span class="sig">&Sigma;</span><span class="lim">x<sub>i</sub> &isin; N<sub>0</sub></span></span>
     <span class="m">y<sub>i</sub></span>
@@ -961,7 +961,7 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <h3>Why this stops working in neuroscience</h3>
-    <p>KNN needs neighbours that are genuinely near. In one dimension that is easy. As <span class="m">p</span> grows, the space empties out: to capture 10&#37; of the data in a cube, you need to reach 10&#37; of the range along one axis, but 63&#37; along each of ten axes. The &ldquo;nearest&rdquo; neighbours are no longer near, and the average is taken over points that have little to do with <span class="m">x<sub>0</sub></span>.</p>
+    <p>KNN needs neighbours that are genuinely near. In one dimension that is easy. As <span class="m">p</span> grows, the space empties out: to capture 10&#37; of the data you need to reach 10&#37; of the range along one axis, 32&#37; along each of two, and 79&#37; along each of ten. The &ldquo;nearest&rdquo; neighbours are no longer near, and the average is taken over points that have little to do with <span class="m">x<sub>0</sub></span>.</p>
   </div>
 
   <div class="panel">
@@ -1066,9 +1066,9 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="eq">
-    E[(<span class="m">y</span> &minus; <span class="m">f&#770;</span>(<span class="m">x</span>))<sup>2</sup>]
-    &nbsp;=&nbsp; Bias(<span class="m">f&#770;</span>)<sup>2</sup>
-    &nbsp;+&nbsp; Var(<span class="m">f&#770;</span>)
+    E[(<span class="m">y</span> &minus; <span class="m"><span class="hat f">f</span></span>(<span class="m">x</span>))<sup>2</sup>]
+    &nbsp;=&nbsp; Bias(<span class="m"><span class="hat f">f</span></span>)<sup>2</sup>
+    &nbsp;+&nbsp; Var(<span class="m"><span class="hat f">f</span></span>)
     &nbsp;+&nbsp; Var(<span class="m">&epsilon;</span>)
   </div>
 
