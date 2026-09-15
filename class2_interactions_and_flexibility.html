@@ -966,15 +966,47 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The curse of dimensionality</div>
-      <div class="hint">how far you must reach to find 10&#37; of the data</div>
+      <div class="t">The same 100 points, in one, two and three dimensions</div>
+      <div class="hint">drag to turn it</div>
     </div>
     <div class="panel-body panel-split">
       <div>
-        <canvas id="cvCube" class="cv" height="170"></canvas>
-        <p class="notecap">The shaded region holds the same share of the data in all three pictures. Only the reach along each axis changes.</p>
-        <canvas id="cvCurse" class="cv" height="250" style="margin-top:1rem"></canvas>
-        <p class="notecap">The side length of the cube you need in order to enclose a fixed fraction of a uniformly filled space, as dimensions are added.</p>
+        <div class="btnrow" style="margin-bottom:.85rem">
+          <div class="seg" id="cu3Seg">
+            <button data-v="1">1 dimension</button>
+            <button data-v="2">2 dimensions</button>
+            <button class="on" data-v="3">3 dimensions</button>
+          </div>
+        </div>
+        <canvas id="cvCurse3" class="cv drag" height="400"></canvas>
+        <div id="curse3Layers"></div>
+        <p class="notecap" id="curse3Cap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>reach along each axis <span class="v" id="cu3Sv">50&#37;</span></label>
+          <input type="range" id="cu3S" min="5" max="100" value="50" step="1">
+        </div>
+        <div class="stats" id="curse3Stats"></div>
+        <div class="btnrow"><button class="btn" id="cu3Reset">reset the view</button></div>
+        <p class="notecap">The very same 100 points in all three views: lower dimensions simply use fewer of each point&rsquo;s coordinates. Watch them spread from a crowded line, to a square, to a mostly empty cube.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>Turn the question around and it becomes the working rule of thumb: to hold a fixed share of the data, how far must a neighbourhood reach along each axis?</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">How far must you reach?</div>
+      <div class="hint">for a fixed share of the data</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvCurse" class="cv" height="250"></canvas>
+        <p class="notecap">The side length of the cube needed to enclose a fixed fraction of a uniformly filled space, as dimensions are added.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -986,6 +1018,12 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
     </div>
   </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>KNN rests on the assumption that nearby points have similar outcomes. In high dimensions there are no nearby points, so the assumption quietly stops holding and the method degrades into averaging arbitrary subjects.</p>
+  </div>
+
 </section>
 
 <!-- ==================== 24 ==================== -->
@@ -2724,98 +2762,149 @@ var KNN2D = (function(){
 
 
 /* ============================================================
-   04d — the curse, drawn: the same 10% in one, two and three dimensions
+   04e — the same 100 points, in one, two and three dimensions
    ============================================================ */
 (function(){
-  var cvs = document.getElementById("cvCube");
-  if (!cvs) return;
-  var ctx = cvs.getContext("2d");
-  var el = document.getElementById("curseF");
+  var S3 = mk3d("cvCurse3", 400);
+  if (!S3) return;
+  var ctx = S3.ctx;
+  var elS = document.getElementById("cu3S"), lbS = document.getElementById("cu3Sv");
+  var statsEl = document.getElementById("curse3Stats"), capEl = document.getElementById("curse3Cap");
+  var P_ = 3;
+
+  var L = layerToggles("curse3Layers", [
+    {k:"pts",  label:"the 100 points",   kind:"dot",  col:"--c-data"},
+    {k:"hood", label:"the neighbourhood",kind:"dot",  col:"--c-seq-hi"},
+    {k:"box",  label:"axes",             kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
+
+  /* one set of 100 points with three coordinates each. Lower dimensions use
+     the first p of them, so every view really is the same sample. */
+  var PTS = (function(){
+    var r = rng(505050), out = [];
+    for (var i=0;i<100;i++) out.push([r(), r(), r()]);
+    return out;
+  })();
+  function toBox(u){ return u*2 - 1; }
+
+  /* a point counts as inside if its first p coordinates are all below s */
+  function inside(pt, s, p){
+    for (var k=0;k<p;k++) if (pt[k] > s) return false;
+    return true;
+  }
+  /* where a point is drawn: unused dimensions collapse onto the front-bottom */
+  function place(pt, p){
+    return { x: toBox(pt[0]),
+             y: p >= 3 ? toBox(pt[2]) : -1,
+             z: p >= 2 ? toBox(pt[1]) : -1 };
+  }
 
   function draw(){
-    var f = (+el.value)/100;
-    if (!cvs.style.height) cvs.style.height = "170px";
-    var rect = cvs.getBoundingClientRect();
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var W = rect.width, H = 170;
-    cvs.width = Math.max(1, Math.round(W*dpr));
-    cvs.height = Math.max(1, Math.round(H*dpr));
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.clearRect(0,0,W,H);
+    var s = (+elS.value)/100;
+    lbS.textContent = (100*s).toFixed(0) + "&#37;";
+    S3.sync();
+    if (L.on("box")) S3.box();
 
-    var box = Math.min(74, (W - 40)/3 - 22);
-    var gap = (W - 3*box)/4;
-    var top = 34;
-    var edge = col("--ink-faint"), fill = col("--c-seq-hi");
+    var e = toBox(s);                       /* far edge of the neighbourhood */
+    var items = [];
 
-    function caption(cx, p, side){
-      ctx.save();
-      ctx.fillStyle = col("--ink-soft");
-      ctx.font = '600 10.5px "IBM Plex Mono", monospace';
-      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
-      ctx.fillText("p = " + p, cx, 16);
-      ctx.fillStyle = col("--c-seq-hi");
-      ctx.fillText((100*side).toFixed(0) + "% of each axis", cx, H - 8);
-      ctx.restore();
-    }
-
-    /* p = 1: a segment, with the covered part shaded */
-    var s1 = f;
-    var x0 = gap, y0 = top + box/2;
-    ctx.save();
-    ctx.strokeStyle = edge; ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0+box, y0); ctx.stroke();
-    ctx.strokeStyle = fill; ctx.lineWidth = 7; ctx.lineCap = "butt";
-    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + box*s1, y0); ctx.stroke();
-    ctx.restore();
-    caption(x0 + box/2, 1, s1);
-
-    /* p = 2: a square, with the covered sub-square in a corner */
-    var s2 = Math.pow(f, 1/2);
-    var x1 = gap*2 + box;
-    ctx.save();
-    ctx.strokeStyle = edge; ctx.lineWidth = 1.4;
-    ctx.strokeRect(x1, top, box, box);
-    ctx.fillStyle = alpha(fill, .78);
-    ctx.fillRect(x1, top + box*(1-s2), box*s2, box*s2);
-    ctx.restore();
-    caption(x1 + box/2, 2, s2);
-
-    /* p = 3: a cube in cabinet projection, with the covered sub-cube */
-    var s3 = Math.pow(f, 1/3);
-    var x2 = gap*3 + box*2, dx = box*0.34, dy = -box*0.28;
-    function cube(ox, oy, side, strokeC, fillC, a){
-      var A=[ox,oy], B=[ox+side,oy], C=[ox+side,oy-side], D=[ox,oy-side];
-      var A2=[A[0]+dx*side/box, A[1]+dy*side/box], B2=[B[0]+dx*side/box, B[1]+dy*side/box];
-      var C2=[C[0]+dx*side/box, C[1]+dy*side/box], D2=[D[0]+dx*side/box, D[1]+dy*side/box];
-      ctx.save();
-      if (fillC){
-        ctx.globalAlpha = a;
-        ctx.fillStyle = fillC;
-        [[A,B,C,D],[D,C,C2,D2],[B,C,C2,B2]].forEach(function(f2){
-          ctx.beginPath(); ctx.moveTo(f2[0][0],f2[0][1]);
-          for (var k=1;k<4;k++) ctx.lineTo(f2[k][0],f2[k][1]);
-          ctx.closePath(); ctx.fill();
+    if (L.on("hood")){
+      if (P_ === 1){
+        items.push({ d: S3.at(0,-1,-1).d, kind:"seg",
+                     a: S3.at(-1,-1,-1), b: S3.at(e,-1,-1) });
+      } else if (P_ === 2){
+        var q = [S3.at(-1,-1,-1), S3.at(e,-1,-1), S3.at(e,-1,e), S3.at(-1,-1,e)];
+        items.push({ d:(q[0].d+q[1].d+q[2].d+q[3].d)/4, kind:"quad", q:q, a:0.4 });
+      } else {
+        /* six faces of the sub-cube, each sorted with the points */
+        var C = [[-1,-1,-1],[e,-1,-1],[e,e,-1],[-1,e,-1],
+                 [-1,-1,e],[e,-1,e],[e,e,e],[-1,e,e]];
+        var F = [[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[0,3,7,4],[1,2,6,5]];
+        F.forEach(function(f){
+          var qq = f.map(function(i){ return S3.at(C[i][0], C[i][1], C[i][2]); });
+          items.push({ d:(qq[0].d+qq[1].d+qq[2].d+qq[3].d)/4, kind:"quad", q:qq, a:0.22 });
         });
-        ctx.globalAlpha = 1;
       }
-      ctx.strokeStyle = strokeC; ctx.lineWidth = 1.3;
-      [[A,B],[B,C],[C,D],[D,A],[D,D2],[C,C2],[B,B2],[D2,C2],[C2,B2]].forEach(function(e){
-        ctx.beginPath(); ctx.moveTo(e[0][0],e[0][1]); ctx.lineTo(e[1][0],e[1][1]); ctx.stroke();
-      });
-      ctx.restore();
     }
-    cube(x2, top + box, box, edge, null, 0);
-    cube(x2, top + box, box*s3, alpha(fill,.9), fill, .55);
-    caption(x2 + box/2, 3, s3);
+
+    var nIn = 0;
+    PTS.forEach(function(pt){
+      var isIn = inside(pt, s, P_);
+      if (isIn) nIn++;
+      if (!L.on("pts")) return;
+      var pos = place(pt, P_);
+      var pr = S3.at(pos.x, pos.y, pos.z);
+      items.push({ d: pr.d, kind:"pt", p: pr, hit: isIn });
+    });
+
+    items.sort(function(a,b){ return b.d - a.d; });
+    var cHi = col("--c-seq-hi"), cData = col("--c-data");
+    items.forEach(function(it){
+      ctx.save();
+      if (it.kind === "quad"){
+        ctx.beginPath();
+        ctx.moveTo(it.q[0].x, it.q[0].y);
+        for (var k=1;k<4;k++) ctx.lineTo(it.q[k].x, it.q[k].y);
+        ctx.closePath();
+        ctx.fillStyle = alpha(cHi, it.a); ctx.fill();
+        ctx.strokeStyle = alpha(cHi, .75); ctx.lineWidth = 1.1; ctx.stroke();
+      } else if (it.kind === "seg"){
+        ctx.beginPath(); ctx.moveTo(it.a.x, it.a.y); ctx.lineTo(it.b.x, it.b.y);
+        ctx.strokeStyle = cHi; ctx.lineWidth = 7; ctx.lineCap = "butt"; ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(it.p.x, it.p.y, it.hit ? 4.4 : 3.2, 0, 6.2832);
+        ctx.fillStyle = it.hit ? cHi : alpha(cData, .55);
+        ctx.fill();
+        if (it.hit){ ctx.strokeStyle = col("--ink"); ctx.lineWidth = 1.3; ctx.stroke(); }
+      }
+      ctx.restore();
+    });
+
+    if (L.on("box")){
+      var zf = S3.frontZ(), xf = S3.frontX();
+      S3.label("x1", 0, -1, zf*1.3, 0);
+      if (P_ >= 2) S3.label("x2", xf*1.32, -1, 0, 0);
+      if (P_ >= 3) S3.label("x3", -1, 1.26, -1, 0, '10.5px "IBM Plex Mono", monospace');
+    }
+
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    var c1 = 0, c2 = 0, c3 = 0;
+    PTS.forEach(function(pt){
+      if (inside(pt, s, 1)) c1++;
+      if (inside(pt, s, 2)) c2++;
+      if (inside(pt, s, 3)) c3++;
+    });
+    statsEl.innerHTML =
+      row(P_===1 ? "model" : "plain", "caught in 1 dimension",  c1 + " of 100") +
+      row(P_===2 ? "model" : "plain", "caught in 2 dimensions", c2 + " of 100") +
+      row(P_===3 ? "model" : "plain", "caught in 3 dimensions", c3 + " of 100") +
+      row("error", "expected in 10 dimensions", (100*Math.pow(s,10)).toFixed(
+            100*Math.pow(s,10) < 1 ? 3 : 1));
+
+    var got = P_===1 ? c1 : (P_===2 ? c2 : c3);
+    capEl.innerHTML = "Reaching " + (100*s).toFixed(0) + "&#37; of the way along each of " +
+      P_ + " axis" + (P_>1 ? "es" : "") + " catches <b>" + got + "</b> of the 100 points. " +
+      (P_ === 1
+        ? "In one dimension a short reach is already a big share of the data."
+        : "The same reach caught " + c1 + " in one dimension. Every axis you add multiplies the share by " +
+          (100*s).toFixed(0) + "&#37; again, and the neighbourhood empties out.");
   }
-  el.addEventListener("input", draw);
+
+  var seg = document.getElementById("cu3Seg");
+  seg.addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
+    P_ = +b.getAttribute("data-v"); draw();
+  });
+  elS.addEventListener("input", draw);
+  S3.orbit(draw);
+  document.getElementById("cu3Reset").addEventListener("click", function(){ S3.home(); draw(); });
   reg(draw);
 })();
 
 
 /* ============================================================
-   04e — the curse of dimensionality
+   04f — how far must you reach
    ============================================================ */
 (function(){
   var p = mkPlot("cvCurse", {xd:[1,15], yd:[0,1], padL:46, padB:36});
