@@ -794,6 +794,40 @@ section.tabpanel{padding:2.6rem 0 0}
     <p>When the truth really is a line, linear regression wins and no value of <span class="m">K</span> catches it: the parametric model already knows the answer's shape, so it spends all its data estimating two numbers. When the truth curves, that assumption becomes a liability and KNN overtakes it.</p>
   </div>
 
+
+  <div class="prose">
+    <h3>What a neighbourhood actually looks like</h3>
+    <p>With one predictor the neighbours are just the points to the left and right, which hides what the method is really doing. Give it two predictors and the idea becomes visible: a neighbourhood is a disc, and the prediction is the average height of whatever falls inside it.</p>
+    <p>Move the pointer over the panel to put the query point somewhere new.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The neighbourhood, and what it predicts</div>
+      <div class="hint">move the pointer across the square</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvNbr" class="cv drag" height="340"></canvas>
+        <div id="nbrLayers"></div>
+        <p class="notecap" id="nbrCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>neighbours <span class="m">K</span> <span class="v" id="nbK">8</span></label>
+          <input type="range" id="nbKs" min="1" max="30" value="8" step="1">
+        </div>
+        <div class="stats" id="nbrStats"></div>
+        <p class="notecap">The background is the model&rsquo;s prediction everywhere, not just at the pointer. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point. Raising <span class="m">K</span> blurs the tiles together.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key">
+    <div class="lbl">Key idea</div>
+    <p>KNN has no equation and no coefficients. Its prediction surface is built entirely out of the training points, which is why it can follow any shape, and why it has nothing to say about a region where no data landed.</p>
+  </div>
+
   <div class="prose">
     <h3>Why this stops working in neuroscience</h3>
     <p>KNN needs neighbours that are genuinely near. In one dimension that is easy. As <span class="m">p</span> grows, the space empties out: to capture 10&#37; of the data in a cube, you need to reach 10&#37; of the range along one axis, but 63&#37; along each of ten axes. The &ldquo;nearest&rdquo; neighbours are no longer near, and the average is taken over points that have little to do with <span class="m">x<sub>0</sub></span>.</p>
@@ -1944,7 +1978,194 @@ var SADDLE = null;
 
 
 /* ============================================================
-   03b — the curse of dimensionality
+   03b — what a neighbourhood looks like, in two dimensions
+   ============================================================ */
+(function(){
+  var p = mkPlot("cvNbr", {xd:[-1,1], yd:[-1,1], padL:38, padB:34, padR:16, padT:14});
+  if (!p) return;
+  var elK = document.getElementById("nbKs"), lbK = document.getElementById("nbK");
+  var statsEl = document.getElementById("nbrStats"), capEl = document.getElementById("nbrCap");
+  var q = { x: -0.15, y: 0.2 };               /* the query point */
+
+  var L = layerToggles("nbrLayers", [
+    {k:"surf",  label:"prediction surface", kind:"dot",  col:"--c-model"},
+    {k:"pts",   label:"training points",    kind:"dot",  col:"--c-data"},
+    {k:"disc",  label:"the neighbourhood",  kind:"dash", col:"--ink"},
+    {k:"links", label:"links to neighbours",kind:"ln",   col:"--ink-soft"}
+  ], function(){ draw(); });
+
+  /* a smooth pattern with real structure, so averaging has something to average */
+  function trueF(a, b){ return 1.8*Math.sin(2.0*a)*Math.cos(1.6*b); }
+  var P = (function(){
+    var r = rng(60607), out = [];
+    for (var i=0;i<80;i++){
+      var a = -0.94 + 1.88*r(), b = -0.94 + 1.88*r();
+      out.push({x:a, y:b, v: trueF(a,b) + gauss(r)*0.25});
+    }
+    return out;
+  })();
+
+  var VLO = -2.1, VHI = 2.1;
+  function ramp(v, PAL){
+    var t = (v - VLO)/(VHI - VLO);
+    t = t < 0 ? 0 : (t > 1 ? 1 : t);
+    return PAL[Math.min(PAL.length-1, (t*PAL.length)|0)];
+  }
+  function palette(){
+    var lo = hex2rgb(col("--c-test")), hi = hex2rgb(col("--c-model")), out = [];
+    for (var i=0;i<24;i++){
+      var t = i/23;
+      out.push([Math.round(lo[0]+(hi[0]-lo[0])*t),
+                Math.round(lo[1]+(hi[1]-lo[1])*t),
+                Math.round(lo[2]+(hi[2]-lo[2])*t)]);
+    }
+    return out;
+  }
+
+  /* the K nearest training points to (a,b), as indices, nearest first */
+  function nearest(a, b, K){
+    var best = [];                       /* kept sorted, at most K long */
+    for (var i=0;i<P.length;i++){
+      var dx = P[i].x - a, dy = P[i].y - b, d = dx*dx + dy*dy;
+      if (best.length < K){
+        best.push({i:i, d:d});
+        for (var j=best.length-1; j>0 && best[j].d < best[j-1].d; j--){
+          var t = best[j]; best[j] = best[j-1]; best[j-1] = t;
+        }
+      } else if (d < best[K-1].d){
+        best[K-1] = {i:i, d:d};
+        for (var k=K-1; k>0 && best[k].d < best[k-1].d; k--){
+          var t2 = best[k]; best[k] = best[k-1]; best[k-1] = t2;
+        }
+      }
+    }
+    return best;
+  }
+  function predict(a, b, K){
+    var nb = nearest(a, b, K), s = 0;
+    for (var i=0;i<nb.length;i++) s += P[nb[i].i].v;
+    return { v: s/nb.length, nb: nb };
+  }
+
+  /* The surface is the same at every pointer position, so it is rendered once
+     per K and reused while the pointer moves. */
+  var cache = { key:"", cv:null };
+  function surface(K, pw, ph){
+    var key = K + "|" + pw + "x" + ph + "|" + col("--c-model") + col("--c-test");
+    if (cache.key === key) return cache.cv;
+    var off = cache.cv || document.createElement("canvas");
+    off.width = pw; off.height = ph;
+    var oc = off.getContext("2d");
+    var img = oc.createImageData(pw, ph), d = img.data, PAL = palette();
+    for (var py=0; py<ph; py++){
+      var b = 1 - (py + 0.5)/ph * 2;
+      for (var px=0; px<pw; px++){
+        var a = -1 + (px + 0.5)/pw * 2;
+        var rgb = ramp(predict(a, b, K).v, PAL);
+        var o = (py*pw + px)*4;
+        d[o] = rgb[0]; d[o+1] = rgb[1]; d[o+2] = rgb[2]; d[o+3] = 235;
+      }
+    }
+    oc.putImageData(img, 0, 0);
+    cache.cv = off; cache.key = key;
+    return off;
+  }
+
+  function pos(e){
+    var r = p.el.getBoundingClientRect();
+    return { x: p.ix(e.clientX - r.left), y: p.iy(e.clientY - r.top) };
+  }
+  function setQ(e){
+    var t = pos(e);
+    q.x = Math.max(-1, Math.min(1, t.x));
+    q.y = Math.max(-1, Math.min(1, t.y));
+    draw();
+  }
+  p.el.addEventListener("pointermove", setQ);
+  p.el.addEventListener("pointerdown", function(e){ p.el.setPointerCapture(e.pointerId); setQ(e); });
+
+  function draw(){
+    var K = +elK.value; lbK.textContent = K;
+    p.sync(); p.frame();
+    var ctx = p.ctx;
+    var W = Math.round(p.R - p.L), H = Math.round(p.B - p.T);
+
+    if (L.on("surf")){
+      /* a third of the display resolution: the surface is piecewise constant,
+         so the detail lost is smaller than one training point's tile */
+      var cv = surface(K, Math.max(8, Math.round(W/3)), Math.max(8, Math.round(H/3)));
+      ctx.save(); p.clip();
+      ctx.drawImage(cv, p.L, p.T, W, H);
+      p.unclip(); ctx.restore();
+    }
+
+    var res = predict(q.x, q.y, K);
+    var rad = Math.sqrt(res.nb[res.nb.length-1].d);
+
+    if (L.on("links")){
+      ctx.save(); ctx.strokeStyle = alpha(col("--ink"), .38); ctx.lineWidth = 1;
+      res.nb.forEach(function(n){
+        ctx.beginPath();
+        ctx.moveTo(p.x(q.x), p.y(q.y));
+        ctx.lineTo(p.x(P[n.i].x), p.y(P[n.i].y));
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+    if (L.on("disc")){
+      ctx.save(); p.clip();
+      ctx.beginPath();
+      ctx.arc(p.x(q.x), p.y(q.y), Math.abs(p.x(rad) - p.x(0)), 0, 6.2832);
+      ctx.strokeStyle = col("--ink"); ctx.lineWidth = 1.6; ctx.setLineDash([5,4]);
+      ctx.stroke();
+      p.unclip(); ctx.restore();
+    }
+    if (L.on("pts")){
+      var PAL = palette(), inSet = {};
+      res.nb.forEach(function(n){ inSet[n.i] = 1; });
+      P.forEach(function(pt, i){
+        var rgb = ramp(pt.v, PAL);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(p.x(pt.x), p.y(pt.y), inSet[i] ? 5.5 : 3.6, 0, 6.2832);
+        ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+        ctx.fill();
+        ctx.strokeStyle = inSet[i] ? col("--ink") : alpha(col("--surface"), .9);
+        ctx.lineWidth = inSet[i] ? 1.8 : 1.1;
+        ctx.stroke(); ctx.restore();
+      });
+    }
+    /* the query point, filled with what the model predicts there */
+    var PAL2 = palette(), rgb2 = ramp(res.v, PAL2);
+    ctx.save();
+    ctx.beginPath(); ctx.arc(p.x(q.x), p.y(q.y), 8, 0, 6.2832);
+    ctx.fillStyle = "rgb(" + rgb2[0] + "," + rgb2[1] + "," + rgb2[2] + ")";
+    ctx.fill();
+    ctx.strokeStyle = col("--ink"); ctx.lineWidth = 2.6; ctx.stroke();
+    ctx.restore();
+
+    p.axes({xt:[-1,-0.5,0,0.5,1], yt:[-1,-0.5,0,0.5,1],
+            xlabel:"x1", ylabel:"x2", fmt:function(v){ return v.toFixed(1); }});
+
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    statsEl.innerHTML =
+      row("model", "predicted at the pointer", fmt(res.v, 2)) +
+      row("plain", "the truth there",          fmt(trueF(q.x, q.y), 2)) +
+      row("test",  "radius of the disc",       fmt(rad, 2)) +
+      row("plain", "share of the data inside", (100*K/P.length).toFixed(0) + "&#37;");
+
+    capEl.innerHTML = K === 1
+      ? "At <b>K = 1</b> the disc holds a single point and the prediction copies it exactly, noise included. The surface is a tiling of flat cells, one per training point."
+      : "The " + K + " ringed points are the neighbourhood. Their average height is the prediction, drawn in the centre marker. " +
+        "Notice the disc grows wherever the data thin out: the same K reaches much further in an empty corner.";
+  }
+
+  elK.addEventListener("input", draw);
+  reg(draw);
+})();
+
+
+/* ============================================================
+   03c — the curse of dimensionality
    ============================================================ */
 (function(){
   var p = mkPlot("cvCurse", {xd:[1,15], yd:[0,1], padL:46, padB:36});
