@@ -1060,7 +1060,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="bvN" min="25" max="120" value="40" step="1">
         </div>
         <div class="stats" id="bvStats"></div>
-        <p class="notecap">Squared bias and variance are averaged across the range of <span class="m">x</span>. Their sum, plus the noise that no model can remove, is the expected test error at a new point.</p>
+        <p class="notecap">Bias and variance are measured at 300 held-out subjects, and the three terms sum to the test error you would actually observe. Train MSE is the error on each cohort&rsquo;s own points, which is the only one of these you could compute in a real study.</p>
       </div>
     </div>
   </div>
@@ -1085,13 +1085,14 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvBVcurve" class="cv" height="300"></canvas>
-        <p class="notecap">Squared bias falls, variance rises, and their sum is U-shaped. Where that U bottoms out is the flexibility worth choosing. The vertical axis is logarithmic, because the two curves span two orders of magnitude across this range.</p>
+        <p class="notecap">Squared bias falls, variance rises, and test MSE is U-shaped. Train MSE simply keeps falling: it drops through the irreducible noise floor around degree 3, which is impossible for any honest error and is exactly what makes it untrustworthy.
+          <br>Switch on &ldquo;bias&sup2; + var + noise&rdquo; and it lands on the test curve. The vertical axis is logarithmic.</p>
       </div>
       <div class="ctl">
         <div id="bvcLayers"></div>
         <div class="stats" id="bvcStats" style="margin-top:.9rem"></div>
         <p class="notecap">Drag the subject count in the panel above and watch the curve shift. More data lowers variance at every degree, which nudges the sweet spot rightward: bigger samples can afford more flexibility.
-          <br>Past that point the measured bias drifts upward too. With only thirty cohorts the average fit is itself an estimate, and once variance is large that estimate gets noisy. Real bias does not rise; our measurement of it does.</p>
+          <br>The decomposition and the measured test curve agree to within a few percent. The gap is Monte Carlo error: thirty cohorts and 300 held-out subjects are a finite sample, not an expectation.</p>
       </div>
     </div>
   </div>
@@ -1102,7 +1103,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="warn">
-    <b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many cohorts, and in a real study you have neither. That is what a test set is for: it estimates their sum directly, without ever separating them.
+    <b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many cohorts, and in a real study you have neither. You have one cohort and the train MSE, which is the blue curve here: it falls forever and would talk you into the most flexible model on offer. A test set is what stands in for the red curve.
   </div>
 </section>
 
@@ -2962,12 +2963,24 @@ var KNN2D = (function(){
     {k:"truth", label:"true f",       kind:"dash", col:"--ink-faint"}
   ], function(){ draw(); });
   var Lc = layerToggles("bvcLayers", [
-    {k:"bias", label:"bias&sup2;",     kind:"ln", col:"--c-test"},
-    {k:"var",  label:"variance",       kind:"ln", col:"--c-model"},
-    {k:"sum",  label:"their sum",      kind:"ln", col:"--c-error"}
+    {k:"bias",  label:"bias&sup2;",          kind:"ln",   col:"--c-test"},
+    {k:"var",   label:"variance",            kind:"ln",   col:"--c-model"},
+    {k:"test",  label:"test MSE",            kind:"ln",   col:"--c-error"},
+    {k:"train", label:"train MSE",           kind:"ln",   col:"--c-alt"},
+    {k:"sum",   label:"bias&sup2; + var + noise", kind:"dash", col:"--ink-soft", on:false},
+    {k:"floor", label:"irreducible noise",   kind:"dash", col:"--ink-faint", on:false}
   ], function(){ draw(); });
 
   function trueF(x){ return 1.25*Math.sin(2*Math.PI*0.82*x) + 0.45*x - 0.15; }
+
+  /* One held-out sample, fixed for the whole panel, so test error is
+     comparable across degrees and cohort sizes. Its noise is independent of
+     the training noise, which is what puts the irreducible term into it. */
+  var TEST = (function(){
+    var r = rng(24680), x = [], y = [];
+    for (var i=0;i<300;i++){ var t = r(); x.push(t); y.push(trueF(t) + gauss(r)*SIG); }
+    return { x:x, y:y };
+  })();
 
   /* one set of cohorts, reused by both panels and by every degree */
   var cohorts = null, cohortKey = "";
@@ -2983,34 +2996,64 @@ var KNN2D = (function(){
     cohorts = out; cohortKey = key;
     return out;
   }
-  /* fit every cohort at one degree and split the error into its two parts */
+  /* Fit every cohort at one degree, then split the error into its two parts.
+     Bias and variance are measured at the held-out locations, not on a uniform
+     grid: a grid includes x = 0 and x = 1, where a high-degree polynomial
+     swings hardest, while uniform test points almost never land there. Using
+     the grid overstated variance by a factor of two at degree 10 and broke the
+     identity that test error is bias + variance + noise. */
   function analyse(n, d){
-    var cs = makeCohorts(n), curves = [], k, g;
+    var cs = makeCohorts(n), curves = [], tpred = [], k, g, i;
+    var trainMSE = 0, testMSE = 0;
     for (k=0;k<REPS;k++){
       var f = polyFit(cs[k].x, cs[k].y, d, 0, 1);
-      curves.push(GRID.map(f));
+      curves.push(GRID.map(f));                  /* for drawing only */
+
+      var st = 0;
+      for (i=0;i<cs[k].x.length;i++){ var e1 = cs[k].y[i] - f(cs[k].x[i]); st += e1*e1; }
+      trainMSE += st/cs[k].x.length;
+
+      var tp = [], sv = 0;
+      for (i=0;i<TEST.x.length;i++){
+        var pv = f(TEST.x[i]);
+        tp.push(pv);
+        var e2 = TEST.y[i] - pv; sv += e2*e2;
+      }
+      tpred.push(tp);
+      testMSE += sv/TEST.x.length;
     }
+    trainMSE /= REPS; testMSE /= REPS;
+
     var mean = GRID.map(function(_, g2){
       var s = 0; for (k=0;k<REPS;k++) s += curves[k][g2];
       return s/REPS;
     });
+
     var bias2 = 0, vari = 0;
-    for (g=0; g<GRID.length; g++){
-      var b = mean[g] - trueF(GRID[g]);
-      bias2 += b*b;
-      var v = 0;
-      for (k=0;k<REPS;k++){ var e = curves[k][g] - mean[g]; v += e*e; }
-      vari += v/REPS;
+    for (g=0; g<TEST.x.length; g++){
+      var m = 0;
+      for (k=0;k<REPS;k++) m += tpred[k][g];
+      m /= REPS;
+      var bb = m - trueF(TEST.x[g]);
+      bias2 += bb*bb;
+      var vv = 0;
+      for (k=0;k<REPS;k++){ var e3 = tpred[k][g] - m; vv += e3*e3; }
+      vari += vv/REPS;
     }
-    return { curves:curves, mean:mean, bias2:bias2/GRID.length, vari:vari/GRID.length };
+    return { curves:curves, mean:mean,
+             bias2: bias2/TEST.x.length, vari: vari/TEST.x.length,
+             train:trainMSE, test:testMSE };
   }
   var sweepCache = {}, sweepKey = "";
   function sweep(n){
     var key = n + "|" + seed;
     if (sweepKey === key) return sweepCache;
-    var b = [], v = [];
-    for (var d=1; d<=DMAX; d++){ var a = analyse(n, d); b.push(a.bias2); v.push(a.vari); }
-    sweepCache = {b:b, v:v}; sweepKey = key;
+    var b = [], v = [], tr = [], te = [];
+    for (var d=1; d<=DMAX; d++){
+      var a = analyse(n, d);
+      b.push(a.bias2); v.push(a.vari); tr.push(a.train); te.push(a.test);
+    }
+    sweepCache = {b:b, v:v, tr:tr, te:te}; sweepKey = key;
     return sweepCache;
   }
 
@@ -3053,10 +3096,12 @@ var KNN2D = (function(){
     function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
     var irr = SIG*SIG;
     statsEl.innerHTML =
-      row("test",  "bias&sup2;",          fmt(A.bias2,3)) +
-      row("model", "variance",            fmt(A.vari,3)) +
-      row("plain", "irreducible noise",   fmt(irr,3)) +
-      row("error", "expected test error", fmt(A.bias2 + A.vari + irr,3));
+      row("test",  "bias&sup2;",        fmt(A.bias2,3)) +
+      row("model", "variance",          fmt(A.vari,3)) +
+      row("plain", "irreducible noise", fmt(irr,3)) +
+      row("plain", "the three summed",  fmt(A.bias2 + A.vari + irr,3)) +
+      row("error", "measured test MSE", fmt(A.test,3)) +
+      row("plain", "measured train MSE",fmt(A.train,3));
 
     capEl.innerHTML = A.bias2 > A.vari*2.2
       ? "Every cohort gives almost the same fit, and every one of them misses the truth the same way. That is <b>bias</b>: the model is the wrong shape, and more subjects will not help."
@@ -3066,10 +3111,11 @@ var KNN2D = (function(){
 
     /* ---- the trade curve ---- */
     var S = sweep(n);
-    var sum = S.b.map(function(b, i){ return b + S.v[i]; });
+    /* the decomposition, which should land on top of the measured test curve */
+    var sum = S.b.map(function(b, i){ return b + S.v[i] + irr; });
     /* Bias and variance differ by two orders of magnitude across the range,
        so a linear axis would flatten the bottom of the U into the baseline. */
-    var all = sum.concat(S.v, S.b).filter(function(v){ return v > 0; });
+    var all = sum.concat(S.v, S.b, S.tr, S.te, [irr]).filter(function(v){ return v > 0; });
     var lo = Math.log10(Math.min.apply(null, all)*0.6);
     var hi = Math.log10(Math.max.apply(null, all)*1.7);
     pc.dom([0.5, DMAX+0.5], [lo, hi]);
@@ -3084,22 +3130,37 @@ var KNN2D = (function(){
       }
       c2.strokeStyle = color; c2.lineWidth = w; c2.lineJoin = "round"; c2.stroke(); c2.restore();
     }
-    if (Lc.on("bias")) series(S.b, col("--c-test"), 2.2);
-    if (Lc.on("var"))  series(S.v, col("--c-model"), 2.2);
-    if (Lc.on("sum"))  series(sum, col("--c-error"), 2.8);
+    if (Lc.on("floor")){
+      var yf = pc.y(Math.log10(Math.max(1e-6, irr)));
+      var cf = pc.ctx; cf.save();
+      cf.strokeStyle = alpha(col("--ink-faint"), .8); cf.lineWidth = 1.4; cf.setLineDash([5,4]);
+      cf.beginPath(); cf.moveTo(pc.L, yf); cf.lineTo(pc.R, yf); cf.stroke(); cf.restore();
+      pc.txt("irreducible noise", pc.R - 6, yf - 6,
+             {align:"right", color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
+    }
+    if (Lc.on("bias"))  series(S.b,  col("--c-test"), 2.2);
+    if (Lc.on("var"))   series(S.v,  col("--c-model"), 2.2);
+    if (Lc.on("train")) series(S.tr, col("--c-alt"), 2.2);
+    if (Lc.on("test"))  series(S.te, col("--c-error"), 2.8);
+    if (Lc.on("sum")){
+      var cs2 = pc.ctx; cs2.save(); cs2.setLineDash([6,4]);
+      series(sum, col("--ink-soft"), 2);
+      cs2.restore();
+    }
     var c3 = pc.ctx;
     c3.save(); c3.strokeStyle = alpha(col("--ink"), .45); c3.lineWidth = 1.4; c3.setLineDash([4,4]);
     c3.beginPath(); c3.moveTo(pc.x(d), pc.T); c3.lineTo(pc.x(d), pc.B); c3.stroke(); c3.restore();
     var bestD = 1, i2;
-    for (i2=1;i2<sum.length;i2++) if (sum[i2] < sum[bestD-1]) bestD = i2+1;
-    pc.dots([[bestD, Math.log10(Math.max(1e-6, sum[bestD-1]))]], {r:4.5, color: col("--c-error"), ring: col("--surface")});
+    for (i2=1;i2<S.te.length;i2++) if (S.te[i2] < S.te[bestD-1]) bestD = i2+1;
+    pc.dots([[bestD, Math.log10(Math.max(1e-6, S.te[bestD-1]))]], {r:4.5, color: col("--c-error"), ring: col("--surface")});
     pc.axes({xt:[1,2,3,4,5,6,7,8,9,10], yt:yt2, xlabel:"polynomial degree  (log scale on the vertical)",
              fmt:function(v){return v.toFixed(0);},
              fmtY:function(v){ var z=Math.pow(10,v); return z>=1?z.toFixed(0):z.toFixed(z<0.1?3:2); }});
 
     cStats.innerHTML =
-      row("error", "lowest sum at degree", String(bestD)) +
-      row("plain", "your degree", String(d));
+      row("error", "lowest test MSE at degree", String(bestD)) +
+      row("plain", "your degree", String(d)) +
+      row("plain", "gap at your degree", fmt(A.test - A.train, 3));
   }
 
   elD.addEventListener("input", draw);
