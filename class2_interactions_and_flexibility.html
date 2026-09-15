@@ -926,6 +926,34 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
+
+  <div class="prose">
+    <p>Seen from above, that surface looks like a smooth wash of colour. Stand it up and give the outcome its own axis, and what KNN is really doing becomes obvious: it returns one number for a whole neighbourhood, so the surface is a staircase, not a slope.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The same 80 points, with <span class="m">y</span> as height</div>
+      <div class="hint">drag to turn it</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvNbr3" class="cv drag" height="400"></canvas>
+        <div id="nbr3Layers"></div>
+        <p class="notecap" id="nbr3Cap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>neighbours <span class="m">K</span> <span class="v" id="nb3K">1</span></label>
+          <input type="range" id="nb3Ks" min="1" max="30" value="1" step="1">
+        </div>
+        <div class="stats" id="nbr3Stats"></div>
+        <div class="btnrow"><button class="btn" id="nbr3Reset">reset the view</button></div>
+        <p class="notecap">Dots are the observations at their measured height; the tiles are what the model predicts. Start at <span class="m">K</span> = 1, where every tile passes exactly through one dot, and raise <span class="m">K</span> to watch the risers flatten out.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="key">
     <div class="lbl">Key idea</div>
     <p>KNN has no equation and no coefficients. Its prediction surface is built entirely out of the training points, which is why it can follow any shape, and why it has nothing to say about a region where no data landed.</p>
@@ -943,7 +971,9 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
     <div class="panel-body panel-split">
       <div>
-        <canvas id="cvCurse" class="cv" height="250"></canvas>
+        <canvas id="cvCube" class="cv" height="170"></canvas>
+        <p class="notecap">The shaded region holds the same share of the data in all three pictures. Only the reach along each axis changes.</p>
+        <canvas id="cvCurse" class="cv" height="250" style="margin-top:1rem"></canvas>
         <p class="notecap">The side length of the cube you need in order to enclose a fixed fraction of a uniformly filled space, as dimensions are added.</p>
       </div>
       <div class="ctl">
@@ -2296,6 +2326,81 @@ var SADDLE = null;
 /* ============================================================
    04b — what a neighbourhood looks like, in two dimensions
    ============================================================ */
+/* The data and the KNN maths, shared by the flat view and the 3D view below,
+   so both panels are demonstrably the same model on the same points. */
+var KNN2D = (function(){
+  function trueF(a, b){ return 1.8*Math.sin(2.0*a)*Math.cos(1.6*b); }
+  var P = (function(){
+    var r = rng(60607), out = [];
+    for (var i=0;i<80;i++){
+      var a = -0.94 + 1.88*r(), b = -0.94 + 1.88*r();
+      out.push({x:a, y:b, v: trueF(a,b) + gauss(r)*0.25});
+    }
+    return out;
+  })();
+  /* wide enough to contain every point: the highest is 2.19, and at K = 1 a
+     tile takes a point's exact value, so a clipped point would be drawn as a
+     tile pinned flat against the ceiling */
+  var VLO = -2.4, VHI = 2.4;
+
+  /* the K nearest points to (a,b), nearest first */
+  function nearest(a, b, K){
+    var best = [], i, j, k, t;
+    for (i=0;i<P.length;i++){
+      var dx = P[i].x - a, dy = P[i].y - b, d = dx*dx + dy*dy;
+      if (best.length < K){
+        best.push({i:i, d:d});
+        for (j=best.length-1; j>0 && best[j].d < best[j-1].d; j--){
+          t = best[j]; best[j] = best[j-1]; best[j-1] = t;
+        }
+      } else if (d < best[K-1].d){
+        best[K-1] = {i:i, d:d};
+        for (k=K-1; k>0 && best[k].d < best[k-1].d; k--){
+          t = best[k]; best[k] = best[k-1]; best[k-1] = t;
+        }
+      }
+    }
+    return best;
+  }
+  function predict(a, b, K){
+    var nb = nearest(a, b, K), s = 0;
+    for (var i=0;i<nb.length;i++) s += P[nb[i].i].v;
+    return { v: s/nb.length, nb: nb };
+  }
+  /* one hue, ordered by lightness: two hues would read as two classes */
+  function palette(){
+    var lo = hex2rgb(col("--c-seq-lo")), hi = hex2rgb(col("--c-seq-hi")), out = [];
+    for (var i=0;i<24;i++){
+      var t = i/23;
+      out.push([Math.round(lo[0]+(hi[0]-lo[0])*t),
+                Math.round(lo[1]+(hi[1]-lo[1])*t),
+                Math.round(lo[2]+(hi[2]-lo[2])*t)]);
+    }
+    return out;
+  }
+  function ramp(v, PAL){
+    var t = (v - VLO)/(VHI - VLO);
+    t = t < 0 ? 0 : (t > 1 ? 1 : t);
+    return PAL[Math.min(PAL.length-1, (t*PAL.length)|0)];
+  }
+  /* mean absolute difference between neighbouring grid cells, for comparison */
+  function stepAt(K, G){
+    var h = [], i, j;
+    for (i=0;i<=G;i++){
+      h.push([]);
+      for (j=0;j<=G;j++) h[i].push(predict(-1 + 2*i/G, -1 + 2*j/G, K).v);
+    }
+    var s = 0, n = 0;
+    for (i=0;i<G;i++) for (j=0;j<G;j++){
+      s += Math.abs(h[i+1][j]-h[i][j]); n++;
+      s += Math.abs(h[i][j+1]-h[i][j]); n++;
+    }
+    return s/n;
+  }
+  return { P:P, trueF:trueF, VLO:VLO, VHI:VHI,
+           nearest:nearest, predict:predict, palette:palette, ramp:ramp, stepAt:stepAt };
+})();
+
 (function(){
   var p = mkPlot("cvNbr", {xd:[-1,1], yd:[-1,1], padL:38, padB:34, padR:66, padT:22});
   if (!p) return;
@@ -2310,35 +2415,9 @@ var SADDLE = null;
     {k:"links", label:"links to neighbours",kind:"ln",   col:"--ink-soft"}
   ], function(){ draw(); });
 
-  /* a smooth pattern with real structure, so averaging has something to average */
-  function trueF(a, b){ return 1.8*Math.sin(2.0*a)*Math.cos(1.6*b); }
-  var P = (function(){
-    var r = rng(60607), out = [];
-    for (var i=0;i<80;i++){
-      var a = -0.94 + 1.88*r(), b = -0.94 + 1.88*r();
-      out.push({x:a, y:b, v: trueF(a,b) + gauss(r)*0.25});
-    }
-    return out;
-  })();
-
-  var VLO = -2.1, VHI = 2.1;
-  function ramp(v, PAL){
-    var t = (v - VLO)/(VHI - VLO);
-    t = t < 0 ? 0 : (t > 1 ? 1 : t);
-    return PAL[Math.min(PAL.length-1, (t*PAL.length)|0)];
-  }
-  /* One hue, ordered by lightness. Two different hues would read as two
-     classes, which is the wrong message for a continuous y. */
-  function palette(){
-    var lo = hex2rgb(col("--c-seq-lo")), hi = hex2rgb(col("--c-seq-hi")), out = [];
-    for (var i=0;i<24;i++){
-      var t = i/23;
-      out.push([Math.round(lo[0]+(hi[0]-lo[0])*t),
-                Math.round(lo[1]+(hi[1]-lo[1])*t),
-                Math.round(lo[2]+(hi[2]-lo[2])*t)]);
-    }
-    return out;
-  }
+  var P = KNN2D.P, VLO = KNN2D.VLO, VHI = KNN2D.VHI;
+  var trueF = KNN2D.trueF, palette = KNN2D.palette, ramp = KNN2D.ramp;
+  var nearest = KNN2D.nearest, predict = KNN2D.predict;
   function rgbStr(c){ return "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"; }
 
   /* the scale, so the colours are readable as numbers */
@@ -2373,31 +2452,6 @@ var SADDLE = null;
       ctx.fillStyle = col("--ink"); ctx.fill();
     }
     ctx.restore();
-  }
-
-  /* the K nearest training points to (a,b), as indices, nearest first */
-  function nearest(a, b, K){
-    var best = [];                       /* kept sorted, at most K long */
-    for (var i=0;i<P.length;i++){
-      var dx = P[i].x - a, dy = P[i].y - b, d = dx*dx + dy*dy;
-      if (best.length < K){
-        best.push({i:i, d:d});
-        for (var j=best.length-1; j>0 && best[j].d < best[j-1].d; j--){
-          var t = best[j]; best[j] = best[j-1]; best[j-1] = t;
-        }
-      } else if (d < best[K-1].d){
-        best[K-1] = {i:i, d:d};
-        for (var k=K-1; k>0 && best[k].d < best[k-1].d; k--){
-          var t2 = best[k]; best[k] = best[k-1]; best[k-1] = t2;
-        }
-      }
-    }
-    return best;
-  }
-  function predict(a, b, K){
-    var nb = nearest(a, b, K), s = 0;
-    for (var i=0;i<nb.length;i++) s += P[nb[i].i].v;
-    return { v: s/nb.length, nb: nb };
   }
 
   /* The surface is the same at every pointer position, so it is rendered once
@@ -2520,7 +2574,248 @@ var SADDLE = null;
 
 
 /* ============================================================
-   04c — the curse of dimensionality
+   04c — the same data in 3D, so the steps are visible
+   ============================================================ */
+(function(){
+  var S3 = mk3d("cvNbr3", 400);
+  if (!S3) return;
+  var ctx = S3.ctx;
+  var elK = document.getElementById("nb3Ks"), lbK = document.getElementById("nb3K");
+  var capEl = document.getElementById("nbr3Cap"), statsEl = document.getElementById("nbr3Stats");
+  var G = 15;
+
+  var L = layerToggles("nbr3Layers", [
+    {k:"surf",  label:"prediction surface", kind:"dot",  col:"--c-seq-hi"},
+    {k:"walls", label:"the steps",          kind:"ln",   col:"--ink-faint"},
+    {k:"pts",   label:"training points",    kind:"dot",  col:"--c-data"},
+    {k:"drop",  label:"drop lines",         kind:"dash", col:"--ink-faint"},
+    {k:"box",   label:"axes",               kind:"dash", col:"--ink-faint"}
+  ], function(){ draw(); });
+
+  /* heights depend only on K, not on the viewing angle */
+  var hCache = { k:-1, h:null };
+  function heights(K){
+    if (hCache.k === K) return hCache.h;
+    var h = [], i, j;
+    for (i=0;i<=G;i++){
+      h.push([]);
+      for (j=0;j<=G;j++){
+        var a = -1 + 2*i/G, b = -1 + 2*j/G;
+        h[i].push(KNN2D.predict(a, b, K).v);
+      }
+    }
+    hCache = { k:K, h:h };
+    return h;
+  }
+
+  function nz(v){ return Math.max(-1, Math.min(1, (v - KNN2D.VLO)/(KNN2D.VHI - KNN2D.VLO) * 2 - 1)); }
+  function colAt(v, PAL){ return KNN2D.ramp(v, PAL); }
+  function rgbStr(c){ return "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")"; }
+
+  function draw(){
+    var K = +elK.value; lbK.textContent = K;
+    S3.sync();
+    var h = heights(K), PAL = KNN2D.palette();
+    if (L.on("box")) S3.box();
+
+    var faces = [], i, j;
+
+    if (L.on("surf")){
+      for (i=0;i<G;i++){
+        for (j=0;j<G;j++){
+          /* one flat tile per cell: KNN predicts a constant over each cell, so
+             the surface really is a staircase, not a smooth sheet */
+          var x0 = -1 + 2*i/G, x1 = -1 + 2*(i+1)/G;
+          var z0 = -1 + 2*j/G, z1 = -1 + 2*(j+1)/G;
+          var v = h[i][j], y = nz(v);
+          var q = [S3.at(x0,y,z0), S3.at(x1,y,z0), S3.at(x1,y,z1), S3.at(x0,y,z1)];
+          faces.push({ d:(q[0].d+q[1].d+q[2].d+q[3].d)/4, q:q,
+                       fill: rgbStr(colAt(v, PAL)), a:0.92 });
+
+          if (L.on("walls")){
+            /* the riser between this tile and the next one along */
+            if (i+1 < G){
+              var v2 = h[i+1][j], y2 = nz(v2);
+              if (Math.abs(y2-y) > 0.004){
+                var w = [S3.at(x1,y,z0), S3.at(x1,y,z1), S3.at(x1,y2,z1), S3.at(x1,y2,z0)];
+                faces.push({ d:(w[0].d+w[1].d+w[2].d+w[3].d)/4, q:w,
+                             fill: rgbStr(colAt((v+v2)/2, PAL)), a:0.55 });
+              }
+            }
+            if (j+1 < G){
+              var v3 = h[i][j+1], y3 = nz(v3);
+              if (Math.abs(y3-y) > 0.004){
+                var w2 = [S3.at(x0,y,z1), S3.at(x1,y,z1), S3.at(x1,y3,z1), S3.at(x0,y3,z1)];
+                faces.push({ d:(w2[0].d+w2[1].d+w2[2].d+w2[3].d)/4, q:w2,
+                             fill: rgbStr(colAt((v+v3)/2, PAL)), a:0.55 });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    /* the observations, at their own height */
+    var marks = [];
+    KNN2D.P.forEach(function(pt){
+      var y = nz(pt.v);
+      marks.push({ d: S3.at(pt.x, y, pt.y).d, kind:"pt", p: S3.at(pt.x, y, pt.y),
+                   foot: S3.at(pt.x, -1, pt.y), c: rgbStr(colAt(pt.v, PAL)) });
+    });
+
+    var all = faces.concat(L.on("pts") ? marks : []);
+    all.sort(function(a,b){ return b.d - a.d; });
+    all.forEach(function(it){
+      if (it.kind === "pt"){
+        if (L.on("drop")){
+          ctx.save();
+          ctx.beginPath(); ctx.moveTo(it.foot.x, it.foot.y); ctx.lineTo(it.p.x, it.p.y);
+          ctx.strokeStyle = alpha(col("--ink-faint"), .35); ctx.lineWidth = 1;
+          ctx.setLineDash([2,3]); ctx.stroke(); ctx.restore();
+        }
+        ctx.save();
+        ctx.beginPath(); ctx.arc(it.p.x, it.p.y, 3.6, 0, 6.2832);
+        ctx.fillStyle = it.c; ctx.fill();
+        ctx.strokeStyle = col("--ink"); ctx.lineWidth = 1.1; ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.globalAlpha = it.a;
+        ctx.beginPath();
+        ctx.moveTo(it.q[0].x, it.q[0].y);
+        for (var k=1;k<4;k++) ctx.lineTo(it.q[k].x, it.q[k].y);
+        ctx.closePath();
+        ctx.fillStyle = it.fill; ctx.fill();
+        if (L.on("walls")){ ctx.strokeStyle = alpha(col("--ink"), .14); ctx.lineWidth = 0.6; ctx.stroke(); }
+        ctx.restore();
+      }
+    });
+
+    if (L.on("box")){
+      var zf = S3.frontZ(), xf = S3.frontX();
+      S3.label("x1", 0, -1, zf*1.3, 0);
+      S3.label("x2", xf*1.32, -1, 0, 0);
+      S3.label("y",  -1, 1.26, -1, 0, '10.5px "IBM Plex Mono", monospace');
+    }
+
+    /* how flat the surface has become: the mean absolute step between cells */
+    var step = 0, n = 0;
+    for (i=0;i<G;i++) for (j=0;j<G;j++){
+      if (i+1<=G){ step += Math.abs(h[i+1][j]-h[i][j]); n++; }
+      if (j+1<=G){ step += Math.abs(h[i][j+1]-h[i][j]); n++; }
+    }
+    step /= n;
+    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
+    statsEl.innerHTML =
+      row("model", "average step between cells", fmt(step, 3)) +
+      row("plain", "distinct heights possible", K === 1 ? "80, one per point" : "many combinations of " + K);
+
+    capEl.innerHTML = K === 1
+      ? "At <b>K = 1</b> the surface is a terrain of flat plateaus, one per training point, with a sheer drop at every boundary. The model has memorised the data exactly."
+      : "Each tile is still flat, because KNN returns one number for a whole neighbourhood. Raising <b>K</b> lowers the risers: the average step between neighbouring cells is now " +
+        fmt(step,3) + ", against " + fmt(KNN2D.stepAt(1, G), 3) + " at K = 1.";
+  }
+
+  S3.orbit(draw);
+  elK.addEventListener("input", draw);
+  document.getElementById("nbr3Reset").addEventListener("click", function(){ S3.home(); draw(); });
+  reg(draw);
+})();
+
+
+/* ============================================================
+   04d — the curse, drawn: the same 10% in one, two and three dimensions
+   ============================================================ */
+(function(){
+  var cvs = document.getElementById("cvCube");
+  if (!cvs) return;
+  var ctx = cvs.getContext("2d");
+  var el = document.getElementById("curseF");
+
+  function draw(){
+    var f = (+el.value)/100;
+    if (!cvs.style.height) cvs.style.height = "170px";
+    var rect = cvs.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var W = rect.width, H = 170;
+    cvs.width = Math.max(1, Math.round(W*dpr));
+    cvs.height = Math.max(1, Math.round(H*dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,W,H);
+
+    var box = Math.min(74, (W - 40)/3 - 22);
+    var gap = (W - 3*box)/4;
+    var top = 34;
+    var edge = col("--ink-faint"), fill = col("--c-seq-hi");
+
+    function caption(cx, p, side){
+      ctx.save();
+      ctx.fillStyle = col("--ink-soft");
+      ctx.font = '600 10.5px "IBM Plex Mono", monospace';
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText("p = " + p, cx, 16);
+      ctx.fillStyle = col("--c-seq-hi");
+      ctx.fillText((100*side).toFixed(0) + "% of each axis", cx, H - 8);
+      ctx.restore();
+    }
+
+    /* p = 1: a segment, with the covered part shaded */
+    var s1 = f;
+    var x0 = gap, y0 = top + box/2;
+    ctx.save();
+    ctx.strokeStyle = edge; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0+box, y0); ctx.stroke();
+    ctx.strokeStyle = fill; ctx.lineWidth = 7; ctx.lineCap = "butt";
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + box*s1, y0); ctx.stroke();
+    ctx.restore();
+    caption(x0 + box/2, 1, s1);
+
+    /* p = 2: a square, with the covered sub-square in a corner */
+    var s2 = Math.pow(f, 1/2);
+    var x1 = gap*2 + box;
+    ctx.save();
+    ctx.strokeStyle = edge; ctx.lineWidth = 1.4;
+    ctx.strokeRect(x1, top, box, box);
+    ctx.fillStyle = alpha(fill, .78);
+    ctx.fillRect(x1, top + box*(1-s2), box*s2, box*s2);
+    ctx.restore();
+    caption(x1 + box/2, 2, s2);
+
+    /* p = 3: a cube in cabinet projection, with the covered sub-cube */
+    var s3 = Math.pow(f, 1/3);
+    var x2 = gap*3 + box*2, dx = box*0.34, dy = -box*0.28;
+    function cube(ox, oy, side, strokeC, fillC, a){
+      var A=[ox,oy], B=[ox+side,oy], C=[ox+side,oy-side], D=[ox,oy-side];
+      var A2=[A[0]+dx*side/box, A[1]+dy*side/box], B2=[B[0]+dx*side/box, B[1]+dy*side/box];
+      var C2=[C[0]+dx*side/box, C[1]+dy*side/box], D2=[D[0]+dx*side/box, D[1]+dy*side/box];
+      ctx.save();
+      if (fillC){
+        ctx.globalAlpha = a;
+        ctx.fillStyle = fillC;
+        [[A,B,C,D],[D,C,C2,D2],[B,C,C2,B2]].forEach(function(f2){
+          ctx.beginPath(); ctx.moveTo(f2[0][0],f2[0][1]);
+          for (var k=1;k<4;k++) ctx.lineTo(f2[k][0],f2[k][1]);
+          ctx.closePath(); ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+      }
+      ctx.strokeStyle = strokeC; ctx.lineWidth = 1.3;
+      [[A,B],[B,C],[C,D],[D,A],[D,D2],[C,C2],[B,B2],[D2,C2],[C2,B2]].forEach(function(e){
+        ctx.beginPath(); ctx.moveTo(e[0][0],e[0][1]); ctx.lineTo(e[1][0],e[1][1]); ctx.stroke();
+      });
+      ctx.restore();
+    }
+    cube(x2, top + box, box, edge, null, 0);
+    cube(x2, top + box, box*s3, alpha(fill,.9), fill, .55);
+    caption(x2 + box/2, 3, s3);
+  }
+  el.addEventListener("input", draw);
+  reg(draw);
+})();
+
+
+/* ============================================================
+   04e — the curse of dimensionality
    ============================================================ */
 (function(){
   var p = mkPlot("cvCurse", {xd:[1,15], yd:[0,1], padL:46, padB:36});
