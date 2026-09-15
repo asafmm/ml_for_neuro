@@ -585,8 +585,8 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="eq">
     <span class="m">d<sub>i</sub></span> =
     <span class="cases">
-      <span>0</span><span>subject <span class="m">i</span> is a control</span>
-      <span>1</span><span>subject <span class="m">i</span> is a patient</span>
+      <span>0</span><span>subject <span class="m">i</span> is male</span>
+      <span>1</span><span>subject <span class="m">i</span> is female</span>
     </span>
   </div>
 
@@ -604,8 +604,8 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="prose">
     <p>Read model 3 by substituting the two values of <span class="m">d</span>:</p>
     <ul>
-      <li>Controls, <span class="m">d</span> = 0: &nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span></li>
-      <li>Patients, <span class="m">d</span> = 1: &nbsp;<span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span>) + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span>)<span class="m">x</span></li>
+      <li>Male, <span class="m">d</span> = 0: &nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span></li>
+      <li>Female, <span class="m">d</span> = 1: &nbsp;<span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span>) + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span>)<span class="m">x</span></li>
     </ul>
     <p>Two separate lines. <span class="m">&beta;<sub>2</sub></span> shifts one up or down, and <span class="m">&beta;<sub>3</sub></span> tilts it. That tilt is the <strong>interaction</strong>: the effect of age on memory is not the same in the two groups.</p>
   </div>
@@ -1561,8 +1561,8 @@ var TABS = (function(){
   var mode = 3, seed = 909;
 
   var L = layerToggles("ixLayers", [
-    {k:"ctrl",  label:"controls", kind:"dot", col:"--c-test"},
-    {k:"pat",   label:"patients", kind:"dot", col:"--c-model"},
+    {k:"ctrl",  label:"male",   kind:"dot", col:"--c-test"},
+    {k:"pat",   label:"female", kind:"dot", col:"--c-model"},
     {k:"fit",   label:"fitted",   kind:"ln",  col:"--ink"},
     {k:"truth", label:"the truth",kind:"dash",col:"--ink-faint"}
   ], function(){ draw(); });
@@ -1643,7 +1643,7 @@ var TABS = (function(){
                         : ". The truth is not parallel, so one end fits well and the other does not.");
     else
       capEl.innerHTML = "Two free lines. <b>&beta;<sub>3</sub></b> = " + fmt(c[3],3) +
-                        " is the extra slope the patients get" +
+                        " is the extra slope the female subjects get" +
                         (truthParallel ? ", and with no real difference to find it is just noise around zero."
                                        : ", recovering a true difference of " + fmt(Sd,2) + ".");
   }
