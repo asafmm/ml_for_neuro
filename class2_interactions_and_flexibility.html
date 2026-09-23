@@ -1060,8 +1060,8 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="bvN" min="25" max="120" value="40" step="1">
         </div>
         <div class="stats" id="bvStats"></div>
-        <p class="notecap">Bias and variance are measured at 300 held-out subjects, and the three terms sum to the test error you would actually observe. Train MSE is the error on each cohort&rsquo;s own points, which is the only one of these you could compute in a real study.
-          <br>Switch on &ldquo;one cohort&rsquo;s points&rdquo; to see what a single study actually has to work with, and &ldquo;held-out subjects&rdquo; to see the 300 the error is scored against. The noise is heavy on purpose: at degree 10 a curve chases those 40 filled dots hard and ends up nowhere near the rings.</p>
+        <p class="notecap">Measured at 300 held-out subjects. Train MSE is the error on a cohort&rsquo;s own points: the only one of the six you could compute in a real study.
+          <br>Switch on the points to see what one study actually has to work with.</p>
       </div>
     </div>
   </div>
@@ -1086,15 +1086,31 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvBVcurve" class="cv" height="300"></canvas>
-        <p class="notecap">Squared bias falls, variance rises, and test MSE is U-shaped. Train MSE simply keeps falling: it drops through the irreducible noise floor around degree 3, which is impossible for any honest error and is exactly what makes it untrustworthy.
-          <br>The shaded band is the distance between them: the amount by which a cohort flatters its own fit. At 40 subjects it is about a third at the sweet spot and a factor of fifty by degree 10. Shrink the cohort and the band blows open, enlarge it and even degree 10 stays tame: the same flexibility is reckless on 25 subjects and unremarkable on 120.
-          <br>Switch on &ldquo;bias&sup2; + var + noise&rdquo; and it lands on the test curve. The vertical axis is logarithmic, so equal vertical distances mean equal ratios, not equal differences.</p>
+        <div id="bvcLayers"></div>
+        <p class="notecap">Bias falls, variance rises, their sum is U-shaped. Log scale: equal distances are equal ratios.</p>
       </div>
       <div class="ctl">
-        <div id="bvcLayers"></div>
-        <div class="stats" id="bvcStats" style="margin-top:.9rem"></div>
-        <p class="notecap">Drag the subject count in the panel above and watch the curve shift. More data lowers variance at every degree, which nudges the sweet spot rightward: bigger samples can afford more flexibility.
-          <br>The decomposition and the measured test curve agree to within a few percent. The gap is Monte Carlo error: thirty cohorts and 300 held-out subjects are a finite sample, not an expectation.</p>
+        <div class="stats" id="bvcStats"></div>
+        <p class="notecap">More subjects lower variance at every degree, so the sweet spot moves right.
+          <br>Switch on the summed curve: it lands on the measured test MSE, to within Monte Carlo error.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The only two curves you could ever measure</div>
+      <div class="hint">the same train and test error, zoomed in</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvBVgap" class="cv" height="210"></canvas>
+        <div id="bvzLayers"></div>
+        <p class="notecap">Train error falls at every single degree and sinks below the noise floor, which no honest error can do.</p>
+      </div>
+      <div class="ctl">
+        <p class="notecap">The shaded band is how much a cohort flatters its own fit. It starts as a sliver and swallows the panel.
+          <br>Linear axis, cropped just above the degree-1 values, so the descent in train error is visible instead of being squashed by the blow-up on the right.</p>
       </div>
     </div>
   </div>
@@ -2950,6 +2966,7 @@ var KNN2D = (function(){
 (function(){
   var p  = mkPlot("cvBV",      {xd:[0,1], yd:[-3.2,3.6], padL:40, padB:34});
   var pc = mkPlot("cvBVcurve", {xd:[0.5,14.5], yd:[0,1], padL:46, padB:36, padT:16});
+  var pz = mkPlot("cvBVgap",   {xd:[0.5,14.5], yd:[0,1], padL:46, padB:32, padT:14});
   if (!p) return;
   var elD = document.getElementById("bvD"), lbD = document.getElementById("bvDv");
   var elN = document.getElementById("bvN"), lbN = document.getElementById("bvNv");
@@ -2970,10 +2987,19 @@ var KNN2D = (function(){
     {k:"bias",  label:"bias&sup2;",          kind:"ln",   col:"--c-test"},
     {k:"var",   label:"variance",            kind:"ln",   col:"--c-model"},
     {k:"test",  label:"test MSE",            kind:"ln",   col:"--c-error"},
-    {k:"train", label:"train MSE",           kind:"ln",   col:"--c-alt"},
-    {k:"gap",   label:"the gap between them", kind:"dot",  col:"--c-error"},
     {k:"sum",   label:"bias&sup2; + var + noise", kind:"dash", col:"--ink-soft", on:false},
     {k:"floor", label:"irreducible noise",   kind:"dash", col:"--ink-faint", on:false}
+  ], function(){ draw(); });
+  /* The zoom panel below. Train MSE only moves by a factor of 2.3 across the
+     whole degree range, against 32 for test MSE, so on the shared log axis its
+     descent is 8% of the panel height and reads as flat. Given its own linear
+     axis, clipped just above the degree-1 values, the same descent is a
+     quarter of the height and the gap opens from a sliver to the full panel. */
+  var Lz = layerToggles("bvzLayers", [
+    {k:"train", label:"train MSE",          kind:"ln",   col:"--c-alt"},
+    {k:"test",  label:"test MSE",           kind:"ln",   col:"--c-error"},
+    {k:"gap",   label:"the gap",            kind:"dot",  col:"--c-error"},
+    {k:"floor", label:"irreducible noise",  kind:"dash", col:"--ink-faint"}
   ], function(){ draw(); });
 
   function trueF(x){ return 1.25*Math.sin(2*Math.PI*0.82*x) + 0.45*x - 0.15; }
@@ -3139,7 +3165,7 @@ var KNN2D = (function(){
     /* Bias and variance differ by two orders of magnitude across the range,
        so a linear axis would flatten the bottom of the U into the baseline. */
     var i2;
-    var all = sum.concat(S.v, S.b, S.tr, S.te, [irr]).filter(function(v){ return v > 0; });
+    var all = sum.concat(S.v, S.b, S.te, [irr]).filter(function(v){ return v > 0; });
     var lo = Math.log10(Math.min.apply(null, all)*0.6);
     var hi = Math.log10(Math.max.apply(null, all)*1.7);
     pc.dom([0.5, DMAX+0.5], [lo, hi]);
@@ -3162,30 +3188,9 @@ var KNN2D = (function(){
       pc.txt("irreducible noise", pc.R - 6, yf - 6,
              {align:"right", color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
     }
-    /* the band between train and test is the optimism of the training error,
-       and it is the whole reason a test set exists */
-    if (Lc.on("gap")){
-      var cg = pc.ctx; cg.save(); cg.beginPath();
-      for (i2=0;i2<S.tr.length;i2++){
-        var X = pc.x(i2+1), Y = pc.y(Math.log10(Math.max(1e-6, S.te[i2])));
-        if (i2===0) cg.moveTo(X,Y); else cg.lineTo(X,Y);
-      }
-      for (i2=S.tr.length-1; i2>=0; i2--)
-        cg.lineTo(pc.x(i2+1), pc.y(Math.log10(Math.max(1e-6, S.tr[i2]))));
-      cg.closePath();
-      cg.fillStyle = alpha(col("--c-error"), .13); cg.fill();
-      cg.restore();
-    }
-    if (Lc.on("bias"))  series(S.b,  col("--c-test"), 1.7);
-    if (Lc.on("var"))   series(S.v,  col("--c-model"), 1.7);
-    if (Lc.on("train")) series(S.tr, col("--c-alt"), 3);
+    if (Lc.on("bias"))  series(S.b,  col("--c-test"), 2.4);
+    if (Lc.on("var"))   series(S.v,  col("--c-model"), 2.4);
     if (Lc.on("test"))  series(S.te, col("--c-error"), 3);
-    if (Lc.on("train") && Lc.on("test")){
-      pc.txt("test", pc.x(DMAX) - 4, pc.y(Math.log10(S.te[DMAX-1])) - 8,
-             {align:"right", color: col("--c-error"), font:'600 10.5px "IBM Plex Mono", monospace'});
-      pc.txt("train", pc.x(DMAX) - 4, pc.y(Math.log10(S.tr[DMAX-1])) + 14,
-             {align:"right", color: col("--c-alt"), font:'600 10.5px "IBM Plex Mono", monospace'});
-    }
     if (Lc.on("sum")){
       var cs2 = pc.ctx; cs2.save(); cs2.setLineDash([6,4]);
       series(sum, col("--ink-soft"), 2);
@@ -3200,6 +3205,77 @@ var KNN2D = (function(){
     pc.axes({xt:[1,2,3,4,5,6,7,8,9,10], yt:yt2, xlabel:"polynomial degree  (log scale on the vertical)",
              fmt:function(v){return v.toFixed(0);},
              fmtY:function(v){ var z=Math.pow(10,v); return z>=1?z.toFixed(0):z.toFixed(z<0.1?3:2); }});
+
+
+    /* ---- the same two curves, zoomed ----
+       Linear, with the top pinned just above the degree-1 values. Whatever
+       climbs past it is off the chart, which is the honest reading: by then
+       test error is several times its own starting point. */
+    var zTop = Math.max(S.te[0], S.tr[0]) * 1.9;
+    pz.dom([0.5, DMAX+0.5], [0, zTop]);
+    pz.sync(); pz.frame();
+    var ytz = ticks(0, zTop, 4);
+    pz.grid(null, ytz);
+    var cz = pz.ctx;
+
+    function zline(arr, color, w){
+      cz.save(); pz.clip(); cz.beginPath();
+      for (var i=0;i<arr.length;i++){
+        var X = pz.x(i+1), Y = pz.y(Math.min(arr[i], zTop*1.4));
+        if (i===0) cz.moveTo(X,Y); else cz.lineTo(X,Y);
+      }
+      cz.strokeStyle = color; cz.lineWidth = w; cz.lineJoin = "round"; cz.stroke();
+      pz.unclip(); cz.restore();
+    }
+
+    /* the band between them is the optimism of the training error, and it is
+       the whole reason a test set exists */
+    if (Lz.on("gap")){
+      cz.save(); pz.clip(); cz.beginPath();
+      for (i2=0;i2<DMAX;i2++){
+        var Xg = pz.x(i2+1), Yg = pz.y(Math.min(S.te[i2], zTop*1.4));
+        if (i2===0) cz.moveTo(Xg,Yg); else cz.lineTo(Xg,Yg);
+      }
+      for (i2=DMAX-1; i2>=0; i2--) cz.lineTo(pz.x(i2+1), pz.y(S.tr[i2]));
+      cz.closePath();
+      cz.fillStyle = alpha(col("--c-error"), .17); cz.fill();
+      pz.unclip(); cz.restore();
+    }
+    if (Lz.on("floor")){
+      var yzf = pz.y(irr), cz2 = pz.ctx;
+      cz2.save(); cz2.strokeStyle = alpha(col("--ink-faint"), .85); cz2.lineWidth = 1.4;
+      cz2.setLineDash([5,4]);
+      cz2.beginPath(); cz2.moveTo(pz.L, yzf); cz2.lineTo(pz.R, yzf); cz2.stroke(); cz2.restore();
+      pz.txt("irreducible noise", pz.L + 6, yzf - 6,
+             {color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
+    }
+    if (Lz.on("test"))  zline(S.te, col("--c-error"), 3);
+    if (Lz.on("train")) zline(S.tr, col("--c-alt"), 3);
+
+    /* say so where a curve runs off the top rather than letting it vanish */
+    var zOff = -1;
+    for (i2=0;i2<DMAX;i2++) if (S.te[i2] > zTop){ zOff = i2+1; break; }
+    if (zOff > 0 && Lz.on("test")){
+      var Xo = pz.x(zOff);
+      cz.save(); cz.strokeStyle = col("--c-error"); cz.lineWidth = 2;
+      cz.beginPath(); cz.moveTo(Xo, pz.T + 13); cz.lineTo(Xo, pz.T + 2); cz.stroke();
+      cz.beginPath(); cz.moveTo(Xo - 4, pz.T + 7); cz.lineTo(Xo, pz.T + 1); cz.lineTo(Xo + 4, pz.T + 7);
+      cz.stroke(); cz.restore();
+      pz.txt("off the chart", Xo + 8, pz.T + 11,
+             {color: col("--c-error"), font:'600 9.5px "IBM Plex Mono", monospace'});
+    }
+    if (Lz.on("train")){
+      pz.txt("train", pz.x(DMAX) - 4, pz.y(S.tr[DMAX-1]) + 15,
+             {align:"right", color: col("--c-alt"), font:'600 10.5px "IBM Plex Mono", monospace'});
+    }
+    if (Lz.on("test") && zOff < 0){
+      pz.txt("test", pz.x(DMAX) - 4, pz.y(S.te[DMAX-1]) - 9,
+             {align:"right", color: col("--c-error"), font:'600 10.5px "IBM Plex Mono", monospace'});
+    }
+    cz.save(); cz.strokeStyle = alpha(col("--ink"), .45); cz.lineWidth = 1.4; cz.setLineDash([4,4]);
+    cz.beginPath(); cz.moveTo(pz.x(d), pz.T); cz.lineTo(pz.x(d), pz.B); cz.stroke(); cz.restore();
+    pz.axes({xt:[1,2,3,4,5,6,7,8,9,10], yt:ytz, xlabel:"polynomial degree",
+             fmt:function(v){return v.toFixed(0);}, fmtY:function(v){return v.toFixed(2);}});
 
     cStats.innerHTML =
       row("error", "lowest test MSE at degree", String(bestD)) +
