@@ -1066,6 +1066,33 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
+  <div class="prose">
+    <p>Start with what a real study gives you. One cohort, one fitted model, and two numbers: the error on the cohort&rsquo;s own points, and the error on subjects held back.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t">The only two curves you could ever measure</div>
+      <div class="hint">the dashed line marks your current degree</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvBVgap" class="cv" height="210"></canvas>
+        <div id="bvzLayers"></div>
+        <p class="notecap">Train error falls at every single degree. Nothing in it ever tells you to stop.</p>
+      </div>
+      <div class="ctl">
+        <div class="stats" id="bvcStats"></div>
+        <p class="notecap">The shaded band is how much a cohort flatters its own fit. It starts as a sliver and swallows the panel.
+          <br>Linear axis, cropped just above the degree-1 values.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>So the test curve turns and the train curve does not. The rest of this tab is why.</p>
+  </div>
+
   <div class="eq">
     E[(<span class="m">y</span> &minus; <span class="m"><span class="hat f">f</span></span>(<span class="m">x</span>))<sup>2</sup>]
     &nbsp;=&nbsp; Bias(<span class="m"><span class="hat f">f</span></span>)<sup>2</sup>
@@ -1090,27 +1117,8 @@ section.tabpanel{padding:2.6rem 0 0}
         <p class="notecap">Bias falls, variance rises, their sum is U-shaped. Log scale: equal distances are equal ratios.</p>
       </div>
       <div class="ctl">
-        <div class="stats" id="bvcStats"></div>
         <p class="notecap">More subjects lower variance at every degree, so the sweet spot moves right.
           <br>Switch on the summed curve: it lands on the measured test MSE, to within Monte Carlo error.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t">The only two curves you could ever measure</div>
-      <div class="hint">the same train and test error, zoomed in</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <canvas id="cvBVgap" class="cv" height="210"></canvas>
-        <div id="bvzLayers"></div>
-        <p class="notecap">Train error falls at every single degree and sinks below the noise floor, which no honest error can do.</p>
-      </div>
-      <div class="ctl">
-        <p class="notecap">The shaded band is how much a cohort flatters its own fit. It starts as a sliver and swallows the panel.
-          <br>Linear axis, cropped just above the degree-1 values, so the descent in train error is visible instead of being squashed by the blow-up on the right.</p>
       </div>
     </div>
   </div>
@@ -2998,8 +3006,7 @@ var KNN2D = (function(){
   var Lz = layerToggles("bvzLayers", [
     {k:"train", label:"train MSE",          kind:"ln",   col:"--c-alt"},
     {k:"test",  label:"test MSE",           kind:"ln",   col:"--c-error"},
-    {k:"gap",   label:"the gap",            kind:"dot",  col:"--c-error"},
-    {k:"floor", label:"irreducible noise",  kind:"dash", col:"--ink-faint"}
+    {k:"gap",   label:"the gap",            kind:"dot",  col:"--c-error"}
   ], function(){ draw(); });
 
   function trueF(x){ return 1.25*Math.sin(2*Math.PI*0.82*x) + 0.45*x - 0.15; }
@@ -3241,14 +3248,6 @@ var KNN2D = (function(){
       cz.fillStyle = alpha(col("--c-error"), .17); cz.fill();
       pz.unclip(); cz.restore();
     }
-    if (Lz.on("floor")){
-      var yzf = pz.y(irr), cz2 = pz.ctx;
-      cz2.save(); cz2.strokeStyle = alpha(col("--ink-faint"), .85); cz2.lineWidth = 1.4;
-      cz2.setLineDash([5,4]);
-      cz2.beginPath(); cz2.moveTo(pz.L, yzf); cz2.lineTo(pz.R, yzf); cz2.stroke(); cz2.restore();
-      pz.txt("irreducible noise", pz.L + 6, yzf - 6,
-             {color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
-    }
     if (Lz.on("test"))  zline(S.te, col("--c-error"), 3);
     if (Lz.on("train")) zline(S.tr, col("--c-alt"), 3);
 
@@ -3272,6 +3271,8 @@ var KNN2D = (function(){
       pz.txt("test", pz.x(DMAX) - 4, pz.y(S.te[DMAX-1]) - 9,
              {align:"right", color: col("--c-error"), font:'600 10.5px "IBM Plex Mono", monospace'});
     }
+    if (Lz.on("test") && S.te[bestD-1] <= zTop)
+      pz.dots([[bestD, S.te[bestD-1]]], {r:4.5, color: col("--c-error"), ring: col("--surface")});
     cz.save(); cz.strokeStyle = alpha(col("--ink"), .45); cz.lineWidth = 1.4; cz.setLineDash([4,4]);
     cz.beginPath(); cz.moveTo(pz.x(d), pz.T); cz.lineTo(pz.x(d), pz.B); cz.stroke(); cz.restore();
     pz.axes({xt:[1,2,3,4,5,6,7,8,9,10], yt:ytz, xlabel:"polynomial degree",
