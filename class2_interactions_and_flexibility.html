@@ -1105,28 +1105,20 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="gitem"><div class="gt">baseline</div><div class="gd">The category left without a dummy. <span class="m">&beta;<sub>0</sub></span> describes it, and every other coefficient is a difference from it.</div></div>
     <div class="gitem"><div class="gt">main effect</div><div class="gd">A predictor&rsquo;s own term, <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>, as opposed to its interaction.</div></div>
     <div class="gitem"><div class="gt">interaction</div><div class="gd">A product column <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>. It lets the effect of one predictor depend on the value of another.</div></div>
-    <div class="gitem"><div class="gt">hierarchy principle</div><div class="gd">Keep both main effects whenever their interaction is in the model.</div></div>
     <div class="gitem"><div class="gt">moderator</div><div class="gd">The predictor doing the changing. In <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> either one can be read as the moderator.</div></div>
-    <div class="gitem"><div class="gt">saddle</div><div class="gd">The surface an interaction makes: straight along each axis, twisted along the diagonals.</div></div>
     <div class="gitem"><div class="gt">polynomial<br>regression</div><div class="gd">Adding <span class="m">x</span><sup>2</sup>, <span class="m">x</span><sup>3</sup> and so on as extra columns. Still a linear model.</div></div>
-    <div class="gitem"><div class="gt">basis function</div><div class="gd">Any function of <span class="m">x</span> used as a column: a power, a sine, a log. Choosing them is the modelling step.</div></div>
-    <div class="gitem"><div class="gt">linear in the<br>coefficients</div><div class="gd">What &ldquo;linear model&rdquo; actually means. The columns may be as curved as you like.</div></div>
     <div class="gitem"><div class="gt">parametric</div><div class="gd">A model with a fixed number of coefficients, chosen in advance. Linear regression is parametric.</div></div>
     <div class="gitem"><div class="gt">non-parametric</div><div class="gd">A model that keeps the data instead of summarising it. KNN is non-parametric.</div></div>
     <div class="gitem"><div class="gt">KNN</div><div class="gd">Predict at a point by averaging the <span class="m">y</span> of its <span class="m">K</span> nearest training points.</div></div>
-    <div class="gitem"><div class="gt"><span class="m">K</span></div><div class="gd">How many neighbours to average. Small <span class="m">K</span> is flexible and noisy, large <span class="m">K</span> is smooth and blunt.</div></div>
+    <div class="gitem"><div class="gt"><span class="m">K</span></div><div class="gd">How many neighbours to average. Small <span class="m">K</span> is flexible and noisy, large <span class="m">K</span> is smooth and broad.</div></div>
     <div class="gitem"><div class="gt">curse of dimensionality</div><div class="gd">In many dimensions, the nearest neighbours are not near. Flexible local methods lose their advantage.</div></div>
     <div class="gitem"><div class="gt">flexibility</div><div class="gd">How many shapes a model can take. Polynomial degree and 1/<span class="m">K</span> are both measures of it.</div></div>
     <div class="gitem"><div class="gt">bias</div><div class="gd">How far the average fit sits from the truth. The error of being the wrong shape.</div></div>
-    <div class="gitem"><div class="gt">variance</div><div class="gd">How much the fit changes from one cohort to the next.</div></div>
+    <div class="gitem"><div class="gt">variance</div><div class="gd">How much the fit changes from one sample to the next.</div></div>
     <div class="gitem"><div class="gt">irreducible error</div><div class="gd">Var(<span class="m">&epsilon;</span>). The floor no model can go below.</div></div>
     <div class="gitem"><div class="gt">bias-variance<br>tradeoff</div><div class="gd">Flexibility lowers one and raises the other. Test error is smallest where their sum is.</div></div>
   </div>
 
-  <div class="prose" style="margin-top:1.6rem">
-    <h3>Next time</h3>
-    <p>What to do when a model has more flexibility than the data can pay for: shrinking coefficients toward zero, and choosing how much to shrink without touching the test set.</p>
-  </div>
 
   <div class="crosslink">
     <div>
