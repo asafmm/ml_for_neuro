@@ -360,6 +360,41 @@ input[type=range]::-moz-range-thumb{
 }
 /* several equations stacked inside one .eq block, left aligned as a group */
 .mline{display:block;width:fit-content;margin:.32rem auto;text-align:left}
+/* a big product sign, for the likelihood */
+.prodx{font-family:var(--serif);font-style:normal;font-size:1.45em;line-height:.8;vertical-align:-.12em}
+
+/* ------------------------------------------------------------------
+   Confusion matrix. Two rows of truth against two columns of decision,
+   with the diagonal reading as correct and the off-diagonal as the two
+   different mistakes.
+   ------------------------------------------------------------------ */
+.cmwrap{margin:.85rem 0 0;overflow-x:auto}
+.cm{border-collapse:separate;border-spacing:3px;width:100%;table-layout:fixed}
+.cm th.cmh{
+  font-family:var(--mono);font-size:.66rem;font-weight:500;color:var(--ink-soft);
+  letter-spacing:.04em;padding:.2rem .4rem;text-align:center;white-space:nowrap;
+}
+.cm tr th.cmh:first-child{text-align:right;width:5.2rem}
+.cm td.cmc{
+  text-align:center;padding:.5rem .3rem;border-radius:6px;line-height:1.15;
+  background:var(--surface-2);border:1px solid var(--hairline-soft);
+}
+.cm td.cmc b{
+  display:block;font-family:var(--mono);font-size:1.15rem;font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.cm td.cmc span{
+  display:block;font-family:var(--mono);font-size:.6rem;color:var(--ink-faint);
+  letter-spacing:.03em;margin-top:.1rem;
+}
+.cm td.tp{background:var(--c-test-wash);border-color:var(--c-test)}
+.cm td.tp b{color:var(--c-test)}
+.cm td.tn{background:var(--c-test-wash);border-color:var(--c-test)}
+.cm td.tn b{color:var(--c-test)}
+.cm td.fn{background:var(--c-error-wash);border-color:var(--c-error)}
+.cm td.fn b{color:var(--c-error)}
+.cm td.fp{background:var(--c-model-wash);border-color:var(--c-model)}
+.cm td.fp b{color:var(--c-model)}
 
 sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
 
@@ -815,7 +850,7 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="prose">
     <p>Where <span class="m">N<sub>0</sub></span> is the "neighborhood" of the point <span class="m">x<sub>0</sub></span>, and is defined as the <span class="m">K</span> training points closest to it.</p>
     <p>That is the whole method, the model <em>is</em> the data, and we just average outcomes based on distances. Methods like this are called <strong>non-parametric</strong>, because the number of things they remember grows with <span class="m">n</span> instead of being fixed at <span class="m">p</span> + 1 parameters (like <span class="m">&beta;</span> in linear models).</p>
-    <p><span class="m">K</span> controls how much smoothing happens. <span class="m">K</span> = 1 copies the nearest neighbour exactly (very noisy). Large <span class="m">K</span> averages over a wide neighbourhood and as <span class="m">K</span> reaches <span class="m">n</span>, the prediction becomes the overall mean.
+    <p><span class="m">K</span> controls how much smoothing happens. <span class="m">K</span> = 1 copies the nearest neighbour exactly (very noisy). Large <span class="m">K</span> averages over a wide neighbourhood and as <span class="m">K</span> reaches <span class="m">n</span>, the prediction becomes the overall mean.</p>
   </div>
 
   <div class="panel">
@@ -1119,6 +1154,14 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="gitem"><div class="gt">bias-variance<br>tradeoff</div><div class="gd">Flexibility lowers one and raises the other. Test error is smallest where their sum is.</div></div>
   </div>
 
+
+  <div class="crosslink">
+    <div>
+      <div class="cl-t">Class 3: Drawing the line</div>
+      <p class="cl-d">Classification, logistic regression, maximum likelihood, error metrics and the nearest-neighbour classifier.</p>
+    </div>
+    <a href="https://claude.ai/artifact/8TpogMhm4oWyYxvB9UNTNX" data-local="class3_classification.html">On to class 3 &rarr;</a>
+  </div>
 
   <div class="crosslink">
     <div>
@@ -2110,109 +2153,6 @@ var SADDLE = null;
   reg(draw);
 })();
 
-
-/* ============================================================
-   03b — when a polynomial is the wrong curve
-   ============================================================ */
-(function(){
-  var p = mkPlot("cvCirc", {xd:[0,24], yd:[10, 95], padL:44, padB:38});
-  if (!p) return;
-  var elD = document.getElementById("circD"), lbD = document.getElementById("circDv");
-  var statsEl = document.getElementById("circStats"), capEl = document.getElementById("circCap");
-
-  var L = layerToggles("circLayers", [
-    {k:"pts",  label:"measurements",        kind:"dot",  col:"--c-data"},
-    {k:"harm", label:"two sine terms",      kind:"ln",   col:"--c-model"},
-    {k:"poly", label:"polynomial",          kind:"ln",   col:"--c-test"},
-    {k:"wrap", label:"the midnight gap",    kind:"dash", col:"--c-error"}
-  ], function(){ draw(); });
-
-  /* a circadian curve with a post-lunch dip, sampled round the clock */
-  function trueF(t){
-    return 52 + 17*Math.sin(2*Math.PI*(t - 9)/24) + 7*Math.sin(4*Math.PI*(t - 3.5)/24);
-  }
-  var T = [], Y = [];
-  (function(){
-    var r = rng(9090);
-    for (var i=0;i<140;i++){
-      var t = 24*r();
-      T.push(t); Y.push(trueF(t) + gauss(r)*4.2);
-    }
-  })();
-
-  function harmRow(t){
-    var w = 2*Math.PI/24;
-    return [1, Math.sin(w*t), Math.cos(w*t), Math.sin(2*w*t), Math.cos(2*w*t)];
-  }
-  var HARM = (function(){
-    var c = lstsq(T.map(harmRow), Y);
-    return { c:c, f: function(t){
-      var r0 = harmRow(t), s = 0;
-      for (var k=0;k<c.length;k++) s += c[k]*r0[k];
-      return s;
-    }};
-  })();
-  var polyCache = {};
-  function poly(d){
-    if (polyCache[d]) return polyCache[d];
-    var f = polyFit(T, Y, d, 0, 24);
-    polyCache[d] = f;
-    return f;
-  }
-  function r2of(f){
-    var m = 0, i;
-    for (i=0;i<Y.length;i++) m += Y[i];
-    m /= Y.length;
-    var ss = 0, tt = 0;
-    for (i=0;i<Y.length;i++){ var e = Y[i]-f(T[i]); ss += e*e; tt += (Y[i]-m)*(Y[i]-m); }
-    return 1 - ss/tt;
-  }
-
-  function draw(){
-    var d = +elD.value; lbD.textContent = d;
-    var pf = poly(d);
-    p.sync(); p.frame();
-    var xt = [0,4,8,12,16,20,24], yt = [20,40,60,80];
-    p.grid(xt, yt);
-
-    if (L.on("poly")) p.fnline(pf,      {color: col("--c-test"),  w:2.2, n:400});
-    if (L.on("harm")) p.fnline(HARM.f,  {color: col("--c-model"), w:2.8, n:400});
-    if (L.on("pts"))  p.dots(T.map(function(t,i){ return [t, Y[i]]; }),
-                             {r:3, color: alpha(col("--c-data"), .75)});
-
-    var gapP = Math.abs(pf(24) - pf(0)), gapH = Math.abs(HARM.f(24) - HARM.f(0));
-    if (L.on("wrap")){
-      var ctx = p.ctx;
-      ctx.save();
-      ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 2.4;
-      ctx.beginPath();
-      ctx.moveTo(p.x(0.25), p.y(pf(0))); ctx.lineTo(p.x(0.25), p.y(pf(24)));
-      ctx.stroke();
-      ctx.restore();
-      p.txt("gap " + fmt(gapP,1), p.x(0.6), (p.y(pf(0)) + p.y(pf(24)))/2,
-            {color: col("--c-error"), baseline:"middle", font:'600 10px "IBM Plex Mono", monospace'});
-    }
-    p.axes({xt:xt, yt:yt, xlabel:"hour of day", ylabel:"alertness score",
-            fmt:function(v){return v.toFixed(0);}});
-
-    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
-    statsEl.innerHTML =
-      row("model", "sine model, 5 coefficients", fmt(r2of(HARM.f),3)) +
-      row("test",  "polynomial, " + (d+1) + " coefficients", fmt(r2of(pf),3)) +
-      row("error", "polynomial gap at midnight", fmt(gapP,1)) +
-      row("plain", "sine model gap at midnight", fmt(gapH,1));
-
-    capEl.innerHTML = r2of(HARM.f) > r2of(pf)
-      ? "The sine model reaches R<sup>2</sup> = " + fmt(r2of(HARM.f),3) + " on 5 coefficients; the degree-" +
-        d + " polynomial gets " + fmt(r2of(pf),3) + " on " + (d+1) + ". And its midnight gap is zero, " +
-        "because periodicity is built into the columns rather than learned from the data."
-      : "The polynomial has caught up on R<sup>2</sup>, but it needed " + (d+1) +
-        " coefficients against the sine model's 5, and it still leaves a gap of " + fmt(gapP,1) +
-        " between midnight and midnight. Push the degree further and that gap gets worse, not better.";
-  }
-  elD.addEventListener("input", draw);
-  reg(draw);
-})();
 
 
 /* ============================================================

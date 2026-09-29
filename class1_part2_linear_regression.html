@@ -360,6 +360,41 @@ input[type=range]::-moz-range-thumb{
 }
 /* several equations stacked inside one .eq block, left aligned as a group */
 .mline{display:block;width:fit-content;margin:.32rem auto;text-align:left}
+/* a big product sign, for the likelihood */
+.prodx{font-family:var(--serif);font-style:normal;font-size:1.45em;line-height:.8;vertical-align:-.12em}
+
+/* ------------------------------------------------------------------
+   Confusion matrix. Two rows of truth against two columns of decision,
+   with the diagonal reading as correct and the off-diagonal as the two
+   different mistakes.
+   ------------------------------------------------------------------ */
+.cmwrap{margin:.85rem 0 0;overflow-x:auto}
+.cm{border-collapse:separate;border-spacing:3px;width:100%;table-layout:fixed}
+.cm th.cmh{
+  font-family:var(--mono);font-size:.66rem;font-weight:500;color:var(--ink-soft);
+  letter-spacing:.04em;padding:.2rem .4rem;text-align:center;white-space:nowrap;
+}
+.cm tr th.cmh:first-child{text-align:right;width:5.2rem}
+.cm td.cmc{
+  text-align:center;padding:.5rem .3rem;border-radius:6px;line-height:1.15;
+  background:var(--surface-2);border:1px solid var(--hairline-soft);
+}
+.cm td.cmc b{
+  display:block;font-family:var(--mono);font-size:1.15rem;font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.cm td.cmc span{
+  display:block;font-family:var(--mono);font-size:.6rem;color:var(--ink-faint);
+  letter-spacing:.03em;margin-top:.1rem;
+}
+.cm td.tp{background:var(--c-test-wash);border-color:var(--c-test)}
+.cm td.tp b{color:var(--c-test)}
+.cm td.tn{background:var(--c-test-wash);border-color:var(--c-test)}
+.cm td.tn b{color:var(--c-test)}
+.cm td.fn{background:var(--c-error-wash);border-color:var(--c-error)}
+.cm td.fn b{color:var(--c-error)}
+.cm td.fp{background:var(--c-model-wash);border-color:var(--c-model)}
+.cm td.fp b{color:var(--c-model)}
 
 sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
 
