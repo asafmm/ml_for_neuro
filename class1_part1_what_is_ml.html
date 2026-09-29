@@ -614,9 +614,9 @@ section.tabpanel{padding:2.6rem 0 0}
 <div class="wrap">
 <!-- ==================== 01 ==================== -->
 <section id="s1">
-  <div class="shead"><div class="num">01</div><h2>What is machine learning?</h2></div>
+  <div class="shead"><div class="num">01</div><h2 data-ed="part1/01-what-is-machine-learning.html:0">What is machine learning?</h2></div>
   <div class="prose">
-    <p>In Machine Learning, we are interested in estimating the function that maps between inputs <span class="m">X</span> and an output <span class="m">y</span>. 
+    <p data-ed="part1/01-what-is-machine-learning.html:1">In Machine Learning, we are interested in estimating the function that maps between inputs <span class="m">X</span> and an output <span class="m">y</span>. 
       <br><span class="m">X</span> could be cortical thickness, and <span class="m">y</span> could be age. Firing rate to stimulus contrast. Voxel patterns to what a person is looking at. 
       <br>We call this connecting function <span class="m">f</span>:</p>
   </div>
@@ -624,20 +624,20 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="eq"><span class="m">y</span> = <span class="m">f</span>(<span class="m">x</span>) + <span class="m">&epsilon;</span></div>
 
   <div class="prose">
-    <p><span class="m">x</span> here is list of measurements of one feature (or "predictor"). 
+    <p data-ed="part1/01-what-is-machine-learning.html:2"><span class="m">x</span> here is list of measurements of one feature (or "predictor"). 
       <br><span class="m">y</span> is another list of meausrements, or labels, which represent the outcome (or "target"). 
       <br><span class="m">&epsilon;</span> is everything that we cannot, or did not measure and control for: measurement noise, biological variability, the variables we did not record. 
       <br><span class="m">&epsilon;</span> is why two subjects with identical <span class="m">x</span> still give you different <span class="m">y</span>, and why two measurements from the same subject still give you different <span class="m">y</span>.</p>
-    <p>Importantly, we never get to see <span class="m">f</span>.
+    <p data-ed="part1/01-what-is-machine-learning.html:3">Importantly, we never get to see <span class="m">f</span>.
       <br>We only see a list of noisy <span class="m">(x, y)</span> pairs. Machine learning is the process of using that list to build an estimation of <span class="m">f</span>, called <span class="m"><span class="hat f">f</span></span> (f-hat), that is good enough to be useful.</p>
-    <p>For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function f that maps the two is a fifth-degree polynomial. 
+    <p data-ed="part1/01-what-is-machine-learning.html:4">For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function f that maps the two is a fifth-degree polynomial. 
       <br>The simulation knows that polynomial, but we just get a table of observations:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Your data</div>
-      <div class="hint">live: it tracks the controls below</div>
+      <div class="t" data-ed="part1/01-what-is-machine-learning.html:5">Your data</div>
+      <div class="hint" data-ed="part1/01-what-is-machine-learning.html:6">live: it tracks the controls below</div>
     </div>
     <div class="panel-body dfsplit">
       <div class="tblwrap" style="margin:0">
@@ -647,20 +647,20 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Plotted, those rows become a scatter.
+    <p data-ed="part1/01-what-is-machine-learning.html:7">Plotted, those rows become a scatter.
       <br><strong>Try to draw the curve yourself first</strong>, then switch on the estimate, and only then reveal the truth.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The unknown function</div>
-      <div class="hint">switch the layers on and off under the plot</div>
+      <div class="t" data-ed="part1/01-what-is-machine-learning.html:8">The unknown function</div>
+      <div class="hint" data-ed="part1/01-what-is-machine-learning.html:9">switch the layers on and off under the plot</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvTruth" class="cv" height="330"></canvas>
         <div id="truthLayers"></div>
-        <p class="notecap">This cell is not a textbook bell. It has a best frequency near 7 kHz, a suppressed band around 15 kHz, and a second response region near 23 kHz. Not a shape we could guess from a handful of trials.</p>
+        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:10">This cell is not a textbook bell. It has a best frequency near 7 kHz, a suppressed band around 15 kHz, and a second response region near 23 kHz. Not a shape we could guess from a handful of trials.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -675,33 +675,33 @@ section.tabpanel{padding:2.6rem 0 0}
         <div class="stats">
           <div class="stat model"><span class="k">how far <span class="hat f">f</span> is from f</span><span class="val" id="truthGap">&mdash;</span></div>
         </div>
-        <p class="notecap">Root-mean-square gap between the two curves. More trials, or less noise, pulls it down. It never reaches zero: a smooth estimate can only chase so many bends.</p>
+        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:11">Root-mean-square gap between the two curves. More trials, or less noise, pulls it down. It never reaches zero: a smooth estimate can only chase so many bends.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>Many different curves are compatible with our data. Adding data does not change the underlying <span class="m">f</span>, but it narrows down which <span class="m"><span class="hat f">f</span></span> can be estimated.</p>
+    <div class="lbl" data-ed="part1/01-what-is-machine-learning.html:12">Key idea</div>
+    <p data-ed="part1/01-what-is-machine-learning.html:13">Many different curves are compatible with our data. Adding data does not change the underlying <span class="m">f</span>, but it narrows down which <span class="m"><span class="hat f">f</span></span> can be estimated.</p>
   </div>
 </section>
 
 <!-- ==================== 03 ==================== -->
 <section id="s3">
-  <div class="shead"><div class="num">02</div><h2>Fitting vs. predicting</h2></div>
+  <div class="shead"><div class="num">02</div><h2 data-ed="part1/03-fitting-vs-predicting.html:0">Fitting vs. predicting</h2></div>
   <div class="prose">
-    <p>In <strong>fitting</strong>, we have all our data, we fit a model to it, and we interpret the coefficients:
+    <p data-ed="part1/03-fitting-vs-predicting.html:1">In <strong>fitting</strong>, we have all our data, we fit a model to it, and we interpret the coefficients:
       <br>Does salary rise with years of education, and by how much? Does accuracy drop as memory load increases?
       <br>The model describes the data in front of us, and the coefficient is the answer. This is what psychology and economics usually ask for.</p>
-    <p>In <strong>predicting</strong>, we fit on one part of the data, called the <strong>training set</strong>, then ask the model for <span class="m">y</span> on points it has never seen, called the <strong>test set</strong>.
+    <p data-ed="part1/03-fitting-vs-predicting.html:2">In <strong>predicting</strong>, we fit on one part of the data, called the <strong>training set</strong>, then ask the model for <span class="m">y</span> on points it has never seen, called the <strong>test set</strong>.
       <br>Here it does not matter how well the model described the training data. What matters is whether it works on the next subject.</p>
-    <p>The two come apart quickly. A flexible enough model can pass through every training point exactly, so its training error goes to zero. It has learned the noise.</p>
+    <p data-ed="part1/03-fitting-vs-predicting.html:3">The two come apart quickly. A flexible enough model can pass through every training point exactly, so its training error goes to zero. It has learned the noise.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Overfitting, live</div>
-      <div class="hint">push flexibility to the right and watch the two errors split</div>
+      <div class="t" data-ed="part1/03-fitting-vs-predicting.html:4">Overfitting, live</div>
+      <div class="hint" data-ed="part1/03-fitting-vs-predicting.html:5">push flexibility to the right and watch the two errors split</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -722,62 +722,62 @@ section.tabpanel{padding:2.6rem 0 0}
           <button class="btn" id="overBest">jump to the sweet spot</button>
           <button class="btn" id="overNew">new sample</button>
         </div>
-        <p class="notecap">Degree 1 is a straight line. Degree 12 is a curve with twelve bends, and it can be dragged through almost anything.</p>
+        <p class="notecap" data-ed="part1/03-fitting-vs-predicting.html:6">Degree 1 is a straight line. Degree 12 is a curve with twelve bends, and it can be dragged through almost anything.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>Training error always improves as we add flexibility. Test error goes down, bottoms out, then climbs back up. That U-shape is the <strong>bias-variance tradeoff</strong>, and finding its bottom is most of applied ML.</p>
+    <div class="lbl" data-ed="part1/03-fitting-vs-predicting.html:7">Key idea</div>
+    <p data-ed="part1/03-fitting-vs-predicting.html:8">Training error always improves as we add flexibility. Test error goes down, bottoms out, then climbs back up. That U-shape is the <strong>bias-variance tradeoff</strong>, and finding its bottom is most of applied ML.</p>
   </div>
 
   <div class="prose">
-    <p>Often we want both: estimate <span class="m"><span class="hat f">f</span></span> on a training set, check on a test set that it really predicts, then interpret the coefficients to see which features carried the signal.
+    <p data-ed="part1/03-fitting-vs-predicting.html:9">Often we want both: estimate <span class="m"><span class="hat f">f</span></span> on a training set, check on a test set that it really predicts, then interpret the coefficients to see which features carried the signal.
       <br>The third step is only honest if the second one passed.</p>
   </div>
 </section>
 
 <!-- ==================== 04 ==================== -->
 <section id="s4">
-  <div class="shead"><div class="num">03</div><h2>Supervised vs. unsupervised</h2></div>
+  <div class="shead"><div class="num">03</div><h2 data-ed="part1/04-supervised-vs-unsupervised.html:0">Supervised vs. unsupervised</h2></div>
   <div class="prose">
-    <p>The dividing question is simple: <strong>do we have <span class="m">y</span>?</strong></p>
-    <p>If every observation arrives with a label (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
+    <p data-ed="part1/04-supervised-vs-unsupervised.html:1">The dividing question is simple: <strong>do we have <span class="m">y</span>?</strong></p>
+    <p data-ed="part1/04-supervised-vs-unsupervised.html:2">If every observation arrives with a label (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
       <br>Someone already decided what the right answer is, so we can measure how often we get it wrong, and then minimise that.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Supervised: the labels come with the data</div>
-      <div class="hint">120 subjects, two known groups</div>
+      <div class="t" data-ed="part1/04-supervised-vs-unsupervised.html:3">Supervised: the labels come with the data</div>
+      <div class="hint" data-ed="part1/04-supervised-vs-unsupervised.html:4">120 subjects, two known groups</div>
     </div>
     <div class="panel-body panel-duo">
       <div>
         <canvas id="cvSupA" class="cv" height="290"></canvas>
-        <p class="notecap"><b>What we have.</b> Colour is the diagnosis, and it was given to us. No algorithm worked it out.</p>
+        <p class="notecap" data-ed="part1/04-supervised-vs-unsupervised.html:5"><b>What we have.</b> Colour is the diagnosis, and it was given to us. No algorithm worked it out.</p>
       </div>
       <div>
         <canvas id="cvSupB" class="cv" height="290"></canvas>
         <div id="supLayers"></div>
-        <p class="notecap"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
+        <p class="notecap" data-ed="part1/04-supervised-vs-unsupervised.html:6"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p>If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">x</span>.
+    <p data-ed="part1/04-supervised-vs-unsupervised.html:7">If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">x</span>.
       <br>Which brain regions behave alike? How many cell types are in this recording?
       <br>Nothing here is right or wrong, so there is no error to minimise.</p>
-    <p><strong>Clustering</strong> is the usual first step. We hand over the points and one number, <span class="m">k</span>, the number of groups to look for, and the algorithm splits the data so that points in a group sit close together.
+    <p data-ed="part1/04-supervised-vs-unsupervised.html:8"><strong>Clustering</strong> is the usual first step. We hand over the points and one number, <span class="m">k</span>, the number of groups to look for, and the algorithm splits the data so that points in a group sit close together.
       <br>It repeats two steps until nothing moves: assign every point to its nearest centre, then recompute each centre from the points assigned to it.</p>
-    <p>The data below really has three groups, but the algorithm is never told that. Ask it for the wrong number and see what happens:</p>
+    <p data-ed="part1/04-supervised-vs-unsupervised.html:9">The data below really has three groups, but the algorithm is never told that. Ask it for the wrong number and see what happens:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Unsupervised: no labels anywhere</div>
-      <div class="hint">choose how many clusters to look for</div>
+      <div class="t" data-ed="part1/04-supervised-vs-unsupervised.html:10">Unsupervised: no labels anywhere</div>
+      <div class="hint" data-ed="part1/04-supervised-vs-unsupervised.html:11">choose how many clusters to look for</div>
     </div>
     <div class="panel-body">
       <div class="btnrow" style="margin-bottom:.95rem">
@@ -791,7 +791,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <div class="panel-duo">
         <div>
           <canvas id="cvCluA" class="cv" height="290"></canvas>
-          <p class="notecap"><b>What we have.</b> 150 recordings, two measurements each. No colour, because there is no label to colour by.</p>
+          <p class="notecap" data-ed="part1/04-supervised-vs-unsupervised.html:12"><b>What we have.</b> 150 recordings, two measurements each. No colour, because there is no label to colour by.</p>
         </div>
         <div>
           <canvas id="cvCluB" class="cv" height="290"></canvas>
@@ -802,24 +802,24 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
-  <div class="warn">
+  <div class="warn" data-ed="part1/04-supervised-vs-unsupervised.html:13">
     <b>It always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Both times it hands back tidy clusters and crisp centres, with no hint that anything went wrong. Deciding whether the structure is real, and whether <span class="m">k</span> was right, is on us, not the algorithm.
   </div>
 </section>
 
 <!-- ==================== 05 ==================== -->
 <section id="s5">
-  <div class="shead"><div class="num">04</div><h2>Regression vs. classification</h2></div>
+  <div class="shead"><div class="num">04</div><h2 data-ed="part1/05-regression-vs-classification.html:0">Regression vs. classification</h2></div>
   <div class="prose">
-    <p>Within supervised learning, the split is about the type of <span class="m">y</span>:
+    <p data-ed="part1/05-regression-vs-classification.html:1">Within supervised learning, the split is about the type of <span class="m">y</span>:
       <br>Continuous <span class="m">y</span> gives us <strong>regression</strong>. Categorical <span class="m">y</span> gives us <strong>classification</strong>.
       <br>That choice decides which model we reach for, and which number we report.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Two tasks, two error measures</div>
-      <div class="hint">switch tasks</div>
+      <div class="t" data-ed="part1/05-regression-vs-classification.html:2">Two tasks, two error measures</div>
+      <div class="hint" data-ed="part1/05-regression-vs-classification.html:3">switch tasks</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -842,7 +842,7 @@ section.tabpanel{padding:2.6rem 0 0}
             <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
             (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup>
           </div>
-          <p class="notecap">The average squared miss. Squaring means one wild error costs far more than several small ones. It also means the units are <span class="m">y</span> squared, which is why we often report the square root instead.</p>
+          <p class="notecap" data-ed="part1/05-regression-vs-classification.html:4">The average squared miss. Squaring means one wild error costs far more than several small ones. It also means the units are <span class="m">y</span> squared, which is why we often report the square root instead.</p>
         </div>
         <div id="rcClsBox" style="display:none">
           <div class="eq tight" style="margin-top:0">
@@ -851,26 +851,26 @@ section.tabpanel{padding:2.6rem 0 0}
             <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
             <span class="mu">&#120128;</span>(<span class="m">y<sub>i</sub></span> = <span class="m"><span class="hat">y</span><sub>i</sub></span>)
           </div>
-          <p class="notecap">The proportion we got right. <span class="mu">&#120128;</span> is 1 when the prediction matches and 0 when it does not.</p>
+          <p class="notecap" data-ed="part1/05-regression-vs-classification.html:5">The proportion we got right. <span class="mu">&#120128;</span> is 1 when the prediction matches and 0 when it does not.</p>
         </div>
         <div class="stats" id="rcStats"></div>
       </div>
     </div>
   </div>
 
-  <div class="warn">
+  <div class="warn" data-ed="part1/05-regression-vs-classification.html:6">
     <b>Accuracy lies when classes are unbalanced.</b> If 5&#37; of our cohort has the disease, a model that answers &ldquo;healthy&rdquo; every time scores 95&#37; accuracy and has learned nothing. Drag the slider below and watch a useless model look excellent.
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The always-healthy classifier</div>
-      <div class="hint">a model with no inputs at all</div>
+      <div class="t" data-ed="part1/05-regression-vs-classification.html:7">The always-healthy classifier</div>
+      <div class="hint" data-ed="part1/05-regression-vs-classification.html:8">a model with no inputs at all</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvBal" class="cv" height="180"></canvas>
-        <p class="notecap">Every square is a subject. This &ldquo;model&rdquo; predicts <em>healthy</em> for all of them, always.</p>
+        <p class="notecap" data-ed="part1/05-regression-vs-classification.html:9">Every square is a subject. This &ldquo;model&rdquo; predicts <em>healthy</em> for all of them, always.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -881,7 +881,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat model"><span class="k">accuracy</span><span class="val" id="balAcc">&mdash;</span></div>
           <div class="stat error"><span class="k">patients found (recall)</span><span class="val" id="balRec">0&#37;</span></div>
         </div>
-        <p class="notecap">Accuracy climbs toward 99&#37; while the model catches exactly zero patients. Always report a measure that can see the class we actually care about.</p>
+        <p class="notecap" data-ed="part1/05-regression-vs-classification.html:10">Accuracy climbs toward 99&#37; while the model catches exactly zero patients. Always report a measure that can see the class we actually care about.</p>
       </div>
     </div>
   </div>
@@ -889,19 +889,19 @@ section.tabpanel{padding:2.6rem 0 0}
 
 <!-- ==================== 06 ==================== -->
 <section id="s6">
-  <div class="shead"><div class="num">05</div><h2>Look before you model</h2></div>
+  <div class="shead"><div class="num">05</div><h2 data-ed="part1/06-look-before-you-model.html:0">Look before you model</h2></div>
   <div class="prose">
-    <p>Exploratory data analysis is not a warm-up. It is where we find out that a sensor was disconnected for subject 12, that age and scanner site are confounded, or that our &ldquo;continuous&rdquo; variable is really four discrete values.</p>
-    <p>Two habits are worth building now.</p>
+    <p data-ed="part1/06-look-before-you-model.html:1">Exploratory data analysis is not a warm-up. It is where we find out that a sensor was disconnected for subject 12, that age and scanner site are confounded, or that our &ldquo;continuous&rdquo; variable is really four discrete values.</p>
+    <p data-ed="part1/06-look-before-you-model.html:2">Two habits are worth building now.</p>
 
-    <h3>Know what a correlation looks like</h3>
-    <p>Neuroscience papers are full of <span class="m">r</span> = 0.3. Most of us picture a much tighter cloud than that. Calibrate your eye:</p>
+    <h3 data-ed="part1/06-look-before-you-model.html:3">Know what a correlation looks like</h3>
+    <p data-ed="part1/06-look-before-you-model.html:4">Neuroscience papers are full of <span class="m">r</span> = 0.3. Most of us picture a much tighter cloud than that. Calibrate your eye:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">What does <span class="m">r</span> = 0.3 look like?</div>
-      <div class="hint">drag through the whole range</div>
+      <div class="t" data-ed="part1/06-look-before-you-model.html:5">What does <span class="m">r</span> = 0.3 look like?</div>
+      <div class="hint" data-ed="part1/06-look-before-you-model.html:6">drag through the whole range</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -918,21 +918,21 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat model"><span class="k"><span class="m">r</span><sup>2</sup>: variance explained</span><span class="val" id="corrR2">&mdash;</span></div>
         </div>
         <div class="btnrow"><button class="btn" id="corrNew">new sample</button></div>
-        <p class="notecap">At <span class="m">r</span> = 0.3 the model accounts for 9&#37; of the variance in <span class="m">y</span>. The cloud looks close to round, and it should.</p>
+        <p class="notecap" data-ed="part1/06-look-before-you-model.html:7">At <span class="m">r</span> = 0.3 the model accounts for 9&#37; of the variance in <span class="m">y</span>. The cloud looks close to round, and it should.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <h3>Never trust a summary statistic on its own</h3>
-    <p>These four datasets share the same mean <span class="m">x</span>, the same mean <span class="m">y</span>, the same variances, the same correlation, and the same fitted line, to two decimal places.
+    <h3 data-ed="part1/06-look-before-you-model.html:8">Never trust a summary statistic on its own</h3>
+    <p data-ed="part1/06-look-before-you-model.html:9">These four datasets share the same mean <span class="m">x</span>, the same mean <span class="m">y</span>, the same variances, the same correlation, and the same fitted line, to two decimal places.
       <br>Anscombe built them in 1973 to make exactly this point, and it has not aged a day.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Anscombe&rsquo;s quartet</div>
-      <div class="hint">identical statistics, four different stories</div>
+      <div class="t" data-ed="part1/06-look-before-you-model.html:10">Anscombe&rsquo;s quartet</div>
+      <div class="hint" data-ed="part1/06-look-before-you-model.html:11">identical statistics, four different stories</div>
     </div>
     <div class="panel-body">
       <div class="panel-quad">
@@ -945,18 +945,18 @@ section.tabpanel{padding:2.6rem 0 0}
       <div class="tblwrap" style="margin-top:1rem">
         <table class="tbl" id="ansTbl"></table>
       </div>
-      <p class="notecap">I: a real linear relationship. II: a curve, badly served by a line. III: a perfect line plus one outlier that tilts it. IV: no relationship at all, plus one point with total leverage.</p>
+      <p class="notecap" data-ed="part1/06-look-before-you-model.html:12">I: a real linear relationship. II: a curve, badly served by a line. III: a perfect line plus one outlier that tilts it. IV: no relationship at all, plus one point with total leverage.</p>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>Plot the data. Then plot the residuals. Two summary numbers and a <span class="m">p</span>-value cannot tell any of these four apart.</p>
+    <div class="lbl" data-ed="part1/06-look-before-you-model.html:13">Key idea</div>
+    <p data-ed="part1/06-look-before-you-model.html:14">Plot the data. Then plot the residuals. Two summary numbers and a <span class="m">p</span>-value cannot tell any of these four apart.</p>
   </div>
   <div class="crosslink">
     <div>
-      <div class="cl-t">Part 2: Linear regression</div>
-      <p class="cl-d">The linear model, least squares, the OLS derivation, R&sup2;, and what small samples do to all of it.</p>
+      <div class="cl-t" data-ed="part1/06-look-before-you-model.html:15">Part 2: Linear regression</div>
+      <p class="cl-d" data-ed="part1/06-look-before-you-model.html:16">The linear model, least squares, the OLS derivation, R&sup2;, and what small samples do to all of it.</p>
     </div>
     <a href="https://claude.ai/code/artifact/26a2f573-b6e2-40b6-ad0f-83d17b0c0305" data-local="class1_part2_linear_regression.html">Continue &rarr;</a>
   </div>
@@ -1461,6 +1461,9 @@ var TABS = (function(){
   document.addEventListener("keydown", function(e){
     var t = (e.target && e.target.tagName) || "";
     if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
+    /* arrow keys move the caret, not the tab, while a block is being typed
+       into under edit.py */
+    if (e.target && e.target.isContentEditable) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "ArrowRight"){ e.preventDefault(); show(cur+1, true); }
     else if (e.key === "ArrowLeft"){ e.preventDefault(); show(cur-1, true); }

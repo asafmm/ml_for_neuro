@@ -616,10 +616,10 @@ section.tabpanel{padding:2.6rem 0 0}
 
 <!-- ==================== 21 ==================== -->
 <section id="s21">
-  <div class="shead"><div class="num">01</div><h2>Interaction with a group</h2></div>
+  <div class="shead"><div class="num">01</div><h2 data-ed="part3/01-interaction-with-a-group.html:0">Interaction with a group</h2></div>
   <div class="prose">
-    <p>Last class every predictor was a continuous number. Plenty are not: sex, diagnosis, scanner site, task condition.</p>
-    <p>For example, a two-category variable becomes a <strong>"dummy variable"</strong>: one column that is 0 or 1.</p>
+    <p data-ed="part3/01-interaction-with-a-group.html:1">Last class every predictor was a continuous number. Plenty are not: sex, diagnosis, scanner site, task condition.</p>
+    <p data-ed="part3/01-interaction-with-a-group.html:2">For example, a two-category variable becomes a <strong>"dummy variable"</strong>: one column that is 0 or 1.</p>
   </div>
 
   <div class="eq">
@@ -631,10 +631,10 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>With <span class="m">k</span> categories we need <span class="m">k</span> &minus; 1 dummie (and not <span class="m">k</span>). 
+    <p data-ed="part3/01-interaction-with-a-group.html:3">With <span class="m">k</span> categories we need <span class="m">k</span> &minus; 1 dummie (and not <span class="m">k</span>). 
     <br>Three sites take two columns, and the category left out becomes the <strong>baseline</strong>: the one <span class="m">&beta;<sub>0</sub></span> describes. 
     <br>Adding the third column would let the model write the same prediction in infinitely many ways, and there would be no unique answer to solve for.</p>
-    <p>Now put the dummy next to a continuous predictor. There are three models we could write:</p>
+    <p data-ed="part3/01-interaction-with-a-group.html:4">Now put the dummy next to a continuous predictor. There are three models we could write:</p>
   </div>
 
   <div class="eq">
@@ -644,19 +644,19 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Read model 3 by substituting the two values of <span class="m">d</span>:</p>
+    <p data-ed="part3/01-interaction-with-a-group.html:5">Read model 3 by substituting the two values of <span class="m">d</span>:</p>
     <ul>
-      <li>Male, <span class="m">d</span> = 0: &nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span></li>
-      <li>Female, <span class="m">d</span> = 1: &nbsp;<span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span>) + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span>)<span class="m">x</span></li>
+      <li data-ed="part3/01-interaction-with-a-group.html:6">Male, <span class="m">d</span> = 0: &nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span></li>
+      <li data-ed="part3/01-interaction-with-a-group.html:7">Female, <span class="m">d</span> = 1: &nbsp;<span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span>) + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span>)<span class="m">x</span></li>
     </ul>
-    <p><span class="m">&beta;<sub>2</sub></span> shifts one up or down, and <span class="m">&beta;<sub>3</sub></span> tilts it. 
+    <p data-ed="part3/01-interaction-with-a-group.html:8"><span class="m">&beta;<sub>2</sub></span> shifts one up or down, and <span class="m">&beta;<sub>3</sub></span> tilts it. 
       <br>That tilt is the <strong>interaction</strong>: the effect of age on memory is not the same in the two groups.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">One line, two parallel lines, or two free lines</div>
-      <div class="hint">change how different the groups really are</div>
+      <div class="t" data-ed="part3/01-interaction-with-a-group.html:9">One line, two parallel lines, or two free lines</div>
+      <div class="hint" data-ed="part3/01-interaction-with-a-group.html:10">change how different the groups really are</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -682,17 +682,17 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="ixStats"></div>
         <div class="btnrow"><button class="btn" id="ixNew">new cohort</button></div>
-        <p class="notecap">Set the slope difference to zero and model 3 stops earning its extra parameter: the two lines come out parallel, and <span class="m">&beta;<sub>3</sub></span> is just noise.</p>
+        <p class="notecap" data-ed="part3/01-interaction-with-a-group.html:11">Set the slope difference to zero and model 3 stops earning its extra parameter: the two lines come out parallel, and <span class="m">&beta;<sub>3</sub></span> is just noise.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>Without the interaction term, the model is forced to give both groups the same slope. It can move the lines apart but never let them converge or cross. If the groups really do differ in slope, that constraint shows up as a systematic pattern in the residuals.</p>
+    <div class="lbl" data-ed="part3/01-interaction-with-a-group.html:12">Key idea</div>
+    <p data-ed="part3/01-interaction-with-a-group.html:13">Without the interaction term, the model is forced to give both groups the same slope. It can move the lines apart but never let them converge or cross. If the groups really do differ in slope, that constraint shows up as a systematic pattern in the residuals.</p>
   </div>
 
-  <div class="warn">
+  <div class="warn" data-ed="part3/01-interaction-with-a-group.html:14">
     <b>A significant interaction changes how the other coefficients read.</b> In model 3, <span class="m">&beta;<sub>1</sub></span> is no longer &ldquo;the effect of age&rdquo;. It is the effect of age <em>in the baseline group only</em>, and <span class="m">&beta;<sub>2</sub></span> is the group gap <em>at <span class="m">x</span> = 0</em>. 
     <br>We usually center the predictors (subtract the mean) so that <span class="m">&beta;<sub>2</sub></span> becomes the group gap at the mean age instead of age 0.
   </div>
@@ -700,9 +700,9 @@ section.tabpanel{padding:2.6rem 0 0}
 
 <!-- ==================== 22 ==================== -->
 <section id="s22">
-  <div class="shead"><div class="num">02</div><h2>Two continuous predictors</h2></div>
+  <div class="shead"><div class="num">02</div><h2 data-ed="part3/02-two-continuous.html:0">Two continuous predictors</h2></div>
   <div class="prose">
-    <p>Not only categorical variables can interact. Multiply two continuous predictors together and the same thing happens, only now the moderator varies smoothly instead of switching between two values.</p>
+    <p data-ed="part3/02-two-continuous.html:1">Not only categorical variables can interact. Multiply two continuous predictors together and the same thing happens, only now the moderator varies smoothly instead of switching between two values.</p>
   </div>
 
   <div class="eq">
@@ -713,7 +713,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>The trick from the previous tab still works. Collect the <span class="m">x<sub>1</sub></span> terms together:</p>
+    <p data-ed="part3/02-two-continuous.html:2">The trick from the previous tab still works. Collect the <span class="m">x<sub>1</sub></span> terms together:</p>
   </div>
 
   <div class="eq">
@@ -722,15 +722,15 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Read it as a line in <span class="m">x<sub>1</sub></span> whose slope is itself a straight-line function of <span class="m">x<sub>2</sub></span>.
+    <p data-ed="part3/02-two-continuous.html:3">Read it as a line in <span class="m">x<sub>1</sub></span> whose slope is itself a straight-line function of <span class="m">x<sub>2</sub></span>.
       <br>Every value of <span class="m">x<sub>2</sub></span> gives a different line, so instead of two lines we get a whole family of them. With <span class="m">&beta;<sub>3</sub></span> = 0 the family is parallel. Turn <span class="m">&beta;<sub>3</sub></span> up and it fans out.</p>
-    <p>Below, sleep predicts a memory score, and age is the moderator: an interaction means a night of sleep is worth more to some ages than to others.</p>
+    <p data-ed="part3/02-two-continuous.html:4">Below, sleep predicts a memory score, and age is the moderator: an interaction means a night of sleep is worth more to some ages than to others.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">A family of lines, one per age</div>
-      <div class="hint">turn the interaction on and watch them fan out</div>
+      <div class="t" data-ed="part3/02-two-continuous.html:5">A family of lines, one per age</div>
+      <div class="hint" data-ed="part3/02-two-continuous.html:6">turn the interaction on and watch them fan out</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -744,49 +744,49 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="fanB3" min="-40" max="40" value="0" step="1">
         </div>
         <div class="stats" id="fanStats"></div>
-        <p class="notecap">Each line is the model evaluated at one age, holding age fixed and sweeping sleep. The slope of each line is <span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>2</sub></span>, printed beside it.</p>
+        <p class="notecap" data-ed="part3/02-two-continuous.html:7">Each line is the model evaluated at one age, holding age fixed and sweeping sleep. The slope of each line is <span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>2</sub></span>, printed beside it.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p>The same model as a surface. Without the interaction it is the flat plane from last class. With it, the plane acquires a twist: a <strong>saddle</strong>, high at two opposite corners and low at the other two.</p>
+    <p data-ed="part3/02-two-continuous.html:8">The same model as a surface. Without the interaction it is the flat plane from last class. With it, the plane acquires a twist: a <strong>saddle</strong>, high at two opposite corners and low at the other two.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The surface that fan describes</div>
-      <div class="hint">drag to turn it</div>
+      <div class="t" data-ed="part3/02-two-continuous.html:9">The surface that fan describes</div>
+      <div class="hint" data-ed="part3/02-two-continuous.html:10">drag to turn it</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvSaddle" class="cv drag" height="360"></canvas>
-        <p class="notecap">Straight along either axis, curved along the diagonals. Every line you can draw on it parallel to an axis is still straight, which is why this is still a <em>linear</em> model.</p>
+        <p class="notecap" data-ed="part3/02-two-continuous.html:11">Straight along either axis, curved along the diagonals. Every line you can draw on it parallel to an axis is still straight, which is why this is still a <em>linear</em> model.</p>
       </div>
       <div class="ctl">
         <div id="saddleLayers"></div>
         <div class="btnrow" style="margin-top:.9rem"><button class="btn" id="saddleReset">reset the view</button></div>
-        <p class="notecap">&ldquo;Linear&rdquo; has always meant linear in the <em>coefficients</em>, not in the predictors. <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> is just another column in <span class="m">X</span>, so least squares solves it with exactly the same normal equations.</p>
+        <p class="notecap" data-ed="part3/02-two-continuous.html:12">&ldquo;Linear&rdquo; has always meant linear in the <em>coefficients</em>, not in the predictors. <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> is just another column in <span class="m">X</span>, so least squares solves it with exactly the same normal equations.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>An interaction is not a new kind of model. It is one more column, built by multiplying two columns we already had. Everything from last class still applies: the same RSS, the same derivation, the same solution.</p>
+    <div class="lbl" data-ed="part3/02-two-continuous.html:13">Key idea</div>
+    <p data-ed="part3/02-two-continuous.html:14">An interaction is not a new kind of model. It is one more column, built by multiplying two columns we already had. Everything from last class still applies: the same RSS, the same derivation, the same solution.</p>
   </div>
 
-  <div class="warn">
+  <div class="warn" data-ed="part3/02-two-continuous.html:15">
     <b>Keep the main effects.</b> The convention is to include both main effects whenever their interaction is in the model, even if one of them looks unimpressive on its own. In other words, when fitting <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>, we also fit <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span> and <span class="m">&beta;<sub>2</sub></span><span class="m">x<sub>2</sub></span>. 
   </div>
 </section>
 
 <!-- ==================== 26 ==================== -->
 <section id="s26">
-  <div class="shead"><div class="num">03</div><h2>Nonlinearity in a linear model</h2></div>
+  <div class="shead"><div class="num">03</div><h2 data-ed="part3/03-nonlinear.html:0">Nonlinearity in a linear model</h2></div>
   <div class="prose">
-    <p>Despite what their name suggests, linear models also allow us capture non-linear relationships.</p>
-    <p>For example, we can square a predictor and use it as a column of its own:</p>
+    <p data-ed="part3/03-nonlinear.html:1">Despite what their name suggests, linear models also allow us capture non-linear relationships.</p>
+    <p data-ed="part3/03-nonlinear.html:2">For example, we can square a predictor and use it as a column of its own:</p>
   </div>
 
   <div class="eq">
@@ -796,14 +796,14 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>This is still a linear model, and least squares solves it just as before. Linear model means it is linear in the <span class="m">&beta;</span>, and <span class="m">x</span><sup>2</sup> is just a number we computed from data we already had.</p>
-    <p>The data below is real: 3000 workers in the Mid-Atlantic region, from the <em>Wage</em> dataset in Chapter 7 of the course textbook. Wage rises through early career and falls again toward retirement, which is not linear of course.</p>
+    <p data-ed="part3/03-nonlinear.html:3">This is still a linear model, and least squares solves it just as before. Linear model means it is linear in the <span class="m">&beta;</span>, and <span class="m">x</span><sup>2</sup> is just a number we computed from data we already had.</p>
+    <p data-ed="part3/03-nonlinear.html:4">The data below is real: 3000 workers in the Mid-Atlantic region, from the <em>Wage</em> dataset in Chapter 7 of the course textbook. Wage rises through early career and falls again toward retirement, which is not linear of course.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Wage against age, 3000 real workers</div>
-      <div class="hint">add one power at a time</div>
+      <div class="t" data-ed="part3/03-nonlinear.html:5">Wage against age, 3000 real workers</div>
+      <div class="hint" data-ed="part3/03-nonlinear.html:6">add one power at a time</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -817,27 +817,27 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="wageD" min="1" max="6" value="1" step="1">
         </div>
         <div class="stats" id="wageStats"></div>
-        <p class="notecap">Source: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning</em>. Wages are in thousands of dollars per year, rounded to the nearest hundred dollars.</p>
+        <p class="notecap" data-ed="part3/03-nonlinear.html:7">Source: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning</em>. Wages are in thousands of dollars per year, rounded to the nearest hundred dollars.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>Going from a line to a parabola more than doubles R<sup>2</sup> here, and it is the only jump that matters: degrees 3, 4 and 5 barely move it. One well-chosen column bought the whole improvement.</p>
+    <div class="lbl" data-ed="part3/03-nonlinear.html:8">Key idea</div>
+    <p data-ed="part3/03-nonlinear.html:9">Going from a line to a parabola more than doubles R<sup>2</sup> here, and it is the only jump that matters: degrees 3, 4 and 5 barely move it. One well-chosen column bought the whole improvement.</p>
   </div>
 
-  <div class="warn">
+  <div class="warn" data-ed="part3/03-nonlinear.html:10">
     <b>Read the coefficients with care.</b> With <span class="m">x</span> and <span class="m">x</span><sup>2</sup> both in the model, <span class="m">&beta;<sub>1</sub></span> is no longer &ldquo;the effect of age&rdquo;. The effect of one more year is <span class="m">&beta;<sub>1</sub></span> + 2<span class="m">&beta;<sub>2</sub></span><span class="m">x</span> (the derivative w.r.t <span class="m">x</span>), so it depends on how old you already are. That is the same thing an interaction does, with <span class="m">x</span> moderating itself.
   </div>
 </section>
 
 <!-- ==================== 23 ==================== -->
 <section id="s23">
-  <div class="shead"><div class="num">04</div><h2>K-nearest-neighbours regression</h2></div>
+  <div class="shead"><div class="num">04</div><h2 data-ed="part3/04-knn-regression.html:0">K-nearest-neighbours regression</h2></div>
   <div class="prose">
-    <p>Every model so far assumed a shape (linearity, quadratic, etc.) and then estimated its coefficients. KNN assumes much less.</p>
-    <p>To predict at a point <span class="m">x<sub>0</sub></span>: find the <span class="m">K</span> training points closest to it, and average their <span class="m">y</span>.</p>
+    <p data-ed="part3/04-knn-regression.html:1">Every model so far assumed a shape (linearity, quadratic, etc.) and then estimated its coefficients. KNN assumes much less.</p>
+    <p data-ed="part3/04-knn-regression.html:2">To predict at a point <span class="m">x<sub>0</sub></span>: find the <span class="m">K</span> training points closest to it, and average their <span class="m">y</span>.</p>
   </div>
 
   <div class="eq">
@@ -848,15 +848,15 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Where <span class="m">N<sub>0</sub></span> is the "neighborhood" of the point <span class="m">x<sub>0</sub></span>, and is defined as the <span class="m">K</span> training points closest to it.</p>
-    <p>That is the whole method, the model <em>is</em> the data, and we just average outcomes based on distances. Methods like this are called <strong>non-parametric</strong>, because the number of things they remember grows with <span class="m">n</span> instead of being fixed at <span class="m">p</span> + 1 parameters (like <span class="m">&beta;</span> in linear models).</p>
-    <p><span class="m">K</span> controls how much smoothing happens. <span class="m">K</span> = 1 copies the nearest neighbour exactly (very noisy). Large <span class="m">K</span> averages over a wide neighbourhood and as <span class="m">K</span> reaches <span class="m">n</span>, the prediction becomes the overall mean.</p>
+    <p data-ed="part3/04-knn-regression.html:3">Where <span class="m">N<sub>0</sub></span> is the "neighborhood" of the point <span class="m">x<sub>0</sub></span>, and is defined as the <span class="m">K</span> training points closest to it.</p>
+    <p data-ed="part3/04-knn-regression.html:4">That is the whole method, the model <em>is</em> the data, and we just average outcomes based on distances. Methods like this are called <strong>non-parametric</strong>, because the number of things they remember grows with <span class="m">n</span> instead of being fixed at <span class="m">p</span> + 1 parameters (like <span class="m">&beta;</span> in linear models).</p>
+    <p data-ed="part3/04-knn-regression.html:5"><span class="m">K</span> controls how much smoothing happens. <span class="m">K</span> = 1 copies the nearest neighbour exactly (very noisy). Large <span class="m">K</span> averages over a wide neighbourhood and as <span class="m">K</span> reaches <span class="m">n</span>, the prediction becomes the overall mean.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">KNN against a straight line</div>
-      <div class="hint">switch the truth between linear and curved</div>
+      <div class="t" data-ed="part3/04-knn-regression.html:6">KNN against a straight line</div>
+      <div class="hint" data-ed="part3/04-knn-regression.html:7">switch the truth between linear and curved</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -886,22 +886,22 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>When the truth really is a line, linear regression is better and no value of <span class="m">K</span> catches it. When the truth is a curve, the linear assumption doesn't hold and KNN performs better.</p>
+    <div class="lbl" data-ed="part3/04-knn-regression.html:8">Key idea</div>
+    <p data-ed="part3/04-knn-regression.html:9">When the truth really is a line, linear regression is better and no value of <span class="m">K</span> catches it. When the truth is a curve, the linear assumption doesn't hold and KNN performs better.</p>
   </div>
 
 
   <div class="prose">
-    <h3>What a neighbourhood actually looks like</h3>
-    <p>With one predictor the neighbours are just the points to the left and right, but usually we have more than one predictor. 
+    <h3 data-ed="part3/04-knn-regression.html:10">What a neighbourhood actually looks like</h3>
+    <p data-ed="part3/04-knn-regression.html:11">With one predictor the neighbours are just the points to the left and right, but usually we have more than one predictor. 
     <br>With two predictors, a neighbourhood is a circle/disc, and the prediction is the average <span class="m">y</span> of whatever falls inside it.</p>
-    <p>Click anywhere in the panel to move the query point.</p>
+    <p data-ed="part3/04-knn-regression.html:12">Click anywhere in the panel to move the query point.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The neighbourhood, and what it predicts</div>
-      <div class="hint">click anywhere to move the query point</div>
+      <div class="t" data-ed="part3/04-knn-regression.html:13">The neighbourhood, and what it predicts</div>
+      <div class="hint" data-ed="part3/04-knn-regression.html:14">click anywhere to move the query point</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -915,7 +915,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="nbKs" min="1" max="30" value="8" step="1">
         </div>
         <div class="stats" id="nbrStats"></div>
-        <p class="notecap">Colour is the outcome <span class="m">y</span>: pale for low, dark for high, on the scale beside the plot. The arrow on that scale is the current prediction.
+        <p class="notecap" data-ed="part3/04-knn-regression.html:15">Colour is the outcome <span class="m">y</span>: pale for low, dark for high, on the scale beside the plot. The arrow on that scale is the current prediction.
           <br>Switch on the prediction surface to see what the model says <em>everywhere</em>, not just where you clicked. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point, and raising <span class="m">K</span> blurs them together.</p>
       </div>
     </div>
@@ -923,13 +923,13 @@ section.tabpanel{padding:2.6rem 0 0}
 
 
   <div class="prose">
-    <p>We can also view this in 3D with <span class="m">y</span> as height. Now what KNN is really doing becomes more clear: it returns one number for a whole neighbourhood, so the surface is a staircase, instead of a smooth slope in linear regression.</p>
+    <p data-ed="part3/04-knn-regression.html:16">We can also view this in 3D with <span class="m">y</span> as height. Now what KNN is really doing becomes more clear: it returns one number for a whole neighbourhood, so the surface is a staircase, instead of a smooth slope in linear regression.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The same 80 points, with <span class="m">y</span> as height</div>
-      <div class="hint">drag to turn it</div>
+      <div class="t" data-ed="part3/04-knn-regression.html:17">The same 80 points, with <span class="m">y</span> as height</div>
+      <div class="hint" data-ed="part3/04-knn-regression.html:18">drag to turn it</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -944,25 +944,25 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="nbr3Stats"></div>
         <div class="btnrow"><button class="btn" id="nbr3Reset">reset the view</button></div>
-        <p class="notecap">Dots are the observations at their measured height; the tiles are what the model predicts. Start at <span class="m">K</span> = 1, where every tile passes exactly through one dot, and raise <span class="m">K</span> to watch the risers flatten out.</p>
+        <p class="notecap" data-ed="part3/04-knn-regression.html:19">Dots are the observations at their measured height; the tiles are what the model predicts. Start at <span class="m">K</span> = 1, where every tile passes exactly through one dot, and raise <span class="m">K</span> to watch the risers flatten out.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>KNN has no equation and no coefficients. Its prediction surface is built entirely out of the training points, which is why it can follow any shape, and why it has nothing to say about a region where no data landed.</p>
+    <div class="lbl" data-ed="part3/04-knn-regression.html:20">Key idea</div>
+    <p data-ed="part3/04-knn-regression.html:21">KNN has no equation and no coefficients. Its prediction surface is built entirely out of the training points, which is why it can follow any shape, and why it has nothing to say about a region where no data landed.</p>
   </div>
 
   <div class="prose">
-    <h3>The curse of dimensionality</h3>
-    <p>KNN needs neighbours that are genuinely <strong>near</strong>. In one dimension that is easy. But it turns out that as <span class="m">p</span> grows, the space empties out: to capture 10&#37; of the data you need to reach 10&#37; of the range along one axis, 32&#37; along each of two, and 79&#37; along each of ten. The &ldquo;nearest&rdquo; neighbours are no longer near, and the average is taken over points that have little to do with <span class="m">x<sub>0</sub></span>.</p>
+    <h3 data-ed="part3/04-knn-regression.html:22">The curse of dimensionality</h3>
+    <p data-ed="part3/04-knn-regression.html:23">KNN needs neighbours that are genuinely <strong>near</strong>. In one dimension that is easy. But it turns out that as <span class="m">p</span> grows, the space empties out: to capture 10&#37; of the data you need to reach 10&#37; of the range along one axis, 32&#37; along each of two, and 79&#37; along each of ten. The &ldquo;nearest&rdquo; neighbours are no longer near, and the average is taken over points that have little to do with <span class="m">x<sub>0</sub></span>.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The same 100 points, in one, two and three dimensions</div>
-      <div class="hint">drag to turn it</div>
+      <div class="t" data-ed="part3/04-knn-regression.html:24">The same 100 points, in one, two and three dimensions</div>
+      <div class="hint" data-ed="part3/04-knn-regression.html:25">drag to turn it</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -984,24 +984,24 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="curse3Stats"></div>
         <div class="btnrow"><button class="btn" id="cu3Reset">reset the view</button></div>
-        <p class="notecap">The very same 100 points in all three views: lower dimensions simply use fewer of each point&rsquo;s coordinates. Watch them spread from a crowded line, to a square, to a mostly empty cube.</p>
+        <p class="notecap" data-ed="part3/04-knn-regression.html:26">The very same 100 points in all three views: lower dimensions simply use fewer of each point&rsquo;s coordinates. Watch them spread from a crowded line, to a square, to a mostly empty cube.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p>The next plot shows the same thing in a different view. We determine the percentage of data we want to capture, and then ask how far must a neighbourhood reach along each axis.</p>
+    <p data-ed="part3/04-knn-regression.html:27">The next plot shows the same thing in a different view. We determine the percentage of data we want to capture, and then ask how far must a neighbourhood reach along each axis.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">How far must you reach?</div>
-      <div class="hint">for a fixed share of the data</div>
+      <div class="t" data-ed="part3/04-knn-regression.html:28">How far must you reach?</div>
+      <div class="hint" data-ed="part3/04-knn-regression.html:29">for a fixed share of the data</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvCurse" class="cv" height="250"></canvas>
-        <p class="notecap">The side length of the cube needed to enclose a fixed fraction of a uniformly filled space, as dimensions are added.</p>
+        <p class="notecap" data-ed="part3/04-knn-regression.html:30">The side length of the cube needed to enclose a fixed fraction of a uniformly filled space, as dimensions are added.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -1009,35 +1009,35 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="curseF" min="1" max="50" value="10" step="1">
         </div>
         <div class="stats" id="curseStats"></div>
-        <p class="notecap">If you data is high-dimesional, you might need to reach a long way to capture a small fraction of the data, which makes KNN less useful.</p>
+        <p class="notecap" data-ed="part3/04-knn-regression.html:31">If you data is high-dimesional, you might need to reach a long way to capture a small fraction of the data, which makes KNN less useful.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>KNN rests on the assumption that nearby points have similar outcomes. In high dimensions there are no nearby points, so the assumption stops holding and the method degrades.</p>
+    <div class="lbl" data-ed="part3/04-knn-regression.html:32">Key idea</div>
+    <p data-ed="part3/04-knn-regression.html:33">KNN rests on the assumption that nearby points have similar outcomes. In high dimensions there are no nearby points, so the assumption stops holding and the method degrades.</p>
   </div>
 
 </section>
 
 <!-- ==================== 24 ==================== -->
 <section id="s24">
-  <div class="shead"><div class="num">05</div><h2>Bias and variance</h2></div>
+  <div class="shead"><div class="num">05</div><h2 data-ed="part3/05-bias-variance.html:0">Bias and variance</h2></div>
   <div class="prose">
-    <p>As a model gets more flexible, it can fit the data better, but it does not mean it will predict well on new data.</p>
-    <p>Imagine repeating the whole study many times: the same population, the same design, but a fresh sample each time. Every sample gives a slightly different fitted model. Two separate things can go wrong:</p>
+    <p data-ed="part3/05-bias-variance.html:1">As a model gets more flexible, it can fit the data better, but it does not mean it will predict well on new data.</p>
+    <p data-ed="part3/05-bias-variance.html:2">Imagine repeating the whole study many times: the same population, the same design, but a fresh sample each time. Every sample gives a slightly different fitted model. Two separate things can go wrong:</p>
     <ul>
-      <li><strong>Bias</strong> is how far the <em>average</em> of those fits sits from the truth. It is the error the model makes by being the wrong shape (i.e., linear when it should be quadratic), and more data will not remove it.</li>
-      <li><strong>Variance</strong> is how much the fits differ from each other given different samples (i.e., how much the model fit reacts to noise in the data).</li>
+      <li data-ed="part3/05-bias-variance.html:3"><strong>Bias</strong> is how far the <em>average</em> of those fits sits from the truth. It is the error the model makes by being the wrong shape (i.e., linear when it should be quadratic), and more data will not remove it.</li>
+      <li data-ed="part3/05-bias-variance.html:4"><strong>Variance</strong> is how much the fits differ from each other given different samples (i.e., how much the model fit reacts to noise in the data).</li>
     </ul>
-    <p>Below, the study and the model training are repeated 30 times at whatever flexibility you choose. The measurements are noisy, as real ones are, which is what gives a flexible model something to fit.</p>
+    <p data-ed="part3/05-bias-variance.html:5">Below, the study and the model training are repeated 30 times at whatever flexibility you choose. The measurements are noisy, as real ones are, which is what gives a flexible model something to fit.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">Thirty samples, thirty fits</div>
-      <div class="hint">slide flexibility from too little to far too much</div>
+      <div class="t" data-ed="part3/05-bias-variance.html:6">Thirty samples, thirty fits</div>
+      <div class="hint" data-ed="part3/05-bias-variance.html:7">slide flexibility from too little to far too much</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1055,37 +1055,37 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="bvN" min="25" max="120" value="40" step="1">
         </div>
         <div class="stats" id="bvStats"></div>
-        <p class="notecap">Measured at 300 held-out subjects. Train MSE is the error on a sample&rsquo;s own points: the only one of the six you could compute in a real study.
+        <p class="notecap" data-ed="part3/05-bias-variance.html:8">Measured at 300 held-out subjects. Train MSE is the error on a sample&rsquo;s own points: the only one of the six you could compute in a real study.
           <br>Switch on the points to see what one study actually has to work with.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p>Start with what a real study gives you. One sample, one fitted model, and two numbers: the error on the sample&rsquo;s own points, and the error on subjects in the test set.</p>
+    <p data-ed="part3/05-bias-variance.html:9">Start with what a real study gives you. One sample, one fitted model, and two numbers: the error on the sample&rsquo;s own points, and the error on subjects in the test set.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The only two curves you could ever measure</div>
-      <div class="hint">the dashed line marks your current degree</div>
+      <div class="t" data-ed="part3/05-bias-variance.html:10">The only two curves you could ever measure</div>
+      <div class="hint" data-ed="part3/05-bias-variance.html:11">the dashed line marks your current degree</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvBVgap" class="cv" height="210"></canvas>
         <div id="bvzLayers"></div>
-        <p class="notecap">Train error falls at every single degree. Nothing in it ever tells you to stop.</p>
+        <p class="notecap" data-ed="part3/05-bias-variance.html:12">Train error falls at every single degree. Nothing in it ever tells you to stop.</p>
       </div>
       <div class="ctl">
         <div class="stats" id="bvcStats"></div>
-        <p class="notecap">The shaded band is the difference between the train and test errors, showing the difference between underfitting and overfitting.
+        <p class="notecap" data-ed="part3/05-bias-variance.html:13">The shaded band is the difference between the train and test errors, showing the difference between underfitting and overfitting.
         </p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p>But why does the test error boosts up and the train goes down? That's the bias-variance tradeoff.</p>
+    <p data-ed="part3/05-bias-variance.html:14">But why does the test error boosts up and the train goes down? That's the bias-variance tradeoff.</p>
   </div>
 
   <div class="eq">
@@ -1096,77 +1096,77 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p>Three terms, and only the first two are ours to trade. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
-    <p>The two we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
+    <p data-ed="part3/05-bias-variance.html:15">Three terms, and only the first two are ours to trade. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
+    <p data-ed="part3/05-bias-variance.html:16">The two we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t">The trade, drawn out</div>
-      <div class="hint">the dashed line marks your current degree</div>
+      <div class="t" data-ed="part3/05-bias-variance.html:17">The trade, drawn out</div>
+      <div class="hint" data-ed="part3/05-bias-variance.html:18">the dashed line marks your current degree</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvBVcurve" class="cv" height="300"></canvas>
         <div id="bvcLayers"></div>
-        <p class="notecap">Bias falls, variance rises, their sum is U-shaped. Log scale: equal distances are equal ratios.</p>
+        <p class="notecap" data-ed="part3/05-bias-variance.html:19">Bias falls, variance rises, their sum is U-shaped. Log scale: equal distances are equal ratios.</p>
       </div>
       <div class="ctl">
-        <p class="notecap">More subjects lower variance at every degree, so the sweet spot moves right.
+        <p class="notecap" data-ed="part3/05-bias-variance.html:20">More subjects lower variance at every degree, so the sweet spot moves right.
           <br>Switch on the summed curve: it lands on the measured test MSE, to within Monte Carlo error.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl">Key idea</div>
-    <p>A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost you, and the cost is measured on data the model has not seen.</p>
+    <div class="lbl" data-ed="part3/05-bias-variance.html:21">Key idea</div>
+    <p data-ed="part3/05-bias-variance.html:22">A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost you, and the cost is measured on data the model has not seen.</p>
   </div>
 
-  <div class="warn">
+  <div class="warn" data-ed="part3/05-bias-variance.html:23">
     <b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many samples, and in a real study you have neither. You have one sample and the train MSE, which is the blue curve here: it falls forever and would talk you into the most flexible model on offer. A test set is what stands in for the red curve.
   </div>
 </section>
 
 <!-- ==================== 25 ==================== -->
 <section id="s25">
-  <div class="shead"><div class="num">06</div><h2>Glossary</h2></div>
+  <div class="shead"><div class="num">06</div><h2 data-ed="part3/06-glossary.html:0">Glossary</h2></div>
   <div class="prose">
-    <p>Everything introduced today, on top of the class 1 glossary.</p>
+    <p data-ed="part3/06-glossary.html:1">Everything introduced today, on top of the class 1 glossary.</p>
   </div>
 
   <div class="gloss">
-    <div class="gitem"><div class="gt">dummy</div><div class="gd">A 0/1 column standing for one category. <span class="m">k</span> categories need <span class="m">k</span> &minus; 1 of them.</div></div>
-    <div class="gitem"><div class="gt">baseline</div><div class="gd">The category left without a dummy. <span class="m">&beta;<sub>0</sub></span> describes it, and every other coefficient is a difference from it.</div></div>
-    <div class="gitem"><div class="gt">main effect</div><div class="gd">A predictor&rsquo;s own term, <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>, as opposed to its interaction.</div></div>
-    <div class="gitem"><div class="gt">interaction</div><div class="gd">A product column <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>. It lets the effect of one predictor depend on the value of another.</div></div>
-    <div class="gitem"><div class="gt">moderator</div><div class="gd">The predictor doing the changing. In <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> either one can be read as the moderator.</div></div>
-    <div class="gitem"><div class="gt">polynomial<br>regression</div><div class="gd">Adding <span class="m">x</span><sup>2</sup>, <span class="m">x</span><sup>3</sup> and so on as extra columns. Still a linear model.</div></div>
-    <div class="gitem"><div class="gt">parametric</div><div class="gd">A model with a fixed number of coefficients, chosen in advance. Linear regression is parametric.</div></div>
-    <div class="gitem"><div class="gt">non-parametric</div><div class="gd">A model that keeps the data instead of summarising it. KNN is non-parametric.</div></div>
-    <div class="gitem"><div class="gt">KNN</div><div class="gd">Predict at a point by averaging the <span class="m">y</span> of its <span class="m">K</span> nearest training points.</div></div>
-    <div class="gitem"><div class="gt"><span class="m">K</span></div><div class="gd">How many neighbours to average. Small <span class="m">K</span> is flexible and noisy, large <span class="m">K</span> is smooth and broad.</div></div>
-    <div class="gitem"><div class="gt">curse of dimensionality</div><div class="gd">In many dimensions, the nearest neighbours are not near. Flexible local methods lose their advantage.</div></div>
-    <div class="gitem"><div class="gt">flexibility</div><div class="gd">How many shapes a model can take. Polynomial degree and 1/<span class="m">K</span> are both measures of it.</div></div>
-    <div class="gitem"><div class="gt">bias</div><div class="gd">How far the average fit sits from the truth. The error of being the wrong shape.</div></div>
-    <div class="gitem"><div class="gt">variance</div><div class="gd">How much the fit changes from one sample to the next.</div></div>
-    <div class="gitem"><div class="gt">irreducible error</div><div class="gd">Var(<span class="m">&epsilon;</span>). The floor no model can go below.</div></div>
-    <div class="gitem"><div class="gt">bias-variance<br>tradeoff</div><div class="gd">Flexibility lowers one and raises the other. Test error is smallest where their sum is.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:2">dummy</div><div class="gd" data-ed="part3/06-glossary.html:3">A 0/1 column standing for one category. <span class="m">k</span> categories need <span class="m">k</span> &minus; 1 of them.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:4">baseline</div><div class="gd" data-ed="part3/06-glossary.html:5">The category left without a dummy. <span class="m">&beta;<sub>0</sub></span> describes it, and every other coefficient is a difference from it.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:6">main effect</div><div class="gd" data-ed="part3/06-glossary.html:7">A predictor&rsquo;s own term, <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>, as opposed to its interaction.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:8">interaction</div><div class="gd" data-ed="part3/06-glossary.html:9">A product column <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>. It lets the effect of one predictor depend on the value of another.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:10">moderator</div><div class="gd" data-ed="part3/06-glossary.html:11">The predictor doing the changing. In <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> either one can be read as the moderator.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:12">polynomial<br>regression</div><div class="gd" data-ed="part3/06-glossary.html:13">Adding <span class="m">x</span><sup>2</sup>, <span class="m">x</span><sup>3</sup> and so on as extra columns. Still a linear model.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:14">parametric</div><div class="gd" data-ed="part3/06-glossary.html:15">A model with a fixed number of coefficients, chosen in advance. Linear regression is parametric.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:16">non-parametric</div><div class="gd" data-ed="part3/06-glossary.html:17">A model that keeps the data instead of summarising it. KNN is non-parametric.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:18">KNN</div><div class="gd" data-ed="part3/06-glossary.html:19">Predict at a point by averaging the <span class="m">y</span> of its <span class="m">K</span> nearest training points.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:20"><span class="m">K</span></div><div class="gd" data-ed="part3/06-glossary.html:21">How many neighbours to average. Small <span class="m">K</span> is flexible and noisy, large <span class="m">K</span> is smooth and broad.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:22">curse of dimensionality</div><div class="gd" data-ed="part3/06-glossary.html:23">In many dimensions, the nearest neighbours are not near. Flexible local methods lose their advantage.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:24">flexibility</div><div class="gd" data-ed="part3/06-glossary.html:25">How many shapes a model can take. Polynomial degree and 1/<span class="m">K</span> are both measures of it.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:26">bias</div><div class="gd" data-ed="part3/06-glossary.html:27">How far the average fit sits from the truth. The error of being the wrong shape.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:28">variance</div><div class="gd" data-ed="part3/06-glossary.html:29">How much the fit changes from one sample to the next.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:30">irreducible error</div><div class="gd" data-ed="part3/06-glossary.html:31">Var(<span class="m">&epsilon;</span>). The floor no model can go below.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part3/06-glossary.html:32">bias-variance<br>tradeoff</div><div class="gd" data-ed="part3/06-glossary.html:33">Flexibility lowers one and raises the other. Test error is smallest where their sum is.</div></div>
   </div>
 
 
   <div class="crosslink">
     <div>
-      <div class="cl-t">Class 3: Drawing the line</div>
-      <p class="cl-d">Classification, logistic regression, maximum likelihood, error metrics and the nearest-neighbour classifier.</p>
+      <div class="cl-t" data-ed="part3/06-glossary.html:34">Class 3: Drawing the line</div>
+      <p class="cl-d" data-ed="part3/06-glossary.html:35">Classification, logistic regression, maximum likelihood, error metrics and the nearest-neighbour classifier.</p>
     </div>
     <a href="https://claude.ai/artifact/8TpogMhm4oWyYxvB9UNTNX" data-local="class3_classification.html">On to class 3 &rarr;</a>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t">Class 1: Least squares</div>
-      <p class="cl-d">The linear model, RSS, the OLS derivation, R&sup2;, and the plane for two predictors.</p>
+      <div class="cl-t" data-ed="part3/06-glossary.html:36">Class 1: Least squares</div>
+      <p class="cl-d" data-ed="part3/06-glossary.html:37">The linear model, RSS, the OLS derivation, R&sup2;, and the plane for two predictors.</p>
     </div>
     <a href="https://claude.ai/code/artifact/26a2f573-b6e2-40b6-ad0f-83d17b0c0305" data-local="class1_part2_linear_regression.html">Back to class 1 &rarr;</a>
   </div>
@@ -1677,6 +1677,9 @@ var TABS = (function(){
   document.addEventListener("keydown", function(e){
     var t = (e.target && e.target.tagName) || "";
     if (t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
+    /* arrow keys move the caret, not the tab, while a block is being typed
+       into under edit.py */
+    if (e.target && e.target.isContentEditable) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === "ArrowRight"){ e.preventDefault(); show(cur+1, true); }
     else if (e.key === "ArrowLeft"){ e.preventDefault(); show(cur-1, true); }
