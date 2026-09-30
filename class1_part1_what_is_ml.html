@@ -976,6 +976,18 @@ var DRAWERS = [];
 function reg(fn){ DRAWERS.push(fn); fn(); }
 function redrawAll(){ for (var i=0;i<DRAWERS.length;i++){ try{ DRAWERS[i](); }catch(e){} } }
 
+/* A plot only learns how wide its y tick labels are while drawing them, which
+   is after its left margin has already been chosen. When one turns out to need
+   more room than the margin allowed, it records the requirement and asks for a
+   single repaint, which lands before the frame is shown. Debounced, and the
+   second pass never asks again because the margin now fits. */
+var RELAYOUT = false;
+function relayout(){
+  if (RELAYOUT) return;
+  RELAYOUT = true;
+  requestAnimationFrame(function(){ RELAYOUT = false; redrawAll(); });
+}
+
 function col(name){
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
 }
@@ -1003,7 +1015,9 @@ function mkPlot(id, opts){
      grow the element's layout box on every redraw */
   var cssH = +(canvas.getAttribute("height") || 300);
   if (!canvas.style.height) canvas.style.height = cssH + "px";
-  var p = { el:canvas, ctx:ctx, o:o, W:0, H:0 };
+  /* how much left margin the y tick labels and the rotated y label actually
+     needed last time they were drawn. 0 until axes() has measured them. */
+  var p = { el:canvas, ctx:ctx, o:o, W:0, H:0, autoL:0 };
 
   p.sync = function(){
     var r = canvas.getBoundingClientRect();
@@ -1014,7 +1028,7 @@ function mkPlot(id, opts){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,r.width, r.height || cssH);
     p.W = r.width; p.H = r.height || cssH;
-    p.L = o.padL; p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB;
+    p.L = Math.max(o.padL, p.autoL); p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB;
   };
   p.dom = function(xd, yd){ if(xd) o.xd = xd; if(yd) o.yd = yd; };
   p.x  = function(v){ return p.L + (v - o.xd[0])/(o.xd[1]-o.xd[0]) * (p.R - p.L); };
@@ -1048,13 +1062,33 @@ function mkPlot(id, opts){
     var i;
     if (cfg.xt){ ctx.textAlign="center"; ctx.textBaseline="top";
       for(i=0;i<cfg.xt.length;i++) ctx.fillText(f(cfg.xt[i]), p.x(cfg.xt[i]), p.B+6); }
+    /* measure while drawing: the widest tick decides where the y label can go */
+    var tickW = 0;
     if (cfg.yt){ ctx.textAlign="right"; ctx.textBaseline="middle";
-      for(i=0;i<cfg.yt.length;i++) ctx.fillText(fy(cfg.yt[i]), p.L-7, p.y(cfg.yt[i])); }
+      for(i=0;i<cfg.yt.length;i++){
+        var lab = fy(cfg.yt[i]);
+        var w = ctx.measureText(lab).width;
+        if (w > tickW) tickW = w;
+        ctx.fillText(lab, p.L-7, p.y(cfg.yt[i]));
+      } }
     ctx.fillStyle = col("--ink-soft");
     ctx.font = '10.5px "IBM Plex Mono", monospace';
     if (cfg.xlabel){ ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(cfg.xlabel, (p.L+p.R)/2, p.H-1); }
-    if (cfg.ylabel){ ctx.save(); ctx.translate(11, (p.T+p.B)/2); ctx.rotate(-Math.PI/2);
-      ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillText(cfg.ylabel, 0, 0); ctx.restore(); }
+    if (cfg.ylabel){
+      /* The label is rotated, so it occupies a vertical BAND of screen width,
+         not its text length. Park it just clear of the widest tick. */
+      var BAND = 14, GAP = 6, EDGE = 3;
+      var lx = Math.max(EDGE, p.L - 7 - tickW - GAP - BAND);
+      ctx.save(); ctx.translate(lx, (p.T+p.B)/2); ctx.rotate(-Math.PI/2);
+      ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillText(cfg.ylabel, 0, 0); ctx.restore();
+      var need = EDGE + BAND + GAP + tickW + 7;
+      /* never let the margin swallow the plot on a narrow canvas */
+      need = Math.min(need, p.W * 0.38);
+      if (need > p.L + 0.5){ p.autoL = need; relayout(); }
+    } else if (cfg.yt){
+      var need2 = Math.min(7 + tickW + 3, p.W * 0.38);
+      if (need2 > p.L + 0.5){ p.autoL = need2; relayout(); }
+    }
     ctx.restore();
   };
   p.dots = function(pts, s){
