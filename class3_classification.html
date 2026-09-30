@@ -582,11 +582,10 @@ section.tabpanel{padding:2.6rem 0 0}
     <a href="#s31"><span class="n">01</span><span>Linear vs. logistic</span></a>
     <a href="#s32"><span class="n">02</span><span>The logit</span></a>
     <a href="#s33"><span class="n">03</span><span>The decision boundary</span></a>
-    <a href="#s34"><span class="n">04</span><span>Maximum likelihood</span></a>
-    <a href="#s35"><span class="n">05</span><span>More than two classes</span></a>
-    <a href="#s36"><span class="n">06</span><span>Error types and metrics</span></a>
-    <a href="#s37"><span class="n">07</span><span>The KNN classifier</span></a>
-    <a href="#s38"><span class="n">08</span><span>Glossary</span></a>
+    <a href="#s34"><span class="n">04</span><span>More than two classes</span></a>
+    <a href="#s35"><span class="n">05</span><span>Error types and metrics</span></a>
+    <a href="#s36"><span class="n">06</span><span>The KNN classifier</span></a>
+    <a href="#s37"><span class="n">07</span><span>Glossary</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -713,9 +712,20 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
+  <div class="prose">
+    <h3 data-ed="part4/01-linear-vs-logistic.html:18">Where the coefficients come from</h3>
+    <p data-ed="part4/01-linear-vs-logistic.html:19">Least squares will not choose them for us. Squared error asks how far the prediction is from <span class="m">y</span>, and here <span class="m">y</span> is 0 or 1 while the prediction is a probability.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:20">Instead we use <strong>maximum likelihood</strong>: pick the <span class="m">&beta;</span> that make the diagnoses we actually observed most probable. Every patient contributes the probability the model gave them, every control contributes one minus it, and we maximise the product. In practice we maximise its log, which turns that product into a sum and stops hundreds of numbers below 1 from underflowing to zero.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:21">Two practical consequences, both worth knowing before trusting a printout:</p>
+    <ul>
+      <li data-ed="part4/01-linear-vs-logistic.html:22">There is <strong>no closed form</strong>. The <span class="m">&beta;</span> sit inside an exponential, so unlike the slope formula from class 1 the answer has to be found by iterating. Every package does this for us, and it usually settles in a handful of steps.</li>
+      <li data-ed="part4/01-linear-vs-logistic.html:23">If some value of <span class="m">X</span> splits the two classes cleanly, called <strong>perfect separation</strong>, there is no maximum to find: the likelihood keeps rising as <span class="m">&beta;<sub>1</sub></span> grows without limit. The tell is a coefficient in the thousands, and it happens most in small samples with a strong predictor.</li>
+    </ul>
+  </div>
+
   <div class="key">
-    <div class="lbl" data-ed="part4/01-linear-vs-logistic.html:18">Key idea</div>
-    <p data-ed="part4/01-linear-vs-logistic.html:19">Nothing about the linear model was thrown away. <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">X</span> is still in there, doing exactly what it always did. All we added was a function around it, so that whatever it returns comes out as a probability.</p>
+    <div class="lbl" data-ed="part4/01-linear-vs-logistic.html:24">Key idea</div>
+    <p data-ed="part4/01-linear-vs-logistic.html:25">Nothing about the linear model was thrown away. <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">X</span> is still in there, doing exactly what it always did. All we added was a function around it, so that whatever it returns comes out as a probability.</p>
   </div>
 </section>
 
@@ -915,7 +925,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <li data-ed="part4/03-decision-boundary.html:14">Doubling both does change the shading. The bigger the coefficients, the faster the probability swings from 0 to 1 as we cross, so the dashed lines close in. That is the same steepness <span class="m">&beta;<sub>1</sub></span> controlled on the curve in section 1.</li>
     </ul>
     <p data-ed="part4/03-decision-boundary.html:15">So the coefficients carry two separate pieces of information: a direction, which fixes the boundary, and a magnitude, which fixes how confident the model is near it.</p>
-    <p data-ed="part4/03-decision-boundary.html:16">One thing the panel will show if you hunt for it: the fitted line is not quite the most <em>accurate</em> line. Maximum likelihood is chasing the probabilities, not the count of correct calls, and nudging the sliders away from the fit can win a subject or two. That is a feature, not a bug, and the next tab is about why.</p>
+    <p data-ed="part4/03-decision-boundary.html:16">One thing the panel will show if you hunt for it: the fitted line is not quite the most <em>accurate</em> line. Maximum likelihood is chasing the probabilities, not the count of correct calls, and nudging the sliders away from the fit can win a subject or two. That is a feature, not a bug, and the tab on error metrics takes it apart: maximum likelihood is estimating probabilities, and nobody told it we were going to threshold them at one half.</p>
   </div>
 
   <div class="key">
@@ -930,132 +940,10 @@ section.tabpanel{padding:2.6rem 0 0}
 
 <!-- ==================== 34 ==================== -->
 <section id="s34">
-  <div class="shead"><div class="num">04</div><h2 data-ed="part4/04-maximum-likelihood.html:0">Maximum likelihood</h2></div>
+  <div class="shead"><div class="num">04</div><h2 data-ed="part4/04-more-than-two-classes.html:0">More than two classes</h2></div>
   <div class="prose">
-    <p data-ed="part4/04-maximum-likelihood.html:1">We have a shape. We still need a rule for choosing <span class="m">&beta;<sub>0</sub></span> and <span class="m">&beta;<sub>1</sub></span>.</p>
-    <p data-ed="part4/04-maximum-likelihood.html:2">Least squares will not do it. Squared error asks how far the prediction is from <span class="m">y</span>, and here <span class="m">y</span> is 0 or 1 while the prediction is a probability. A subject we called 0.99 who turns out to be a patient is not &ldquo;0.01 away&rdquo;: they are a case we were confidently wrong about, and we want a rule that says so loudly.</p>
-    <p data-ed="part4/04-maximum-likelihood.html:3">So we ask a different question. For a given pair of coefficients, how probable is the data we actually collected?</p>
-  </div>
-
-  <div class="eq">
-    <span class="m">L</span>(<span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span>)
-    &nbsp;=&nbsp;
-    <span class="mline" style="display:inline">
-      <span class="prodx">&Pi;</span><sub style="font-size:.6em"><span class="m">i</span>&thinsp;:&thinsp;<span class="m">y<sub>i</sub></span>=1</sub>
-      <span class="m">p</span>(<span class="m">x<sub>i</sub></span>)
-      &nbsp;&middot;&nbsp;
-      <span class="prodx">&Pi;</span><sub style="font-size:.6em"><span class="m">i</span>&thinsp;:&thinsp;<span class="m">y<sub>i</sub></span>=0</sub>
-      (1 &minus; <span class="m">p</span>(<span class="m">x<sub>i</sub></span>))
-    </span>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part4/04-maximum-likelihood.html:4">Read it left to right. Every patient contributes the probability the model gave them. Every control contributes the probability the model gave to <em>not</em> being a patient. Multiply all of it together and we have the probability of the whole dataset, under these coefficients.</p>
-    <p data-ed="part4/04-maximum-likelihood.html:5">That number is the <strong>likelihood</strong>. Maximum likelihood picks the coefficients that make it largest: the ones under which what we saw is least surprising.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part4/04-maximum-likelihood.html:6">One subject at a time</div>
-      <div class="hint" data-ed="part4/04-maximum-likelihood.html:7">every point contributes a factor, and confident mistakes are cheap to spot</div>
-    </div>
-    <div class="panel-body panel-split wide-ctl">
-      <div>
-        <canvas id="cvLik" class="cv" height="330"></canvas>
-        <div id="likLayers"></div>
-        <p class="notecap" id="likCap"></p>
-      </div>
-      <div class="ctl">
-        <div class="ctl-row">
-          <label><span class="m">&beta;<sub>0</sub></span> <span class="v" id="likB0v">0.0</span></label>
-          <input type="range" id="likB0" min="-60" max="60" value="0" step="1">
-        </div>
-        <div class="ctl-row">
-          <label><span class="m">&beta;<sub>1</sub></span> <span class="v" id="likB1v">1.0</span></label>
-          <input type="range" id="likB1" min="-60" max="80" value="10" step="1">
-        </div>
-        <div class="stats" id="likStats"></div>
-        <div class="btnrow"><button class="btn" id="likFit">maximise it</button></div>
-        <p class="notecap" data-ed="part4/04-maximum-likelihood.html:8">The bar under each subject is their own contribution. Tall means the model backed the outcome that happened, short means it backed the other one.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <h3 data-ed="part4/04-maximum-likelihood.html:9">Why we take the log</h3>
-    <p data-ed="part4/04-maximum-likelihood.html:10">Two hundred numbers, each below 1, multiplied together. The product underflows to zero in double precision long before we get to the end, and there is nothing to optimise.</p>
-    <p data-ed="part4/04-maximum-likelihood.html:11">Taking the log turns the product into a sum, which is both numerically safe and easier to differentiate:</p>
-  </div>
-
-  <div class="eq">
-    <span class="m">&#8467;</span>(<span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span>)
-    &nbsp;=&nbsp;
-    <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
-    <span class="mline" style="display:inline">
-      <span class="m">y<sub>i</sub></span> log <span class="m">p</span>(<span class="m">x<sub>i</sub></span>)
-      &nbsp;+&nbsp;
-      (1 &minus; <span class="m">y<sub>i</sub></span>) log (1 &minus; <span class="m">p</span>(<span class="m">x<sub>i</sub></span>))
-    </span>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part4/04-maximum-likelihood.html:12">The two terms are a switch. When <span class="m">y<sub>i</sub></span> = 1 the second term vanishes, when <span class="m">y<sub>i</sub></span> = 0 the first does. Each subject contributes exactly one of them.
-      <br>Substituting <span class="m">p</span> and simplifying gives a form with a single exponential left in it:</p>
-  </div>
-
-  <div class="eq tight">
-    <span class="m">&#8467;</span> =
-    <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
-    <span class="m">y<sub>i</sub></span>(<span class="m">&beta;<sub>0</sub></span>+<span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>i</sub></span>)
-    &nbsp;&minus;&nbsp;
-    log(1 + <span class="m">e</span><sup><span class="m">&beta;<sub>0</sub></span>+<span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>i</sub></span></sup>)
-  </div>
-
-  <div class="prose">
-    <p data-ed="part4/04-maximum-likelihood.html:13">Now differentiate and set to zero, exactly as we did for least squares in class 1.
-      <br>And here the parallel breaks. The <span class="m">&beta;</span> are stuck inside an exponential, so the equations cannot be rearranged to put them on their own. There is <strong>no closed form</strong>: no logistic equivalent of the formula we derived for the slope.</p>
-    <p data-ed="part4/04-maximum-likelihood.html:14">What we do instead is climb. Start anywhere, work out which direction increases <span class="m">&#8467;</span>, take a step, repeat.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part4/04-maximum-likelihood.html:15">The surface we are climbing</div>
-      <div class="hint" data-ed="part4/04-maximum-likelihood.html:16">click anywhere to start from there</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <canvas id="cvLL" class="cv drag" height="340"></canvas>
-        <div id="llLayers"></div>
-        <p class="notecap" id="llCap"></p>
-      </div>
-      <div class="ctl">
-        <div class="btnrow">
-          <button class="btn primary" id="llStep">one step</button>
-          <button class="btn" id="llRun">run it</button>
-          <button class="btn" id="llReset">reset</button>
-        </div>
-        <div class="stats" id="llStats"></div>
-        <p class="notecap" data-ed="part4/04-maximum-likelihood.html:17">Contours of the log-likelihood over the two coefficients, with the optimiser&rsquo;s path drawn on top. Compare it with the RSS bowl from class 1: same idea, except that bowl had a formula for its lowest point and this one does not.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="key">
-    <div class="lbl" data-ed="part4/04-maximum-likelihood.html:18">Key idea</div>
-    <p data-ed="part4/04-maximum-likelihood.html:19">Least squares minimises distance. Maximum likelihood maximises the probability of the data we already have. For the linear model with normal noise the two give the same answer, which is why we never had to mention it before now.</p>
-  </div>
-
-  <div class="warn" data-ed="part4/04-maximum-likelihood.html:20">
-    <b>Perfect separation breaks the fit.</b> If some value of <span class="m">X</span> splits the two classes cleanly, the likelihood keeps rising as <span class="m">&beta;<sub>1</sub></span> grows without limit: an infinitely steep curve makes the data infinitely unsurprising. There is no maximum to find, and the optimiser will either run until it hits an iteration cap or report coefficients in the thousands. Small samples with a strong predictor are where this bites.
-  </div>
-</section>
-
-<!-- ==================== 35 ==================== -->
-<section id="s35">
-  <div class="shead"><div class="num">05</div><h2 data-ed="part4/05-more-than-two-classes.html:0">More than two classes</h2></div>
-  <div class="prose">
-    <p data-ed="part4/05-more-than-two-classes.html:1">Everything so far had two categories. Plenty of questions have more: three diagnoses, four task conditions, six stimulus categories.</p>
-    <p data-ed="part4/05-more-than-two-classes.html:2">The tempting move is to number them and carry on, exactly as we did with 0 and 1:</p>
+    <p data-ed="part4/04-more-than-two-classes.html:1">Everything so far had two categories. Plenty of questions have more: three diagnoses, four task conditions, six stimulus categories.</p>
+    <p data-ed="part4/04-more-than-two-classes.html:2">The tempting move is to number them and carry on, exactly as we did with 0 and 1:</p>
   </div>
 
   <div class="eq">
@@ -1068,9 +956,9 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/05-more-than-two-classes.html:3">With two categories that was harmless: any 0/1 coding gives the same fit, flipped at worst.
+    <p data-ed="part4/04-more-than-two-classes.html:3">With two categories that was harmless: any 0/1 coding gives the same fit, flipped at worst.
       <br>With three it says two things we never meant to say. It says schizophrenia is twice MDD, and it says the step from healthy to MDD is the same size as the step from MDD to schizophrenia. Neither is a claim about the brain, and both are claims the model will happily fit.</p>
-    <p data-ed="part4/05-more-than-two-classes.html:4">The fix keeps the structure and drops the ordering. Pick one category as the <strong>baseline</strong>, exactly as we did with dummies in class 2, and fit a separate set of coefficients for each of the others. <span class="m">K</span> categories need <span class="m">K</span> &minus; 1 sets.</p>
+    <p data-ed="part4/04-more-than-two-classes.html:4">The fix keeps the structure and drops the ordering. Pick one category as the <strong>baseline</strong>, exactly as we did with dummies in class 2, and fit a separate set of coefficients for each of the others. <span class="m">K</span> categories need <span class="m">K</span> &minus; 1 sets.</p>
   </div>
 
   <div class="eq">
@@ -1082,7 +970,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/05-more-than-two-classes.html:5">The baseline gets no coefficients of its own. Its probability is whatever is left over:</p>
+    <p data-ed="part4/04-more-than-two-classes.html:5">The baseline gets no coefficients of its own. Its probability is whatever is left over:</p>
   </div>
 
   <div class="eq tight">
@@ -1094,8 +982,8 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/05-more-than-two-classes.html:6">The denominator is shared, which is what forces the <span class="m">K</span> probabilities to sum to 1 at every value of <span class="m">X</span>. No category can quietly go missing.</p>
-    <p data-ed="part4/05-more-than-two-classes.html:7">And the log odds still come out straight, now as a comparison against the baseline:</p>
+    <p data-ed="part4/04-more-than-two-classes.html:6">The denominator is shared, which is what forces the <span class="m">K</span> probabilities to sum to 1 at every value of <span class="m">X</span>. No category can quietly go missing.</p>
+    <p data-ed="part4/04-more-than-two-classes.html:7">And the log odds still come out straight, now as a comparison against the baseline:</p>
   </div>
 
   <div class="eq tight">
@@ -1105,8 +993,8 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/05-more-than-two-classes.html:8">Three diagnoses, one predictor</div>
-      <div class="hint" data-ed="part4/05-more-than-two-classes.html:9">change the baseline and watch what does not move</div>
+      <div class="t" data-ed="part4/04-more-than-two-classes.html:8">Three diagnoses, one predictor</div>
+      <div class="hint" data-ed="part4/04-more-than-two-classes.html:9">change the baseline and watch what does not move</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1124,28 +1012,28 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <div class="stats" id="multiStats"></div>
-        <p class="notecap" data-ed="part4/05-more-than-two-classes.html:10">The three curves never move when the baseline changes. The coefficients do, and so does what they mean: each one is now a comparison against a different reference group.</p>
+        <p class="notecap" data-ed="part4/04-more-than-two-classes.html:10">The three curves never move when the baseline changes. The coefficients do, and so does what they mean: each one is now a comparison against a different reference group.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part4/05-more-than-two-classes.html:11">Key idea</div>
-    <p data-ed="part4/05-more-than-two-classes.html:12">The choice of baseline is a choice about reporting, not about the model. Predictions are identical either way. Pick the group a reader will want everything compared against, usually the controls.</p>
+    <div class="lbl" data-ed="part4/04-more-than-two-classes.html:11">Key idea</div>
+    <p data-ed="part4/04-more-than-two-classes.html:12">The choice of baseline is a choice about reporting, not about the model. Predictions are identical either way. Pick the group a reader will want everything compared against, usually the controls.</p>
   </div>
 
-  <div class="warn" data-ed="part4/05-more-than-two-classes.html:13">
+  <div class="warn" data-ed="part4/04-more-than-two-classes.html:13">
     <b>Coefficients are unreadable without their baseline.</b> &ldquo;<span class="m">&beta;<sub>1</sub></span> = 0.8 for MDD&rdquo; means nothing on its own. Against healthy controls it is one claim, against schizophrenia a different one, and the same fitted model produces both numbers. Always report which group is the reference.
   </div>
 </section>
 
-<!-- ==================== 36 ==================== -->
-<section id="s36">
-  <div class="shead"><div class="num">06</div><h2 data-ed="part4/06-errors-and-metrics.html:0">Error types and metrics</h2></div>
+<!-- ==================== 35 ==================== -->
+<section id="s35">
+  <div class="shead"><div class="num">05</div><h2 data-ed="part4/05-errors-and-metrics.html:0">Error types and metrics</h2></div>
   <div class="prose">
-    <p data-ed="part4/06-errors-and-metrics.html:1">The model returns a probability. A decision needs a class, so somewhere we have to pick a <strong>threshold</strong> and call everything above it a patient.</p>
-    <p data-ed="part4/06-errors-and-metrics.html:2">One half is the obvious choice, and it is only a choice. It is almost never the right one.</p>
-    <p data-ed="part4/06-errors-and-metrics.html:3">Once we threshold, every subject lands in one of four boxes, and the two kinds of mistake are not the same mistake:</p>
+    <p data-ed="part4/05-errors-and-metrics.html:1">The model returns a probability. A decision needs a class, so somewhere we have to pick a <strong>threshold</strong> and call everything above it a patient.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:2">One half is the obvious choice, and it is only a choice. It is almost never the right one.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:3">Once we threshold, every subject lands in one of four boxes, and the two kinds of mistake are not the same mistake:</p>
   </div>
 
   <div class="eq tight">
@@ -1156,13 +1044,13 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/06-errors-and-metrics.html:4">Accuracy counts all four boxes as though they were interchangeable. In class 1 we saw what that costs when one group is rare. Here is the rest of the problem: even with balanced groups, accuracy cannot tell a missed patient from a false alarm, and those have different consequences in every clinic we might work in.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:4">Accuracy counts all four boxes as though they were interchangeable. In class 1 we saw what that costs when one group is rare. Here is the rest of the problem: even with balanced groups, accuracy cannot tell a missed patient from a false alarm, and those have different consequences in every clinic we might work in.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/06-errors-and-metrics.html:5">Move the threshold, move the errors</div>
-      <div class="hint" data-ed="part4/06-errors-and-metrics.html:6">the two mistakes trade against each other, always</div>
+      <div class="t" data-ed="part4/05-errors-and-metrics.html:5">Move the threshold, move the errors</div>
+      <div class="hint" data-ed="part4/05-errors-and-metrics.html:6">the two mistakes trade against each other, always</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1183,27 +1071,27 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="thrP" min="5" max="60" value="40" step="1">
         </div>
         <div class="stats" id="thrStats"></div>
-        <p class="notecap" data-ed="part4/06-errors-and-metrics.html:7">Drag the threshold to 0 and we call everyone a patient: every patient found, every control alarmed. Drag it to 1 and the reverse. Everything useful happens in between.</p>
+        <p class="notecap" data-ed="part4/05-errors-and-metrics.html:7">Drag the threshold to 0 and we call everyone a patient: every patient found, every control alarmed. Drag it to 1 and the reverse. Everything useful happens in between.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part4/06-errors-and-metrics.html:8">Four numbers worth knowing</h3>
-    <p data-ed="part4/06-errors-and-metrics.html:9">Each one divides a box by a row or a column of the table above, and each answers a different question:</p>
+    <h3 data-ed="part4/05-errors-and-metrics.html:8">Four numbers worth knowing</h3>
+    <p data-ed="part4/05-errors-and-metrics.html:9">Each one divides a box by a row or a column of the table above, and each answers a different question:</p>
     <ul>
-      <li data-ed="part4/06-errors-and-metrics.html:10"><strong>Sensitivity</strong>, or recall: of the patients, how many did we find? Divides by the patient row. This is the one that matters when missing a case is dangerous.</li>
-      <li data-ed="part4/06-errors-and-metrics.html:11"><strong>Specificity</strong>: of the controls, how many did we leave alone? Divides by the control row.</li>
-      <li data-ed="part4/06-errors-and-metrics.html:12"><strong>Precision</strong>: of those we flagged, how many really were patients? Divides by the flagged column, so unlike the other two it moves when prevalence moves.</li>
-      <li data-ed="part4/06-errors-and-metrics.html:13"><strong>F1</strong>: the harmonic mean of precision and recall, for when we want one number and accuracy will not do.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:10"><strong>Sensitivity</strong>, or recall: of the patients, how many did we find? Divides by the patient row. This is the one that matters when missing a case is dangerous.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:11"><strong>Specificity</strong>: of the controls, how many did we leave alone? Divides by the control row.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:12"><strong>Precision</strong>: of those we flagged, how many really were patients? Divides by the flagged column, so unlike the other two it moves when prevalence moves.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:13"><strong>F1</strong>: the harmonic mean of precision and recall, for when we want one number and accuracy will not do.</li>
     </ul>
-    <p data-ed="part4/06-errors-and-metrics.html:14">Sensitivity and specificity are properties of the test. Precision is a property of the test <em>and</em> the population we ran it in, which is why a screening tool that looked excellent in a patient-heavy validation set disappoints in the general clinic.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:14">Sensitivity and specificity are properties of the test. Precision is a property of the test <em>and</em> the population we ran it in, which is why a screening tool that looked excellent in a patient-heavy validation set disappoints in the general clinic.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/06-errors-and-metrics.html:15">Every threshold at once</div>
-      <div class="hint" data-ed="part4/06-errors-and-metrics.html:16">the ROC curve, and the area under it</div>
+      <div class="t" data-ed="part4/05-errors-and-metrics.html:15">Every threshold at once</div>
+      <div class="hint" data-ed="part4/05-errors-and-metrics.html:16">the ROC curve, and the area under it</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -1217,27 +1105,77 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="rocS" min="0" max="320" value="160" step="1">
         </div>
         <div class="stats" id="rocStats"></div>
-        <p class="notecap" data-ed="part4/06-errors-and-metrics.html:17">Each point on the curve is one threshold, sweeping from &ldquo;flag nobody&rdquo; at the bottom left to &ldquo;flag everybody&rdquo; at the top right. The dot is the threshold set in the panel above.
+        <p class="notecap" data-ed="part4/05-errors-and-metrics.html:17">Each point on the curve is one threshold, sweeping from &ldquo;flag nobody&rdquo; at the bottom left to &ldquo;flag everybody&rdquo; at the top right. The dot is the threshold set in the panel above.
           <br>The diagonal is a coin flip. Area 0.5 means the score carries no information at all.</p>
       </div>
     </div>
   </div>
 
-  <div class="key">
-    <div class="lbl" data-ed="part4/06-errors-and-metrics.html:18">Key idea</div>
-    <p data-ed="part4/06-errors-and-metrics.html:19">AUC scores the ranking, not the decision. It asks: take one random patient and one random control, how often does the model give the patient the higher score? That is useful precisely because it does not depend on a threshold, and useless the moment we have to actually choose one.</p>
+  <div class="prose">
+    <h3 data-ed="part4/05-errors-and-metrics.html:18">The fit moves the metrics too</h3>
+    <p data-ed="part4/05-errors-and-metrics.html:19">Everything so far held the model still and moved the threshold. Now do the opposite: hold the threshold at one half and move the model.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:20">These are 400 fresh subjects from a screening setting, so only about a third of them have the diagnosis.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:21">With one predictor the rule <span class="m">p</span> &ge; 0.5 is the rule <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> &ge; 0, which is the rule <span class="m">x</span> &ge; &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>. So every threshold metric on this page depends on the two coefficients through a <em>single number</em>: the score at which the model changes its mind.</p>
   </div>
 
-  <div class="warn" data-ed="part4/06-errors-and-metrics.html:20">
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part4/05-errors-and-metrics.html:22">Same subjects, different coefficients</div>
+      <div class="hint" data-ed="part4/05-errors-and-metrics.html:23">the threshold is pinned at 0.5 throughout</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvFitM" class="cv" height="300"></canvas>
+        <canvas id="cvFitMU" class="cv" height="160" style="margin-top:.7rem"></canvas>
+        <div id="fitmLayers"></div>
+        <div class="cmwrap">
+          <table class="cm" id="fitmCm"></table>
+        </div>
+        <p class="notecap" id="fitmCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label><span class="m">&beta;<sub>0</sub></span> <span class="v" id="fmB0v">-1.2</span></label>
+          <input type="range" id="fmB0" min="-60" max="60" value="-12" step="1">
+        </div>
+        <div class="ctl-row">
+          <label><span class="m">&beta;<sub>1</sub></span> <span class="v" id="fmB1v">1.8</span></label>
+          <input type="range" id="fmB1" min="-60" max="60" value="18" step="1">
+        </div>
+        <div class="stats" id="fitmStats"></div>
+        <div class="btnrow">
+          <button class="btn" id="fmFit">best fit</button>
+          <button class="btn" id="fmAcc">best accuracy</button>
+        </div>
+        <p class="notecap" data-ed="part4/05-errors-and-metrics.html:24">Two different jobs. &ldquo;Best fit&rdquo; chooses the coefficients that make the observed diagnoses most probable. &ldquo;Best accuracy&rdquo; chooses the cut that gets the most subjects on the right side. They are not the same coefficients, and usually not the same cut.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part4/05-errors-and-metrics.html:25">Three things worth pulling out of that panel.</p>
+    <ul>
+      <li data-ed="part4/05-errors-and-metrics.html:26"><strong>Many coefficients, one answer.</strong> Double both <span class="m">&beta;</span> and every count in the table is unchanged, because &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span> is unchanged. The probabilities all moved, the decisions did not.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:27"><strong>AUC does not move at all</strong>, for any <span class="m">&beta;<sub>1</sub></span> &gt; 0. It only scores the ordering of the subjects, and with one predictor a positive <span class="m">&beta;<sub>1</sub></span> always gives the same ordering. Flip <span class="m">&beta;<sub>1</sub></span> negative and it becomes 1 &minus; AUC, because the ordering reverses.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:28"><strong>The best-fitting model is not the most accurate one.</strong> Press the two buttons in turn: the fit gets 82.8&#37; right, and simply sliding the cut left gets 84.5&#37; while raising sensitivity from 69&#37; to 79&#37;. Maximum likelihood is estimating probabilities, and nobody told it we were going to threshold them at one half.</li>
+    </ul>
+  </div>
+
+  <div class="key">
+    <div class="lbl" data-ed="part4/05-errors-and-metrics.html:29">Key idea</div>
+    <p data-ed="part4/05-errors-and-metrics.html:30">AUC scores the ranking, not the decision. It asks: take one random patient and one random control, how often does the model give the patient the higher score? That is useful precisely because it does not depend on a threshold, and useless the moment we have to actually choose one.</p>
+  </div>
+
+  <div class="warn" data-ed="part4/05-errors-and-metrics.html:31">
     <b>Report the threshold with the metric.</b> Sensitivity of 0.92 is meaningless without saying where we cut, because we can always buy sensitivity with specificity by moving the cut. Two papers reporting different sensitivities for the same model are often reporting the same curve at two different points on it.
   </div>
 </section>
 
-<!-- ==================== 37 ==================== -->
-<section id="s37">
-  <div class="shead"><div class="num">07</div><h2 data-ed="part4/07-knn-classifier.html:0">The KNN classifier</h2></div>
+<!-- ==================== 36 ==================== -->
+<section id="s36">
+  <div class="shead"><div class="num">06</div><h2 data-ed="part4/06-knn-classifier.html:0">The KNN classifier</h2></div>
   <div class="prose">
-    <p data-ed="part4/07-knn-classifier.html:1">Class 2 used nearest neighbours for regression: find the <span class="m">K</span> closest training points and average their <span class="m">y</span>.
+    <p data-ed="part4/06-knn-classifier.html:1">Class 2 used nearest neighbours for regression: find the <span class="m">K</span> closest training points and average their <span class="m">y</span>.
       <br>For classification, change the last word. Find the <span class="m">K</span> closest points and take a <strong>vote</strong>.</p>
   </div>
 
@@ -1249,14 +1187,14 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/07-knn-classifier.html:2">The fraction of the neighbourhood belonging to class <span class="m">j</span>, used as a probability. Whichever class wins the vote is the prediction.</p>
-    <p data-ed="part4/07-knn-classifier.html:3">Still no training step, still nothing to solve for. And now the difference from logistic regression is visible in a way it was not with regression, because a classifier draws a <strong>decision boundary</strong>: the line where the prediction flips.</p>
+    <p data-ed="part4/06-knn-classifier.html:2">The fraction of the neighbourhood belonging to class <span class="m">j</span>, used as a probability. Whichever class wins the vote is the prediction.</p>
+    <p data-ed="part4/06-knn-classifier.html:3">Still no training step, still nothing to solve for. And now the difference from logistic regression is visible in a way it was not with regression, because a classifier draws a <strong>decision boundary</strong>: the line where the prediction flips.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/07-knn-classifier.html:4">Two boundaries on the same data</div>
-      <div class="hint" data-ed="part4/07-knn-classifier.html:5">one is a straight line by construction, the other is whatever the data says</div>
+      <div class="t" data-ed="part4/06-knn-classifier.html:4">Two boundaries on the same data</div>
+      <div class="hint" data-ed="part4/06-knn-classifier.html:5">one is a straight line by construction, the other is whatever the data says</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1276,20 +1214,20 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <div class="stats" id="bndStats"></div>
-        <p class="notecap" data-ed="part4/07-knn-classifier.html:6">The dashed line is the <strong>Bayes boundary</strong>: where the true probability is exactly one half. It is the best any classifier could do, and we only know it because the data is simulated.</p>
+        <p class="notecap" data-ed="part4/06-knn-classifier.html:6">The dashed line is the <strong>Bayes boundary</strong>: where the true probability is exactly one half. It is the best any classifier could do, and we only know it because the data is simulated.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part4/07-knn-classifier.html:7">Set the truth to linear and logistic regression wins, for the same reason it won in class 2: it was handed the right shape and spends all its data on two coefficients. Set it to curved and no straight line can follow, however much data we give it.</p>
-    <p data-ed="part4/07-knn-classifier.html:8">At <span class="m">K</span> = 1 the boundary is a jagged outline that separates the training points perfectly and has learned the noise. Raising <span class="m">K</span> smooths it toward the truth, then past it.</p>
+    <p data-ed="part4/06-knn-classifier.html:7">Set the truth to linear and logistic regression wins, for the same reason it won in class 2: it was handed the right shape and spends all its data on two coefficients. Set it to curved and no straight line can follow, however much data we give it.</p>
+    <p data-ed="part4/06-knn-classifier.html:8">At <span class="m">K</span> = 1 the boundary is a jagged outline that separates the training points perfectly and has learned the noise. Raising <span class="m">K</span> smooths it toward the truth, then past it.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/07-knn-classifier.html:9">The same U, in error rate</div>
-      <div class="hint" data-ed="part4/07-knn-classifier.html:10">flexibility runs right to left, as 1/<span class="m">K</span></div>
+      <div class="t" data-ed="part4/06-knn-classifier.html:9">The same U, in error rate</div>
+      <div class="hint" data-ed="part4/06-knn-classifier.html:10">flexibility runs right to left, as 1/<span class="m">K</span></div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -1299,58 +1237,58 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="stats" id="kerrStats"></div>
-        <p class="notecap" data-ed="part4/07-knn-classifier.html:11">By convention the axis is 1/<span class="m">K</span>, so flexibility increases to the right and the picture matches the bias-variance curve from class 2.
+        <p class="notecap" data-ed="part4/06-knn-classifier.html:11">By convention the axis is 1/<span class="m">K</span>, so flexibility increases to the right and the picture matches the bias-variance curve from class 2.
           <br>At <span class="m">K</span> = 1 the training error is exactly zero: every point is its own nearest neighbour, so it always votes for itself. That number tells us nothing whatsoever.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part4/07-knn-classifier.html:12">Key idea</div>
-    <p data-ed="part4/07-knn-classifier.html:13">Same trade as class 2, same shape of curve, different error measure. Nothing about the bias-variance tradeoff was specific to regression: it is a statement about flexibility, and it applies to any model we fit.</p>
+    <div class="lbl" data-ed="part4/06-knn-classifier.html:12">Key idea</div>
+    <p data-ed="part4/06-knn-classifier.html:13">Same trade as class 2, same shape of curve, different error measure. Nothing about the bias-variance tradeoff was specific to regression: it is a statement about flexibility, and it applies to any model we fit.</p>
   </div>
 
-  <div class="warn" data-ed="part4/07-knn-classifier.html:14">
+  <div class="warn" data-ed="part4/06-knn-classifier.html:14">
     <b>Scale your features first.</b> Nearest means Euclidean distance, so a predictor measured in thousands dominates one measured in tenths, whatever either one actually tells us. Logistic regression is immune to this, because a rescaled column just rescales its coefficient. KNN is not, and standardising the columns is not optional.
   </div>
 </section>
 
-<!-- ==================== 38 ==================== -->
-<section id="s38">
-  <div class="shead"><div class="num">08</div><h2 data-ed="part4/08-glossary.html:0">Glossary</h2></div>
+<!-- ==================== 37 ==================== -->
+<section id="s37">
+  <div class="shead"><div class="num">07</div><h2 data-ed="part4/07-glossary.html:0">Glossary</h2></div>
   <div class="prose">
-    <p data-ed="part4/08-glossary.html:1">Everything introduced today, on top of the class 1 and class 2 glossaries.</p>
+    <p data-ed="part4/07-glossary.html:1">Everything introduced today, on top of the class 1 and class 2 glossaries.</p>
   </div>
 
   <div class="gloss">
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:2">classification</div><div class="gd" data-ed="part4/08-glossary.html:3">Supervised learning where <span class="m">y</span> is a category rather than a number.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:4">logistic function</div><div class="gd" data-ed="part4/08-glossary.html:5"><span class="m">e</span><sup><span class="m">z</span></sup>/(1+<span class="m">e</span><sup><span class="m">z</span></sup>). Takes any number and returns one strictly between 0 and 1.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:6">odds</div><div class="gd" data-ed="part4/08-glossary.html:7"><span class="m">p</span>/(1&minus;<span class="m">p</span>). How many times more likely the outcome is than its absence.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:8">logit</div><div class="gd" data-ed="part4/08-glossary.html:9">log(<span class="m">p</span>/(1&minus;<span class="m">p</span>)), the log odds. The scale on which logistic regression is a straight line.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:10">odds ratio</div><div class="gd" data-ed="part4/08-glossary.html:11"><span class="m">e</span><sup><span class="m">&beta;<sub>1</sub></span></sup>. What the odds are multiplied by for one more unit of <span class="m">X</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:12">likelihood</div><div class="gd" data-ed="part4/08-glossary.html:13">The probability of the data we collected, read as a function of the coefficients.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:14">log-likelihood</div><div class="gd" data-ed="part4/08-glossary.html:15">Its log, which turns the product into a sum. What the optimiser actually maximises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:16">maximum<br>likelihood</div><div class="gd" data-ed="part4/08-glossary.html:17">Choosing the coefficients that make the observed data most probable.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:18">no closed form</div><div class="gd" data-ed="part4/08-glossary.html:19">The score equations cannot be solved algebraically, so the fit is found by iterating.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:20">perfect separation</div><div class="gd" data-ed="part4/08-glossary.html:21">Some value of <span class="m">X</span> splits the classes cleanly, so the likelihood has no maximum and the coefficients diverge.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:22">multinomial</div><div class="gd" data-ed="part4/08-glossary.html:23">Logistic regression for <span class="m">K</span> &gt; 2 categories, with <span class="m">K</span> &minus; 1 coefficient sets against a baseline.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:24">threshold</div><div class="gd" data-ed="part4/08-glossary.html:25">The probability above which we call a case positive. A decision we make, not one the model makes.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:26">confusion matrix</div><div class="gd" data-ed="part4/08-glossary.html:27">The four counts: true and false positives, true and false negatives.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:28">sensitivity<br>(recall)</div><div class="gd" data-ed="part4/08-glossary.html:29">Of the true positives, the fraction we found. TP/(TP+FN).</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:30">specificity</div><div class="gd" data-ed="part4/08-glossary.html:31">Of the true negatives, the fraction we left alone. TN/(TN+FP).</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:32">precision</div><div class="gd" data-ed="part4/08-glossary.html:33">Of those we flagged, the fraction that were real. TP/(TP+FP). Depends on prevalence.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:34">F1</div><div class="gd" data-ed="part4/08-glossary.html:35">Harmonic mean of precision and recall, when one number is wanted.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:36">ROC curve</div><div class="gd" data-ed="part4/08-glossary.html:37">Sensitivity against 1 &minus; specificity, traced across every threshold.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:38">AUC</div><div class="gd" data-ed="part4/08-glossary.html:39">Area under that curve. The chance a random positive outranks a random negative.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:40">decision boundary</div><div class="gd" data-ed="part4/08-glossary.html:41">The set of points where the prediction flips from one class to another.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:42">Bayes boundary</div><div class="gd" data-ed="part4/08-glossary.html:43">Where the true probability is exactly one half. The best boundary any classifier could draw.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part4/08-glossary.html:44">KNN classifier</div><div class="gd" data-ed="part4/08-glossary.html:45">Predict the class by majority vote among the <span class="m">K</span> nearest training points.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:2">classification</div><div class="gd" data-ed="part4/07-glossary.html:3">Supervised learning where <span class="m">y</span> is a category rather than a number.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:4">logistic function</div><div class="gd" data-ed="part4/07-glossary.html:5"><span class="m">e</span><sup><span class="m">z</span></sup>/(1+<span class="m">e</span><sup><span class="m">z</span></sup>). Takes any number and returns one strictly between 0 and 1.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:6">odds</div><div class="gd" data-ed="part4/07-glossary.html:7"><span class="m">p</span>/(1&minus;<span class="m">p</span>). How many times more likely the outcome is than its absence.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:8">logit</div><div class="gd" data-ed="part4/07-glossary.html:9">log(<span class="m">p</span>/(1&minus;<span class="m">p</span>)), the log odds. The scale on which logistic regression is a straight line.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:10">odds ratio</div><div class="gd" data-ed="part4/07-glossary.html:11"><span class="m">e</span><sup><span class="m">&beta;<sub>1</sub></span></sup>. What the odds are multiplied by for one more unit of <span class="m">X</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:12">likelihood</div><div class="gd" data-ed="part4/07-glossary.html:13">The probability of the data we collected, read as a function of the coefficients.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:14">log-likelihood</div><div class="gd" data-ed="part4/07-glossary.html:15">Its log, which turns the product into a sum. What the optimiser actually maximises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:16">maximum<br>likelihood</div><div class="gd" data-ed="part4/07-glossary.html:17">Choosing the coefficients that make the observed data most probable.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:18">no closed form</div><div class="gd" data-ed="part4/07-glossary.html:19">The score equations cannot be solved algebraically, so the fit is found by iterating.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:20">perfect separation</div><div class="gd" data-ed="part4/07-glossary.html:21">Some value of <span class="m">X</span> splits the classes cleanly, so the likelihood has no maximum and the coefficients diverge.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:22">multinomial</div><div class="gd" data-ed="part4/07-glossary.html:23">Logistic regression for <span class="m">K</span> &gt; 2 categories, with <span class="m">K</span> &minus; 1 coefficient sets against a baseline.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:24">threshold</div><div class="gd" data-ed="part4/07-glossary.html:25">The probability above which we call a case positive. A decision we make, not one the model makes.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:26">confusion matrix</div><div class="gd" data-ed="part4/07-glossary.html:27">The four counts: true and false positives, true and false negatives.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:28">sensitivity<br>(recall)</div><div class="gd" data-ed="part4/07-glossary.html:29">Of the true positives, the fraction we found. TP/(TP+FN).</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:30">specificity</div><div class="gd" data-ed="part4/07-glossary.html:31">Of the true negatives, the fraction we left alone. TN/(TN+FP).</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:32">precision</div><div class="gd" data-ed="part4/07-glossary.html:33">Of those we flagged, the fraction that were real. TP/(TP+FP). Depends on prevalence.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:34">F1</div><div class="gd" data-ed="part4/07-glossary.html:35">Harmonic mean of precision and recall, when one number is wanted.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:36">ROC curve</div><div class="gd" data-ed="part4/07-glossary.html:37">Sensitivity against 1 &minus; specificity, traced across every threshold.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:38">AUC</div><div class="gd" data-ed="part4/07-glossary.html:39">Area under that curve. The chance a random positive outranks a random negative.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:40">decision boundary</div><div class="gd" data-ed="part4/07-glossary.html:41">The set of points where the prediction flips from one class to another.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:42">Bayes boundary</div><div class="gd" data-ed="part4/07-glossary.html:43">Where the true probability is exactly one half. The best boundary any classifier could draw.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part4/07-glossary.html:44">KNN classifier</div><div class="gd" data-ed="part4/07-glossary.html:45">Predict the class by majority vote among the <span class="m">K</span> nearest training points.</div></div>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part4/08-glossary.html:46">Class 2: The price of flexibility</div>
-      <p class="cl-d" data-ed="part4/08-glossary.html:47">Interactions, nonlinearity in a linear model, KNN regression, and the bias-variance tradeoff.</p>
+      <div class="cl-t" data-ed="part4/07-glossary.html:46">Class 2: The price of flexibility</div>
+      <p class="cl-d" data-ed="part4/07-glossary.html:47">Interactions, nonlinearity in a linear model, KNN regression, and the bias-variance tradeoff.</p>
     </div>
     <a href="https://claude.ai/artifact/RcG47DiJNuPWs5ePf92H21" data-local="class2_interactions_and_flexibility.html">Back to class 2 &rarr;</a>
   </div>
@@ -2042,20 +1980,6 @@ function logitStep(rows, y, b, damp){
   for (i=0;i<m;i++) out[i] = b[i] + (damp === undefined ? 1 : damp)*d[i];
   return out;
 }
-/* Newton with a backtracking line search. The raw Newton step is enormous
-   when the starting guess is far out, and clamping an overshoot to the edge of
-   the plotted box just bounces between corners. Halving until the
-   log-likelihood actually improves is what makes each drawn step an honest one. */
-function logitAscend(rows, y, b){
-  var here = logLik(rows, y, b);
-  var t = 1;
-  for (var k=0;k<24;k++){
-    var cand = logitStep(rows, y, b, t);
-    if (logLik(rows, y, cand) > here) return cand;
-    t /= 2;
-  }
-  return b;
-}
 function logitFit(rows, y, iters){
   var b = new Array(rows[0].length).fill(0);
   for (var t=0; t<(iters||25); t++) b = logitStep(rows, y, b, 1);
@@ -2068,13 +1992,14 @@ function logitFit(rows, y, iters){
    the score shifts the odds, it does not determine the diagnosis. */
 var MDD = (function(){
   var B0 = 0.35, B1 = 1.85;
-  function make(n, seed){
+  function make(n, seed, b0){
     var r = rng(seed), x = [], y = [], i;
+    var a0 = (b0 === undefined) ? B0 : b0;     /* lower it for a rarer diagnosis */
     for (i=0;i<n;i++){
       var s = gauss(r)*1.25;
       if (s < -3.4) s = -3.4; if (s > 3.4) s = 3.4;
       x.push(s);
-      y.push(r() < sigm(B0 + B1*s) ? 1 : 0);
+      y.push(r() < sigm(a0 + B1*s) ? 1 : 0);
     }
     return { x:x, y:y };
   }
@@ -2515,245 +2440,12 @@ function mddRows(x){ return x.map(function(v){ return [1, v]; }); }
 })();
 
 
-/* ============================================================
-   04a — one subject at a time
-   ============================================================ */
-(function(){
-  var p = mkPlot("cvLik", {xd:[-3.4, 3.4], yd:[-0.62, 1.12], padL:46, padB:38});
-  if (!p) return;
-  var e0 = document.getElementById("likB0"), l0 = document.getElementById("likB0v");
-  var e1 = document.getElementById("likB1"), l1 = document.getElementById("likB1v");
-  var capEl = document.getElementById("likCap"), statsEl = document.getElementById("likStats");
 
-  var L = layerToggles("likLayers", [
-    {k:"curve", label:"the fitted probability",    kind:"ln",  col:"--c-model"},
-    {k:"pts",   label:"subjects",                  kind:"dot", col:"--c-data"},
-    {k:"bars",  label:"each subject's contribution", kind:"dot", col:"--c-test"},
-    {k:"worst", label:"the five worst",            kind:"ring",col:"--c-error"}
-  ], function(){ draw(); });
 
-  var X = MDD.full.x.slice(0, 60), Y = MDD.full.y.slice(0, 60);
-  var BEST = logitFit(mddRows(X), Y);
-
-  function draw(){
-    var b0 = (+e0.value)/10, b1 = (+e1.value)/10;
-    l0.textContent = b0.toFixed(1); l1.textContent = b1.toFixed(1);
-
-    p.sync(); p.frame();
-    var xt = [-3,-2,-1,0,1,2,3];
-    p.grid(xt, [0, 0.5, 1]);
-    [0,1].forEach(function(v){
-      p.seg(-3.4, v, 3.4, v, {color: alpha(col("--ink-faint"), .4), w:1, dash:[4,4]});
-    });
-
-    /* each subject's own factor: p for a patient, 1-p for a control */
-    var contrib = X.map(function(v,i){
-      var q = sigm(b0 + b1*v);
-      return Y[i] ? q : 1-q;
-    });
-    var ll = 0;
-    for (var i=0;i<contrib.length;i++) ll += Math.log(Math.max(contrib[i], 1e-12));
-
-    /* the bar band lives below the rails, between -0.58 and -0.06 */
-    if (L.on("bars")){
-      var ctx = p.ctx; ctx.save();
-      for (i=0;i<X.length;i++){
-        var Xp = p.x(X[i]), h = contrib[i];
-        var y0 = p.y(-0.06), y1 = p.y(-0.06 - 0.5*h);
-        ctx.beginPath(); ctx.moveTo(Xp, y0); ctx.lineTo(Xp, y1);
-        ctx.strokeStyle = alpha(Y[i] ? col("--c-error") : col("--c-test"), .55);
-        ctx.lineWidth = 2.6; ctx.lineCap = "butt"; ctx.stroke();
-      }
-      ctx.restore();
-      p.seg(-3.4, -0.06, 3.4, -0.06, {color: alpha(col("--ink-faint"), .5), w:1});
-      p.txt("contribution", p.L + 5, p.y(-0.5),
-            {color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
-    }
-
-    if (L.on("pts")){
-      for (i=0;i<X.length;i++)
-        p.dots([[X[i], Y[i]]], {r:3.4, color: alpha(Y[i] ? col("--c-error") : col("--c-test"), .62)});
-    }
-    if (L.on("curve"))
-      p.fnline(function(v){ return sigm(b0 + b1*v); }, {color: col("--c-model"), w:2.6});
-
-    /* the confidently wrong ones, which is where the likelihood is being lost */
-    if (L.on("worst")){
-      var idx = contrib.map(function(c,k){ return [c,k]; })
-                       .sort(function(a,b){ return a[0]-b[0]; }).slice(0,5);
-      idx.forEach(function(pair){
-        var k = pair[1];
-        p.dots([[X[k], Y[k]]], {r:7, hollow:true, color: col("--c-error"), lw:2});
-      });
-    }
-
-    p.axes({xt:xt, yt:[0,0.5,1], xlabel:"connectivity score (z)", ylabel:"p(MDD)",
-            fmt:function(v){ return v.toFixed(0); },
-            fmtY:function(v){ return v.toFixed(1); }});
-
-    var best = logLik(mddRows(X), Y, BEST);
-    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
-    statsEl.innerHTML =
-      row("model", "log-likelihood", fmt(ll, 2)) +
-      row("plain", "the best possible here", fmt(best, 2)) +
-      row("error", "how far short", fmt(best - ll, 2)) +
-      row("plain", "smallest single contribution", fmt(Math.min.apply(null, contrib), 4));
-
-    var worst = Math.min.apply(null, contrib);
-    capEl.innerHTML =
-      "Sixty subjects. Multiplying all sixty contributions together gives the likelihood, and its log is <b>" +
-      fmt(ll,2) + "</b>. The worst-served subject contributes " + fmt(worst,4) +
-      ", which on its own costs " + fmt(-Math.log(Math.max(worst,1e-12)),2) + " of the total.";
-  }
-  e0.addEventListener("input", draw);
-  e1.addEventListener("input", draw);
-  document.getElementById("likFit").addEventListener("click", function(){
-    e0.value = Math.max(-60, Math.min(60, Math.round(BEST[0]*10)));
-    e1.value = Math.max(-60, Math.min(80, Math.round(BEST[1]*10)));
-    draw();
-  });
-  reg(draw);
-})();
 
 
 /* ============================================================
-   04b — the log-likelihood surface, and climbing it
-   ============================================================ */
-(function(){
-  var p = mkPlot("cvLL", {xd:[-2.2, 2.8], yd:[-1.0, 4.6], padL:48, padB:38});
-  if (!p) return;
-  var capEl = document.getElementById("llCap"), statsEl = document.getElementById("llStats");
-
-  var L = layerToggles("llLayers", [
-    {k:"map",  label:"log-likelihood",   kind:"dot",  col:"--c-seq-hi"},
-    {k:"path", label:"the optimiser",    kind:"ln",   col:"--c-error"},
-    {k:"peak", label:"the maximum",      kind:"ring", col:"--c-model"},
-    {k:"grid", label:"axes",             kind:"dash", col:"--ink-faint"}
-  ], function(){ draw(); });
-
-  var X = MDD.full.x.slice(0, 120), Y = MDD.full.y.slice(0, 120);
-  var ROWS = mddRows(X);
-  var PEAK = logitFit(ROWS, Y);
-  var PEAKLL = logLik(ROWS, Y, PEAK);
-
-  /* The surface is fixed, so it is evaluated once on a coarse grid and the
-     result reused for every repaint. Recomputing 120 subjects across a grid on
-     each frame is what made the RSS map in class 1 crawl. */
-  var GN = 56, GRID = [], LO = 1e9, HI = -1e9;
-  (function(){
-    for (var i=0;i<GN;i++){
-      var row = [];
-      for (var j=0;j<GN;j++){
-        var b0 = -2.2 + 5.0*(i+0.5)/GN;
-        var b1 = -1.0 + 5.6*(j+0.5)/GN;
-        var v = logLik(ROWS, Y, [b0, b1]);
-        row.push(v);
-        if (v < LO) LO = v; if (v > HI) HI = v;
-      }
-      GRID.push(row);
-    }
-  })();
-
-  var start = [-1.6, 3.9], path = [start.slice()];
-
-  function draw(){
-    p.sync();
-    var ctx = p.ctx;
-
-    if (L.on("map")){
-      /* one palette lookup per repaint, not per cell */
-      var lo = hex2rgb(col("--c-seq-lo")), hi = hex2rgb(col("--c-seq-hi"));
-      var W = (p.R-p.L)/GN, H = (p.B-p.T)/GN;
-      for (var i=0;i<GN;i++){
-        for (var j=0;j<GN;j++){
-          /* compress the range: the likelihood falls away far faster than it
-             rises, so a linear ramp would leave the whole interesting region
-             in one colour */
-          var t = (GRID[i][j] - LO)/(HI - LO);
-          t = Math.pow(t, 3.2);
-          var c0 = Math.round(lo[0] + (hi[0]-lo[0])*t);
-          var c1 = Math.round(lo[1] + (hi[1]-lo[1])*t);
-          var c2 = Math.round(lo[2] + (hi[2]-lo[2])*t);
-          ctx.fillStyle = "rgb("+c0+","+c1+","+c2+")";
-          ctx.fillRect(p.L + i*W - 0.5, p.B - (j+1)*H - 0.5, W+1, H+1);
-        }
-      }
-    } else {
-      p.frame();
-    }
-
-    if (L.on("grid")) p.grid([-2,-1,0,1,2], [0,1,2,3,4]);
-
-    if (L.on("path") && path.length > 1){
-      ctx.save(); p.clip(); ctx.beginPath();
-      for (var k=0;k<path.length;k++){
-        var Xp = p.x(path[k][0]), Yp = p.y(path[k][1]);
-        if (k===0) ctx.moveTo(Xp,Yp); else ctx.lineTo(Xp,Yp);
-      }
-      ctx.strokeStyle = col("--c-error"); ctx.lineWidth = 2.2; ctx.lineJoin="round";
-      ctx.stroke(); p.unclip(); ctx.restore();
-    }
-    if (L.on("path")){
-      path.forEach(function(q, k){
-        p.dots([q], {r: k===path.length-1 ? 5 : 3,
-                     color: col("--c-error"), ring: col("--surface")});
-      });
-    }
-    if (L.on("peak"))
-      p.dots([PEAK], {r:7, hollow:true, color: col("--c-model"), lw:2.4});
-
-    p.axes({xt:[-2,-1,0,1,2], yt:[0,1,2,3,4],
-            xlabel:"β0", ylabel:"β1",
-            fmt:function(v){ return v.toFixed(0); },
-            fmtY:function(v){ return v.toFixed(0); }});
-
-    var cur = path[path.length-1];
-    var curLL = logLik(ROWS, Y, cur);
-    function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
-    statsEl.innerHTML =
-      row("error", "steps taken", String(path.length - 1)) +
-      row("plain", "β0, β1 now", fmt(cur[0],3) + ", " + fmt(cur[1],3)) +
-      row("model", "log-likelihood", fmt(curLL, 3)) +
-      row("plain", "short of the maximum", fmt(PEAKLL - curLL, 4));
-
-    capEl.innerHTML = path.length === 1
-      ? "Brighter is a higher log-likelihood. The ring is the maximum, which we can only mark here because the surface was computed on a grid. Press <b>one step</b> to start climbing."
-      : "After <b>" + (path.length-1) + "</b> step" + (path.length===2?"":"s") +
-        " the log-likelihood is " + fmt(curLL,3) + ", within " + fmt(PEAKLL - curLL, 4) +
-        " of the best available. Newton steps converge fast: the cost is that each one needs the second derivatives as well as the first.";
-  }
-
-  function step(){
-    var cur = path[path.length-1];
-    var nxt = logitAscend(ROWS, Y, cur);
-    if (Math.abs(nxt[0]-cur[0]) < 1e-9 && Math.abs(nxt[1]-cur[1]) < 1e-9) return;
-    path.push(nxt);
-    draw();
-  }
-  document.getElementById("llStep").addEventListener("click", step);
-  document.getElementById("llRun").addEventListener("click", function(){
-    var k = 0;
-    (function go(){
-      if (k++ >= 12) return;
-      step();
-      setTimeout(go, 130);
-    })();
-  });
-  document.getElementById("llReset").addEventListener("click", function(){
-    path = [start.slice()]; draw();
-  });
-  p.el.addEventListener("click", function(ev){
-    var r = p.el.getBoundingClientRect();
-    var bx = p.ix(ev.clientX - r.left), by = p.iy(ev.clientY - r.top);
-    if (bx < -2.2 || bx > 2.8 || by < -1.0 || by > 4.6) return;
-    start = [bx, by]; path = [start.slice()]; draw();
-  });
-  reg(draw);
-})();
-
-
-/* ============================================================
-   05 — three diagnoses, one predictor
+   04 — three diagnoses, one predictor
    ============================================================ */
 (function(){
   var p = mkPlot("cvMulti", {xd:[-3.4, 3.4], yd:[-0.16, 1.1], padL:46, padB:38});
@@ -2886,7 +2578,7 @@ function mddRows(x){ return x.map(function(v){ return [1, v]; }); }
 
 
 /* ============================================================
-   06a — the threshold and the confusion matrix
+   05a — the threshold and the confusion matrix
    ============================================================ */
 var THR = { t: 0.5, prev: 0.40 };
 (function(){
@@ -3005,7 +2697,7 @@ var THR = { t: 0.5, prev: 0.40 };
 
 
 /* ============================================================
-   06b — every threshold at once
+   05b — every threshold at once
    ============================================================ */
 (function(){
   var p = mkPlot("cvRoc", {xd:[-0.03, 1.03], yd:[-0.03, 1.03], padL:46, padB:40});
@@ -3108,7 +2800,205 @@ var THR = { t: 0.5, prev: 0.40 };
 
 
 /* ============================================================
-   07a — two decision boundaries on the same data
+   05c — the same subjects, different coefficients
+   ============================================================ */
+(function(){
+  var p  = mkPlot("cvFitM",  {xd:[-3.6, 3.6], yd:[-0.12, 1.12], padL:46, padB:36});
+  var pu = mkPlot("cvFitMU", {xd:[-3.6, 3.6], yd:[0, 1], padL:46, padB:34, padT:16});
+  if (!p || !pu) return;
+  var e0 = document.getElementById("fmB0"), l0 = document.getElementById("fmB0v");
+  var e1 = document.getElementById("fmB1"), l1 = document.getElementById("fmB1v");
+  var capEl = document.getElementById("fitmCap"), statsEl = document.getElementById("fitmStats");
+  var cmEl = document.getElementById("fitmCm");
+
+  var L = layerToggles("fitmLayers", [
+    {k:"curve", label:"the fitted probability",    kind:"ln",   col:"--c-model"},
+    {k:"cut",   label:"where it changes its mind", kind:"dash", col:"--ink"},
+    {k:"pts",   label:"subjects",                  kind:"dot",  col:"--c-data"},
+    {k:"sweep", label:"metrics across the cut",    kind:"ln",   col:"--c-error"}
+  ], function(){ draw(); });
+
+  /* A screening cohort rather than the balanced one from tab 1: about a third
+     of these subjects have the diagnosis. That imbalance is what pulls the
+     best-fitting model away from the most accurate one, which is the whole
+     point of the panel. */
+  var COH = MDD.make(400, 771177, -1.15);
+  var X = COH.x, Y = COH.y, N = X.length;
+  var FIT = logitFit(mddRows(X), Y);
+
+  /* Every threshold metric depends on the coefficients only through the score
+     at which the model crosses 0.5, so it is enough to count once per cut. */
+  function countsAt(cut, positiveAbove){
+    var tp=0, fp=0, fn=0, tn=0;
+    for (var i=0;i<N;i++){
+      var flag = positiveAbove ? (X[i] >= cut) : (X[i] <= cut);
+      if (Y[i] === 1){ if (flag) tp++; else fn++; }
+      else { if (flag) fp++; else tn++; }
+    }
+    return {tp:tp, fp:fp, fn:fn, tn:tn};
+  }
+  function accAt(cut, up){ var m = countsAt(cut, up); return (m.tp + m.tn)/N; }
+
+  /* The cut that gets the most subjects right. Accuracy only ever changes as
+     the cut passes an observation, so the midpoints are the only candidates. */
+  var BESTCUT = (function(){
+    var sorted = X.slice().sort(function(a,b){ return a-b; });
+    var best = { cut: sorted[0] - 0.01, acc: 0 };
+    for (var i=0;i<=sorted.length;i++){
+      var c = i === 0 ? sorted[0] - 0.01
+            : (i === sorted.length ? sorted[i-1] + 0.01 : (sorted[i-1] + sorted[i])/2);
+      var a = accAt(c, true);
+      if (a > best.acc) best = { cut: c, acc: a };
+    }
+    return best;
+  })();
+
+  /* AUC from the ranking, which with one predictor is just the score order */
+  var AUCUP = (function(){
+    var idx = [], i;
+    for (i=0;i<N;i++) idx.push(i);
+    idx.sort(function(a,b){ return X[b] - X[a]; });
+    var P = 0, Nn = 0;
+    for (i=0;i<N;i++){ if (Y[i]) P++; else Nn++; }
+    var tp=0, fp=0, auc=0, lx=0, ly=0;
+    for (i=0;i<idx.length;i++){
+      if (Y[idx[i]]) tp++; else fp++;
+      var xx = fp/Nn, yy = tp/P;
+      auc += (xx-lx)*(yy+ly)/2; lx = xx; ly = yy;
+    }
+    return auc;
+  })();
+
+  function draw(){
+    var b0 = (+e0.value)/10, b1 = (+e1.value)/10;
+    l0.textContent = b0.toFixed(1); l1.textContent = b1.toFixed(1);
+    var flat = Math.abs(b1) < 1e-6;
+    var cut = flat ? NaN : -b0/b1;
+    var up = b1 > 0;
+
+    /* ---- the model over the data ---- */
+    p.sync(); p.frame();
+    var xt = [-3,-2,-1,0,1,2,3];
+    p.grid(xt, [0, 0.5, 1]);
+    [0,1].forEach(function(v){
+      p.seg(-3.6, v, 3.6, v, {color: alpha(col("--ink-faint"), .4), w:1, dash:[4,4]});
+    });
+    p.seg(-3.6, 0.5, 3.6, 0.5, {color: alpha(col("--ink-faint"), .7), w:1.2, dash:[5,4]});
+
+    var M = flat ? countsAt(sigm(b0) >= 0.5 ? -1e9 : 1e9, true) : countsAt(cut, up);
+    if (L.on("pts")){
+      var r2 = rng(6161);
+      for (var i=0;i<N;i++){
+        var flag = flat ? (sigm(b0) >= 0.5) : (up ? X[i] >= cut : X[i] <= cut);
+        var right = (flag ? 1 : 0) === Y[i];
+        p.dots([[X[i], Y[i] ? 1 - Math.abs(r2()-0.5)*0.14 : Math.abs(r2()-0.5)*0.14]],
+               {r:2.9, color: alpha(col(Y[i] ? "--c-error" : "--c-test"), right ? .62 : .18)});
+      }
+    }
+    if (L.on("curve"))
+      p.fnline(function(v){ return sigm(b0 + b1*v); }, {color: col("--c-model"), w:2.8});
+    if (L.on("cut") && !flat && cut > -3.6 && cut < 3.6){
+      p.seg(cut, -0.12, cut, 1.12, {color: alpha(col("--ink"), .8), w:2});
+      p.txt("x = " + fmt(cut,2), p.x(cut) + 6, p.T + 13,
+            {color: col("--ink"), font:'600 10px "IBM Plex Mono", monospace'});
+    }
+    p.axes({xt:xt, yt:[0,0.5,1], xlabel:"connectivity score (z)", ylabel:"p(MDD)",
+            fmt:function(v){ return v.toFixed(0); }, fmtY:function(v){ return v.toFixed(1); }});
+
+    /* ---- the same metrics, as the cut slides along the axis ---- */
+    pu.sync(); pu.frame();
+    pu.grid(xt, [0, 0.25, 0.5, 0.75, 1]);
+    if (L.on("sweep")){
+      var ctx = pu.ctx;
+      var sweep = function(pick, colr, w){
+        ctx.save(); pu.clip(); ctx.beginPath();
+        for (var k=0;k<=160;k++){
+          var c = -3.6 + 7.2*k/160;
+          var m = countsAt(c, up);
+          var Xp = pu.x(c), Yp = pu.y(pick(m));
+          if (k===0) ctx.moveTo(Xp,Yp); else ctx.lineTo(Xp,Yp);
+        }
+        ctx.strokeStyle = colr; ctx.lineWidth = w; ctx.lineJoin = "round"; ctx.stroke();
+        pu.unclip(); ctx.restore();
+      };
+      sweep(function(m){ return (m.tp+m.fn) ? m.tp/(m.tp+m.fn) : 0; }, alpha(col("--c-error"), .6), 1.8);
+      sweep(function(m){ return (m.tn+m.fp) ? m.tn/(m.tn+m.fp) : 0; }, alpha(col("--c-test"), .6), 1.8);
+      sweep(function(m){ return (m.tp+m.tn)/N; }, col("--ink"), 2.6);
+      pu.txt("accuracy",    pu.L + 6, pu.T + 12, {color: col("--ink"),     font:'600 9.5px "IBM Plex Mono", monospace'});
+      pu.txt("sensitivity", pu.L + 6, pu.T + 24, {color: col("--c-error"), font:'9.5px "IBM Plex Mono", monospace'});
+      pu.txt("specificity", pu.L + 6, pu.T + 36, {color: col("--c-test"),  font:'9.5px "IBM Plex Mono", monospace'});
+      /* the cut that maximises accuracy, and the one in use */
+      pu.seg(BESTCUT.cut, 0, BESTCUT.cut, 1, {color: alpha(col("--c-model"), .85), w:1.6, dash:[4,4]});
+      if (!flat && cut > -3.6 && cut < 3.6)
+        pu.seg(cut, 0, cut, 1, {color: alpha(col("--ink"), .55), w:2});
+    }
+    pu.axes({xt:xt, yt:[0,0.5,1], xlabel:"where the model changes its mind",
+             fmt:function(v){ return v.toFixed(0); }, fmtY:function(v){ return v.toFixed(1); }});
+
+    var sens = (M.tp+M.fn) ? M.tp/(M.tp+M.fn) : 0;
+    var spec = (M.tn+M.fp) ? M.tn/(M.tn+M.fp) : 0;
+    var prec = (M.tp+M.fp) ? M.tp/(M.tp+M.fp) : 0;
+    var acc  = (M.tp+M.tn)/N;
+    var auc  = flat ? 0.5 : (up ? AUCUP : 1 - AUCUP);
+    var ll   = logLik(mddRows(X), Y, [b0, b1]);
+
+    cmEl.innerHTML =
+      '<tr><th></th><th class="cmh">flagged</th><th class="cmh">not flagged</th></tr>' +
+      '<tr><th class="cmh">patient</th>' +
+        '<td class="cmc tp"><b>' + M.tp + '</b><span>true positive</span></td>' +
+        '<td class="cmc fn"><b>' + M.fn + '</b><span>false negative</span></td></tr>' +
+      '<tr><th class="cmh">control</th>' +
+        '<td class="cmc fp"><b>' + M.fp + '</b><span>false positive</span></td>' +
+        '<td class="cmc tn"><b>' + M.tn + '</b><span>true negative</span></td></tr>';
+
+    var row = function(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; };
+    statsEl.innerHTML =
+      row("plain", "changes its mind at x =", flat ? "nowhere" : fmt(cut, 2)) +
+      row("model", "accuracy",    fmt(100*acc,1) + "%") +
+      row("error", "sensitivity", fmt(100*sens,1) + "%") +
+      row("test",  "specificity", fmt(100*spec,1) + "%") +
+      row("plain", "precision",   fmt(100*prec,1) + "%") +
+      row("plain", "AUC",         fmt(auc, 3)) +
+      row("plain", "log-likelihood", fmt(ll, 1));
+
+    capEl.innerHTML = flat
+      ? "With <b>&beta;<sub>1</sub> = 0</b> the score is ignored, every subject gets the same probability, and they all fall on the same side. Accuracy is whatever the larger group happens to be."
+      : "These coefficients change the model's mind at <b>x = " + fmt(cut,2) + "</b> and get " +
+        fmt(100*acc,1) + "% right, against " + fmt(100*BESTCUT.acc,1) +
+        "% for the best cut available, dashed in orange below. Any other pair of coefficients with the same ratio gives exactly these counts.";
+  }
+
+  e0.addEventListener("input", draw);
+  e1.addEventListener("input", draw);
+  document.getElementById("fmFit").addEventListener("click", function(){
+    e0.value = Math.max(-60, Math.min(60, Math.round(FIT[0]*10)));
+    e1.value = Math.max(-60, Math.min(60, Math.round(FIT[1]*10)));
+    draw();
+  });
+  /* The sliders move in tenths, so simply rounding -bestCut*b1 can land a step
+     away from the optimum and quietly under-deliver. Search the pairs the
+     sliders can actually reach and take the most accurate one. */
+  var BESTPAIR = (function(){
+    var best = { b0:0, b1:1, acc:-1 };
+    for (var k=1; k<=60; k++){
+      var b1 = k/10;
+      var b0 = Math.max(-60, Math.min(60, Math.round(-BESTCUT.cut*b1*10)))/10;
+      var a = accAt(-b0/b1, true);
+      if (a > best.acc) best = { b0:b0, b1:b1, acc:a };
+    }
+    return best;
+  })();
+  document.getElementById("fmAcc").addEventListener("click", function(){
+    e0.value = Math.round(BESTPAIR.b0*10);
+    e1.value = Math.round(BESTPAIR.b1*10);
+    draw();
+  });
+  reg(draw);
+})();
+
+
+/* ============================================================
+   06a — two decision boundaries on the same data
    ============================================================ */
 var KNNC = (function(){
   /* One 2D cohort, two features, two classes. The truth is a probability
@@ -3250,7 +3140,7 @@ var KNNC = (function(){
 
 
 /* ============================================================
-   07b — error against flexibility
+   06b — error against flexibility
    ============================================================ */
 (function(){
   var p = mkPlot("cvKerr", {xd:[0, 1.05], yd:[0, 0.34], padL:50, padB:40});
