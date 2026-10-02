@@ -1111,17 +1111,22 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
+  <div class="key">
+    <div class="lbl" data-ed="part4/05-errors-and-metrics.html:18">Key idea</div>
+    <p data-ed="part4/05-errors-and-metrics.html:19">AUC scores the ranking, not the decision. It asks: take one random patient and one random control, how often does the model give the patient the higher score? That is useful precisely because it does not depend on a threshold, and useless the moment we have to actually choose one.</p>
+  </div>
+
   <div class="prose">
-    <h3 data-ed="part4/05-errors-and-metrics.html:18">The fit moves the metrics too</h3>
-    <p data-ed="part4/05-errors-and-metrics.html:19">Everything so far held the model still and moved the threshold. Now do the opposite: hold the threshold at one half and move the model.</p>
-    <p data-ed="part4/05-errors-and-metrics.html:20">These are 400 fresh subjects from a screening setting, so only about a third of them have the diagnosis.</p>
-    <p data-ed="part4/05-errors-and-metrics.html:21">With one predictor the rule <span class="m">p</span> &ge; 0.5 is the rule <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> &ge; 0, which is the rule <span class="m">x</span> &ge; &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>. So every threshold metric on this page depends on the two coefficients through a <em>single number</em>: the score at which the model changes its mind.</p>
+    <h3 data-ed="part4/05-errors-and-metrics.html:20">The fit moves the metrics too</h3>
+    <p data-ed="part4/05-errors-and-metrics.html:21">Everything so far held the model still and moved the threshold. Now do the opposite: hold the threshold at one half and move the model.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:22">These are 400 fresh subjects from a screening setting, so only about a third of them have the diagnosis.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:23">With one predictor the rule <span class="m">p</span> &ge; 0.5 is the rule <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> &ge; 0, which is the rule <span class="m">x</span> &ge; &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>. So every threshold metric on this page depends on the two coefficients through a <em>single number</em>: the score at which the model changes its mind.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/05-errors-and-metrics.html:22">Same subjects, different coefficients</div>
-      <div class="hint" data-ed="part4/05-errors-and-metrics.html:23">the threshold is pinned at 0.5 throughout</div>
+      <div class="t" data-ed="part4/05-errors-and-metrics.html:24">Same subjects, different coefficients</div>
+      <div class="hint" data-ed="part4/05-errors-and-metrics.html:25">the threshold is pinned at 0.5 throughout</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1147,23 +1152,18 @@ section.tabpanel{padding:2.6rem 0 0}
           <button class="btn" id="fmFit">best fit</button>
           <button class="btn" id="fmAcc">best accuracy</button>
         </div>
-        <p class="notecap" data-ed="part4/05-errors-and-metrics.html:24">Two different jobs. &ldquo;Best fit&rdquo; chooses the coefficients that make the observed diagnoses most probable. &ldquo;Best accuracy&rdquo; chooses the cut that gets the most subjects on the right side. They are not the same coefficients, and usually not the same cut.</p>
+        <p class="notecap" data-ed="part4/05-errors-and-metrics.html:26">Two different jobs. &ldquo;Best fit&rdquo; chooses the coefficients that make the observed diagnoses most probable. &ldquo;Best accuracy&rdquo; chooses the cut that gets the most subjects on the right side. They are not the same coefficients, and usually not the same cut.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part4/05-errors-and-metrics.html:25">Three things worth pulling out of that panel.</p>
+    <p data-ed="part4/05-errors-and-metrics.html:27">Three things worth pulling out of that panel.</p>
     <ul>
-      <li data-ed="part4/05-errors-and-metrics.html:26"><strong>Many coefficients, one answer.</strong> Double both <span class="m">&beta;</span> and every count in the table is unchanged, because &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span> is unchanged. The probabilities all moved, the decisions did not.</li>
-      <li data-ed="part4/05-errors-and-metrics.html:27"><strong>AUC does not move at all</strong>, for any <span class="m">&beta;<sub>1</sub></span> &gt; 0. It only scores the ordering of the subjects, and with one predictor a positive <span class="m">&beta;<sub>1</sub></span> always gives the same ordering. Flip <span class="m">&beta;<sub>1</sub></span> negative and it becomes 1 &minus; AUC, because the ordering reverses.</li>
-      <li data-ed="part4/05-errors-and-metrics.html:28"><strong>The best-fitting model is not the most accurate one.</strong> Press the two buttons in turn: the fit gets 82.8&#37; right, and simply sliding the cut left gets 84.5&#37; while raising sensitivity from 69&#37; to 79&#37;. Maximum likelihood is estimating probabilities, and nobody told it we were going to threshold them at one half.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:28"><strong>Many coefficients, one answer.</strong> Double both <span class="m">&beta;</span> and every count in the table is unchanged, because &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span> is unchanged. The probabilities all moved, the decisions did not.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:29"><strong>AUC does not move at all</strong>, for any <span class="m">&beta;<sub>1</sub></span> &gt; 0. It only scores the ordering of the subjects, and with one predictor a positive <span class="m">&beta;<sub>1</sub></span> always gives the same ordering. Flip <span class="m">&beta;<sub>1</sub></span> negative and it becomes 1 &minus; AUC, because the ordering reverses.</li>
+      <li data-ed="part4/05-errors-and-metrics.html:30"><strong>The best-fitting model is not the most accurate one.</strong> Press the two buttons in turn: the fit gets 82.8&#37; right, and simply sliding the cut left gets 84.5&#37; while raising sensitivity from 69&#37; to 79&#37;. Maximum likelihood is estimating probabilities, and nobody told it we were going to threshold them at one half.</li>
     </ul>
-  </div>
-
-  <div class="key">
-    <div class="lbl" data-ed="part4/05-errors-and-metrics.html:29">Key idea</div>
-    <p data-ed="part4/05-errors-and-metrics.html:30">AUC scores the ranking, not the decision. It asks: take one random patient and one random control, how often does the model give the patient the higher score? That is useful precisely because it does not depend on a threshold, and useless the moment we have to actually choose one.</p>
   </div>
 
   <div class="warn" data-ed="part4/05-errors-and-metrics.html:31">
