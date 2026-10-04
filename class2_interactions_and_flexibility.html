@@ -287,6 +287,8 @@ input[type=range]::-moz-range-thumb{
 .lay i.sw{width:11px;height:11px;border-radius:3px;flex:none;display:inline-block}
 .lay i.sw.dot{border-radius:50%}
 .lay i.sw.ring{background:transparent;border:1.5px solid;border-radius:50%}
+/* a class told apart by shape rather than colour */
+.lay i.sw.tri{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%);width:13px;height:12px}
 .lay i.sw.ln{height:0;width:15px;border-top:2.5px solid;border-radius:0}
 .lay i.sw.dash{height:0;width:15px;border-top:2px dashed;border-radius:0}
 .lay:has(input:not(:checked)){opacity:.4}
@@ -1307,13 +1309,30 @@ function mkPlot(id, opts){
     }
     ctx.restore();
   };
+  /* s.shape: "circle" (default) or "triangle". Two classes told apart by shape
+     survive a bad projector and a colour-blind reader, which colour alone does
+     not. The triangle is sized to carry the same ink as the circle it replaces,
+     so neither class looks heavier than the other. */
   p.dots = function(pts, s){
     s = s || {};
     var r = s.r || 4.2;
+    var tri = s.shape === "triangle";
     ctx.save();
     for (var i=0;i<pts.length;i++){
       var X = p.x(pts[i][0]), Y = p.y(pts[i][1]);
-      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832);
+      ctx.beginPath();
+      if (tri){
+        /* equal-area: a triangle of circumradius r covers about 0.41 of the
+           circle, so scale up to match, then sit it a little low so its
+           centre of mass lands on the data point rather than its apex */
+        var R = r * 1.56, dy = R * 0.14;
+        ctx.moveTo(X, Y - R + dy);
+        ctx.lineTo(X + R*0.866, Y + R*0.5 + dy);
+        ctx.lineTo(X - R*0.866, Y + R*0.5 + dy);
+        ctx.closePath();
+      } else {
+        ctx.arc(X, Y, r, 0, 6.2832);
+      }
       if (s.hollow){ ctx.strokeStyle = s.color || col("--c-test"); ctx.lineWidth = s.lw || 1.7; ctx.stroke(); }
       else {
         ctx.fillStyle = s.color || col("--c-data"); ctx.fill();
