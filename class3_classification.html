@@ -1002,10 +1002,24 @@ section.tabpanel{padding:2.6rem 0 0}
     <p data-ed="part4/04-errors-and-metrics.html:14">Sensitivity and specificity are properties of the test. Precision is a property of the test <em>and</em> the population we ran it in, which is why a screening tool that looked excellent in a patient-heavy validation set disappoints in the general clinic.</p>
   </div>
 
+  <div class="prose">
+    <h3 data-ed="part4/04-errors-and-metrics.html:15">Every threshold at once: the ROC curve</h3>
+    <p data-ed="part4/04-errors-and-metrics.html:16">Each of those four numbers was computed at one threshold. Move the threshold and they all change, so quoting any of them alone describes one arbitrary point and hides the rest.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:17">The <strong>ROC curve</strong> shows the whole set. Slide the threshold from 1 down to 0, and at every stop plot the pair we care about:</p>
+    <ul>
+      <li data-ed="part4/04-errors-and-metrics.html:18">up the vertical axis, <strong>sensitivity</strong>: the share of patients we caught;</li>
+      <li data-ed="part4/04-errors-and-metrics.html:19">along the horizontal axis, <strong>1 &minus; specificity</strong>: the share of controls we alarmed.</li>
+    </ul>
+    <p data-ed="part4/04-errors-and-metrics.html:20">Each threshold gives one point, and the curve is the trace of all of them. Nothing is summarised away: the curve <em>is</em> the list of deals on offer, and choosing a threshold is choosing one point on it.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:21">Two corners are fixed whatever the model does. At a threshold of 1 we flag nobody, so we catch no patients and alarm no controls: the bottom left. At a threshold of 0 we flag everybody, catching every patient and alarming every control: the top right. Every model, however good or useless, runs between those two corners.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:22">What varies is the route. A model that ranks patients above controls climbs steeply first, buying sensitivity cheaply before it starts paying in false alarms, and bows toward the top-left corner. A model that ranks at random gains one and loses the other at the same rate, and runs straight up the diagonal.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:23">Drag the threshold slider in the panel above and watch the dot below travel the curve.</p>
+  </div>
+
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/04-errors-and-metrics.html:15">Every threshold at once</div>
-      <div class="hint" data-ed="part4/04-errors-and-metrics.html:16">the ROC curve, and the area under it</div>
+      <div class="t" data-ed="part4/04-errors-and-metrics.html:24">Every threshold at once</div>
+      <div class="hint" data-ed="part4/04-errors-and-metrics.html:25">the ROC curve, and the area under it</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -1015,32 +1029,53 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>how separable the groups are <span class="v" id="rocSv">1.60</span></label>
-          <input type="range" id="rocS" min="0" max="320" value="160" step="1">
+          <label>how separable the groups are <span class="v" id="rocSv">1.90</span></label>
+          <input type="range" id="rocS" min="0" max="320" value="190" step="1">
         </div>
         <div class="stats" id="rocStats"></div>
-        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:17">Each point on the curve is one threshold, sweeping from &ldquo;flag nobody&rdquo; at the bottom left to &ldquo;flag everybody&rdquo; at the top right. The dot is the threshold set in the panel above.
-          <br>The diagonal is a coin flip. Area 0.5 means the score carries no information at all.</p>
+        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:26">The dot is the threshold set in the panel above, and it sits on this curve because both panels score the same 400 subjects.
+          <br>This slider pulls the two groups apart or pushes them together, which is the one thing that changes the curve&rsquo;s shape. The threshold only moves along it.</p>
       </div>
     </div>
   </div>
 
-  <div class="key">
-    <div class="lbl" data-ed="part4/04-errors-and-metrics.html:18">Key idea</div>
-    <p data-ed="part4/04-errors-and-metrics.html:19">AUC scores the ranking, not the decision. It asks: take one random patient and one random control, how often does the model give the patient the higher score? That is useful precisely because it does not depend on a threshold, and useless the moment we have to actually choose one.</p>
+  <div class="prose">
+    <h3 data-ed="part4/04-errors-and-metrics.html:27">Squeezing the curve into one number</h3>
+    <p data-ed="part4/04-errors-and-metrics.html:28">Comparing two curves by eye works until they cross. The usual summary is the <strong>area under the curve</strong>, the AUC, which is the shaded region in the panel.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:29">The bounds come straight from the two extreme routes. A curve along the diagonal encloses half the square, so AUC = 0.5. A curve that goes straight up and then straight across encloses all of it, so AUC = 1. Below 0.5 means the model is ranking patients <em>below</em> controls, and the fix is to flip the sign rather than to throw it away.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:30">It also has a reading that has nothing to do with areas, and this is the one to remember:</p>
+  </div>
+
+  <div class="eq tight">
+    AUC = P<span class="mu">(</span> score of a random patient &gt; score of a random control <span class="mu">)</span>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part4/04-errors-and-metrics.html:20">The fit moves the metrics too</h3>
-    <p data-ed="part4/04-errors-and-metrics.html:21">Everything so far held the model still and moved the threshold. Now do the opposite: hold the threshold at one half and move the model.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:22">These are 400 fresh subjects from a screening setting, so only about a third of them have the diagnosis.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:23">With one predictor the rule <span class="m">p</span> &ge; 0.5 is the rule <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> &ge; 0, which is the rule <span class="m">x</span> &ge; &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>. So every threshold metric on this page depends on the two coefficients through a <em>single number</em>: the score at which the model changes its mind.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:31">Pick one patient and one control at random, and AUC is the probability the model gives the patient the higher score. An AUC of 0.85 says it gets that pairwise comparison right 85&#37; of the time. A coin gets it right half the time.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:32">That makes AUC a measure of <strong>ranking</strong>, not of decisions and not of probabilities. Three consequences worth carrying into a paper:</p>
+    <ul>
+      <li data-ed="part4/04-errors-and-metrics.html:33">It needs no threshold, which is why it is the right number for comparing two models before anyone has decided how the test will be used.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:34">It is unchanged by any relabelling of the scores that keeps their order. Halve every probability and the AUC is identical, even though the model is now badly calibrated and useless for quoting a risk to a patient.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:35">It says nothing about the point you will actually operate at. Two models with the same AUC can have very different curves, one better where false alarms are cheap and the other better where they are not.</li>
+    </ul>
+  </div>
+
+  <div class="key">
+    <div class="lbl" data-ed="part4/04-errors-and-metrics.html:36">Key idea</div>
+    <p data-ed="part4/04-errors-and-metrics.html:37">AUC scores the ranking, not the decision. It asks: take one random patient and one random control, how often does the model give the patient the higher score? That is useful precisely because it does not depend on a threshold, and useless the moment we have to actually choose one.</p>
+  </div>
+
+  <div class="prose">
+    <h3 data-ed="part4/04-errors-and-metrics.html:38">The fit moves the metrics too</h3>
+    <p data-ed="part4/04-errors-and-metrics.html:39">Everything so far held the model still and moved the threshold. Now do the opposite: hold the threshold at one half and move the model.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:40">These are 400 fresh subjects from a screening setting, so only about a third of them have the diagnosis.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:41">With one predictor the rule <span class="m">p</span> &ge; 0.5 is the rule <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span> &ge; 0, which is the rule <span class="m">x</span> &ge; &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>. So every threshold metric on this page depends on the two coefficients through a <em>single number</em>: the score at which the model changes its mind.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/04-errors-and-metrics.html:24">Same subjects, different coefficients</div>
-      <div class="hint" data-ed="part4/04-errors-and-metrics.html:25">the threshold is pinned at 0.5 throughout</div>
+      <div class="t" data-ed="part4/04-errors-and-metrics.html:42">Same subjects, different coefficients</div>
+      <div class="hint" data-ed="part4/04-errors-and-metrics.html:43">the threshold is pinned at 0.5 throughout</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1066,21 +1101,25 @@ section.tabpanel{padding:2.6rem 0 0}
           <button class="btn" id="fmFit">best fit</button>
           <button class="btn" id="fmAcc">best accuracy</button>
         </div>
-        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:26">Two different jobs. &ldquo;Best fit&rdquo; chooses the coefficients that make the observed diagnoses most probable. &ldquo;Best accuracy&rdquo; chooses the cut that gets the most subjects on the right side. They are not the same coefficients, and usually not the same cut.</p>
+        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:44">Two different jobs. &ldquo;Best fit&rdquo; chooses the coefficients that make the observed diagnoses most probable. &ldquo;Best accuracy&rdquo; chooses the cut that gets the most subjects on the right side. They are not the same coefficients, and usually not the same cut.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part4/04-errors-and-metrics.html:27">Three things worth pulling out of that panel.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:45">Three things worth pulling out of that panel.</p>
     <ul>
-      <li data-ed="part4/04-errors-and-metrics.html:28"><strong>Many coefficients, one answer.</strong> Double both <span class="m">&beta;</span> and every count in the table is unchanged, because &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span> is unchanged. The probabilities all moved, the decisions did not.</li>
-      <li data-ed="part4/04-errors-and-metrics.html:29"><strong>AUC does not move at all</strong>, for any <span class="m">&beta;<sub>1</sub></span> &gt; 0. It only scores the ordering of the subjects, and with one predictor a positive <span class="m">&beta;<sub>1</sub></span> always gives the same ordering. Flip <span class="m">&beta;<sub>1</sub></span> negative and it becomes 1 &minus; AUC, because the ordering reverses.</li>
-      <li data-ed="part4/04-errors-and-metrics.html:30"><strong>The best-fitting model is not the most accurate one.</strong> Press the two buttons in turn: the fit gets 82.8&#37; right, and simply sliding the cut left gets 84.5&#37; while raising sensitivity from 69&#37; to 79&#37;. Maximum likelihood is estimating probabilities, and nobody told it we were going to threshold them at one half.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:46"><strong>Many coefficients, one answer.</strong> Double both <span class="m">&beta;</span> and every count in the table is unchanged, because &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span> is unchanged. The probabilities all moved, the decisions did not.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:47"><strong>AUC does not move at all</strong>, for any <span class="m">&beta;<sub>1</sub></span> &gt; 0. It only scores the ordering of the subjects, and with one predictor a positive <span class="m">&beta;<sub>1</sub></span> always gives the same ordering. Flip <span class="m">&beta;<sub>1</sub></span> negative and it becomes 1 &minus; AUC, because the ordering reverses.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:48"><strong>The best-fitting model is not the most accurate one.</strong> Press the two buttons in turn: the fit gets 82.8&#37; right, and simply sliding the cut left gets 84.5&#37; while raising sensitivity from 69&#37; to 79&#37;. Maximum likelihood is estimating probabilities, and nobody told it we were going to threshold them at one half.</li>
     </ul>
   </div>
 
-  <div class="warn" data-ed="part4/04-errors-and-metrics.html:31">
+  <div class="warn" data-ed="part4/04-errors-and-metrics.html:49">
+    <b>A high AUC is not a working test.</b> It says the ranking is good, which is a necessary condition and not a sufficient one. Before it helps a single patient someone still has to pick the operating point, check that the probabilities mean what they say, and confirm that the sensitivity on offer there is clinically enough. Papers that report AUC and stop have answered the easy half.
+  </div>
+
+  <div class="warn" data-ed="part4/04-errors-and-metrics.html:50">
     <b>Report the threshold with the metric.</b> Sensitivity of 0.92 is meaningless without saying where we cut, because we can always buy sensitivity with specificity by moving the cut. Two papers reporting different sensitivities for the same model are often reporting the same curve at two different points on it.
   </div>
 </section>
@@ -1128,7 +1167,8 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <div class="stats" id="bndStats"></div>
-        <p class="notecap" data-ed="part4/05-knn-classifier.html:6">The dashed line is the <strong>Bayes boundary</strong>: where the true probability is exactly one half. It is the best any classifier could do, and we only know it because the data is simulated.</p>
+        <p class="notecap" data-ed="part4/05-knn-classifier.html:6">Triangles are one class, circles the other, so they stay apart from each other and from the shaded regions behind them.
+          <br>The dashed line is the <strong>Bayes boundary</strong>: where the true probability is exactly one half. It is the best any classifier could do, and we only know it because the data is simulated.</p>
       </div>
     </div>
   </div>
@@ -2379,9 +2419,60 @@ function mddRows(x){ return x.map(function(v){ return [1, v]; }); }
 
 
 /* ============================================================
-   04a — the threshold and the confusion matrix
-   ============================================================ */
-var THR = { t: 0.5, prev: 0.40 };
+   04a — the threshold, the confusion matrix, and the ROC
+   ============================================================
+   Both panels read one cohort. They used to build their own, 300 subjects
+   here and 800 there with different generators, so the dot marking the
+   current threshold was computed from one dataset and drawn on a curve built
+   from another: it did not actually sit on the curve it appeared to ride.
+   One source of truth fixes that, and is what makes the dot worth watching. */
+var MET = (function(){
+  var N = 400, cache = {};
+  function cohort(prev, sep){
+    var key = prev.toFixed(2) + "|" + sep.toFixed(2);
+    if (cache[key]) return cache[key];
+    var r = rng(313131), out = [], i;
+    var nPat = Math.round(N*prev);
+    for (i=0;i<N;i++){
+      var pat = i < nPat;
+      out.push({ y: pat ? 1 : 0, s: sigm((pat ? sep/2 : -sep/2) + gauss(r)*1.15) });
+    }
+    cache[key] = out;
+    return out;
+  }
+  function counts(t, prev, sep){
+    var C = cohort(prev, sep), tp=0, fp=0, fn=0, tn=0;
+    for (var i=0;i<C.length;i++){
+      var flag = C[i].s >= t;
+      if (C[i].y === 1){ if (flag) tp++; else fn++; }
+      else { if (flag) fp++; else tn++; }
+    }
+    return { tp:tp, fp:fp, fn:fn, tn:tn, n:C.length };
+  }
+  /* Sweep the threshold from high to low. Each subject taken in turn moves the
+     trace up if they were a patient and right if they were not, so the curve
+     IS the set of points the threshold slider can reach. */
+  function roc(prev, sep){
+    var C = cohort(prev, sep).slice().sort(function(a,b){ return b.s - a.s; });
+    var P = 0, Nn = 0, i;
+    for (i=0;i<C.length;i++){ if (C[i].y) P++; else Nn++; }
+    var pts = [[0,0]], tp = 0, fp = 0, auc = 0, lx = 0, ly = 0;
+    for (i=0;i<C.length;i++){
+      if (C[i].y) tp++; else fp++;
+      var xx = Nn ? fp/Nn : 0, yy = P ? tp/P : 0;
+      auc += (xx - lx)*(yy + ly)/2;
+      lx = xx; ly = yy;
+      pts.push([xx, yy]);
+    }
+    return { pts: pts, auc: auc };
+  }
+  var subs = [];
+  return { N:N, cohort:cohort, counts:counts, roc:roc,
+           t:0.5, prev:0.40, sep:1.90,
+           on: function(f){ subs.push(f); },
+           emit: function(){ subs.forEach(function(f){ try{ f(); }catch(e){} }); } };
+})();
+
 (function(){
   var p = mkPlot("cvThr", {xd:[0, 1], yd:[0, 1], padL:46, padB:38});
   if (!p) return;
@@ -2391,50 +2482,21 @@ var THR = { t: 0.5, prev: 0.40 };
   var cmEl = document.getElementById("cmTbl");
 
   var L = layerToggles("thrLayers", [
-    {k:"pat",  label:"patients",      kind:"dot",  col:"--c-error"},
-    {k:"ctrl", label:"controls",      kind:"dot",  col:"--c-test"},
-    {k:"line", label:"the threshold", kind:"dash", col:"--ink"}
-  ], function(){ draw(); });
-
-  /* Scores are drawn once per prevalence and cached: the threshold slider must
-     not reshuffle the cohort underneath the confusion matrix. */
-  var cache = {}, N = 300;
-  function cohort(prev){
-    var key = String(prev);
-    if (cache[key]) return cache[key];
-    var r = rng(313131), out = [], i;
-    var nPat = Math.round(N*prev);
-    for (i=0;i<N;i++){
-      var pat = i < nPat;
-      /* two overlapping score distributions, squashed into (0,1) */
-      var s = sigm((pat ? 0.95 : -0.95) + gauss(r)*1.15);
-      out.push({ y: pat ? 1 : 0, s: s });
-    }
-    cache[key] = out;
-    return out;
-  }
-
-  window.THRCOUNT = function(t, prev){
-    var C = cohort(prev), tp=0, fp=0, fn=0, tn=0;
-    for (var i=0;i<C.length;i++){
-      var flag = C[i].s >= t;
-      if (C[i].y === 1){ if (flag) tp++; else fn++; }
-      else { if (flag) fp++; else tn++; }
-    }
-    return { tp:tp, fp:fp, fn:fn, tn:tn, n:C.length };
-  };
+    {k:"pat",  label:"patients (triangles)", kind:"tri",  col:"--c-error"},
+    {k:"ctrl", label:"controls (circles)",   kind:"dot",  col:"--c-test"},
+    {k:"line", label:"the threshold",        kind:"dash", col:"--ink"}
+  ], function(){ MET.emit(); });
 
   function draw(){
     var t = (+eT.value)/100, prev = (+eP.value)/100;
-    THR.t = t; THR.prev = prev;
+    MET.t = t; MET.prev = prev;
     lT.textContent = t.toFixed(2);
     lP.textContent = (+eP.value) + "%";
-    var C = cohort(prev);
+    var C = MET.cohort(prev, MET.sep);
 
     p.sync(); p.frame();
     p.grid([0,0.25,0.5,0.75,1], null);
 
-    /* patients on the upper band, controls on the lower, both against score */
     if (L.on("pat") || L.on("ctrl")){
       var r2 = rng(828282);
       C.forEach(function(d){
@@ -2443,7 +2505,8 @@ var THR = { t: 0.5, prev: 0.40 };
         var band = d.y === 1 ? 0.72 : 0.28;
         var hit = (d.s >= t) === (d.y === 1);
         p.dots([[d.s, band + (r2()-0.5)*0.30]],
-               {r:3.1, color: alpha(col(d.y ? "--c-error" : "--c-test"), hit ? 0.72 : 0.22)});
+               {r:3.1, shape: d.y ? "triangle" : "circle",
+                color: alpha(col(d.y ? "--c-error" : "--c-test"), hit ? 0.75 : 0.2)});
       });
       p.txt("patients", p.L + 6, p.y(0.95),
             {color: col("--c-error"), font:'600 10px "IBM Plex Mono", monospace'});
@@ -2451,14 +2514,14 @@ var THR = { t: 0.5, prev: 0.40 };
             {color: col("--c-test"), font:'600 10px "IBM Plex Mono", monospace'});
     }
     if (L.on("line")){
-      p.seg(t, 0, t, 1, {color: alpha(col("--ink"), .7), w:2});
-      p.txt("flag →", p.x(t) + 6, p.T + 13,
+      p.seg(t, 0, t, 1, {color: alpha(col("--ink"), .75), w:2});
+      p.txt("flag \u2192", p.x(t) + 6, p.T + 13,
             {color: col("--ink-soft"), font:'600 9.5px "IBM Plex Mono", monospace'});
     }
     p.axes({xt:[0,0.25,0.5,0.75,1], yt:null,
             xlabel:"fitted p(MDD)", fmt:function(v){ return v.toFixed(2); }});
 
-    var M = window.THRCOUNT(t, prev);
+    var M = MET.counts(t, prev, MET.sep);
     var sens = M.tp+M.fn ? M.tp/(M.tp+M.fn) : 0;
     var spec = M.tn+M.fp ? M.tn/(M.tn+M.fp) : 0;
     var prec = M.tp+M.fp ? M.tp/(M.tp+M.fp) : 0;
@@ -2488,12 +2551,10 @@ var THR = { t: 0.5, prev: 0.40 };
       " of the " + (M.fp+M.tn) + " controls. Accuracy is " + fmt(100*acc,1) +
       "%, and it would be " + fmt(100*Math.max(prev, 1-prev),1) +
       "% for a model that simply answered the same way every time.";
-
-    if (window.ROCREDRAW) window.ROCREDRAW();
   }
-  eT.addEventListener("input", draw);
-  eP.addEventListener("input", draw);
-  reg(draw);
+  eT.addEventListener("input", function(){ MET.t = (+eT.value)/100; MET.emit(); });
+  eP.addEventListener("input", function(){ MET.prev = (+eP.value)/100; MET.emit(); });
+  MET.on(draw); reg(draw);
 })();
 
 
@@ -2501,63 +2562,36 @@ var THR = { t: 0.5, prev: 0.40 };
    04b — every threshold at once
    ============================================================ */
 (function(){
-  var p = mkPlot("cvRoc", {xd:[-0.03, 1.03], yd:[-0.03, 1.03], padL:46, padB:40});
+  var p = mkPlot("cvRoc", {xd:[-0.04, 1.04], yd:[-0.04, 1.04], padL:48, padB:42});
   if (!p) return;
   var eS = document.getElementById("rocS"), lS = document.getElementById("rocSv");
   var capEl = document.getElementById("rocCap"), statsEl = document.getElementById("rocStats");
 
   var L = layerToggles("rocLayers", [
-    {k:"curve", label:"the ROC curve",        kind:"ln",   col:"--c-model"},
-    {k:"area",  label:"the area under it",    kind:"dot",  col:"--c-model"},
-    {k:"chance",label:"a coin flip",          kind:"dash", col:"--ink-faint"},
-    {k:"here",  label:"the threshold above",  kind:"ring", col:"--c-error"}
+    {k:"curve",  label:"the ROC curve",          kind:"ln",   col:"--c-model"},
+    {k:"here",   label:"your threshold",         kind:"ring", col:"--ink"},
+    {k:"guides", label:"read it off the axes",   kind:"dash", col:"--ink-faint"},
+    {k:"area",   label:"the area under it",      kind:"dot",  col:"--c-model"},
+    {k:"chance", label:"a coin flip",            kind:"dash", col:"--ink-faint"}
   ], function(){ draw(); });
 
-  var N = 800, cache = {};
-  function cohort(sep){
-    var key = sep.toFixed(2);
-    if (cache[key]) return cache[key];
-    var r = rng(454545), out = [], i;
-    for (i=0;i<N;i++){
-      var pat = i < N/2;
-      out.push({ y: pat?1:0, s: sigm((pat ? sep/2 : -sep/2) + gauss(r)*1.0) });
-    }
-    out.sort(function(a,b){ return b.s - a.s; });
-    cache[key] = out;
-    return out;
-  }
-  /* Sweep the threshold from high to low. Each step adds one subject to the
-     flagged set, moving up if they were a patient and right if they were not,
-     and the area accumulates as trapezoids. */
-  function roc(C){
-    var P = 0, Nn = 0, i;
-    for (i=0;i<C.length;i++){ if (C[i].y) P++; else Nn++; }
-    var pts = [[0,0]], tp = 0, fp = 0, auc = 0, lastX = 0, lastY = 0;
-    for (i=0;i<C.length;i++){
-      if (C[i].y) tp++; else fp++;
-      var xx = Nn ? fp/Nn : 0, yy = P ? tp/P : 0;
-      auc += (xx - lastX) * (yy + lastY)/2;
-      lastX = xx; lastY = yy;
-      pts.push([xx, yy]);
-    }
-    return { pts: pts, auc: auc };
-  }
-
   function draw(){
-    var sep = (+eS.value)/100; lS.textContent = sep.toFixed(2);
-    var C = cohort(sep), R = roc(C);
+    var sep = (+eS.value)/100;
+    MET.sep = sep;
+    lS.textContent = sep.toFixed(2);
+    var R = MET.roc(MET.prev, sep);
 
     p.sync(); p.frame();
     var tk = [0,0.25,0.5,0.75,1];
     p.grid(tk, tk);
-
     var ctx = p.ctx;
+
     if (L.on("area")){
       ctx.save(); p.clip(); ctx.beginPath();
       ctx.moveTo(p.x(0), p.y(0));
       R.pts.forEach(function(q){ ctx.lineTo(p.x(q[0]), p.y(q[1])); });
       ctx.lineTo(p.x(1), p.y(0)); ctx.closePath();
-      ctx.fillStyle = alpha(col("--c-model"), .15); ctx.fill();
+      ctx.fillStyle = alpha(col("--c-model"), .13); ctx.fill();
       p.unclip(); ctx.restore();
     }
     if (L.on("chance"))
@@ -2565,38 +2599,56 @@ var THR = { t: 0.5, prev: 0.40 };
     if (L.on("curve")){
       ctx.save(); p.clip(); ctx.beginPath();
       R.pts.forEach(function(q, k){
-        var Xp = p.x(q[0]), Yp = p.y(q[1]);
-        if (k===0) ctx.moveTo(Xp,Yp); else ctx.lineTo(Xp,Yp);
+        var X = p.x(q[0]), Y = p.y(q[1]);
+        if (k===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
       });
-      ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.6; ctx.lineJoin="round";
+      ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.6; ctx.lineJoin = "round";
       ctx.stroke(); p.unclip(); ctx.restore();
     }
-    /* where the threshold from the panel above sits on this curve */
-    if (L.on("here") && window.THRCOUNT){
-      var M = window.THRCOUNT(THR.t, THR.prev);
-      var sx = (M.fp+M.tn) ? M.fp/(M.fp+M.tn) : 0;
-      var sy = (M.tp+M.fn) ? M.tp/(M.tp+M.fn) : 0;
-      p.dots([[sx, sy]], {r:6, hollow:true, color: col("--c-error"), lw:2.4});
-    }
 
-    p.axes({xt:tk, yt:tk, xlabel:"1 − specificity  (false alarms)",
+    /* the point the threshold slider is sitting on. It lies on the curve by
+       construction now: both come from the same cohort. */
+    var M = MET.counts(MET.t, MET.prev, sep);
+    var sx = (M.fp+M.tn) ? M.fp/(M.fp+M.tn) : 0;
+    var sy = (M.tp+M.fn) ? M.tp/(M.tp+M.fn) : 0;
+
+    if (L.on("guides")){
+      p.seg(0, sy, sx, sy, {color: alpha(col("--ink"), .45), w:1.3, dash:[4,3]});
+      p.seg(sx, 0, sx, sy, {color: alpha(col("--ink"), .45), w:1.3, dash:[4,3]});
+      p.txt("sensitivity " + fmt(sy,2), p.L + 6, p.y(sy) - 6,
+            {color: col("--c-error"), font:'600 10px "IBM Plex Mono", monospace'});
+      p.txt("false alarms " + fmt(sx,2), p.x(sx) + 6, p.B - 6,
+            {color: col("--c-test"), font:'600 10px "IBM Plex Mono", monospace'});
+    }
+    if (L.on("here")){
+      p.dots([[sx, sy]], {r:6.5, color: col("--ink"), ring: col("--surface")});
+      p.txt("t = " + MET.t.toFixed(2), p.x(sx) + 11, p.y(sy) + 4,
+            {color: col("--ink"), font:'600 10.5px "IBM Plex Mono", monospace'});
+    }
+    /* the two ends of the slider, so the direction of travel is obvious */
+    p.txt("flag nobody", p.x(0) + 5, p.y(0) - 7,
+          {color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
+    p.txt("flag everybody", p.x(1) - 5, p.y(1) + 13,
+          {align:"right", color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
+
+    p.axes({xt:tk, yt:tk, xlabel:"1 \u2212 specificity  (false alarms)",
             ylabel:"sensitivity", fmt:function(v){ return v.toFixed(2); }});
 
     function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }
     statsEl.innerHTML =
       row("model", "AUC", fmt(R.auc, 3)) +
-      row("plain", "separation between groups", fmt(sep, 2)) +
-      row("plain", "subjects", String(N));
+      row("plain", "your threshold", MET.t.toFixed(2)) +
+      row("error", "sensitivity there", fmt(100*sy,1) + "%") +
+      row("test",  "false alarms there", fmt(100*sx,1) + "%");
 
     capEl.innerHTML = sep < 0.12
-      ? "With the two groups on top of each other the curve collapses onto the diagonal and the area is " +
-        fmt(R.auc,3) + ". The score ranks a patient above a control almost exactly half the time, which is what guessing does."
-      : "Area <b>" + fmt(R.auc,3) + "</b>: pick one patient and one control at random, and the model gives the patient the higher score " +
-        fmt(100*R.auc,1) + "% of the time. No threshold was chosen anywhere in that sentence.";
+      ? "With the two groups sitting on top of each other the curve collapses onto the diagonal and the area is " +
+        fmt(R.auc,3) + ". The score ranks a patient above a control about half the time, which is what guessing does."
+      : "Area <b>" + fmt(R.auc,3) + "</b>. Drag the threshold in the panel above and the dot walks along this curve: " +
+        "every threshold you could pick is one point on it, and the curve is the complete list.";
   }
-  window.ROCREDRAW = draw;
-  eS.addEventListener("input", draw);
-  reg(draw);
+  eS.addEventListener("input", function(){ MET.sep = (+eS.value)/100; MET.emit(); });
+  MET.on(draw); reg(draw);
 })();
 
 
@@ -2832,7 +2884,8 @@ var KNNC = (function(){
     {k:"knn",   label:"KNN boundary",      kind:"dot",  col:"--c-model"},
     {k:"logit", label:"logistic boundary", kind:"ln",   col:"--c-alt"},
     {k:"bayes", label:"Bayes boundary",    kind:"dash", col:"--ink"},
-    {k:"pts",   label:"training points",   kind:"dot",  col:"--c-data"}
+    {k:"ctrl",  label:"class 0 (circles)",  kind:"dot",  col:"--c-test"},
+    {k:"pat",   label:"class 1 (triangles)",kind:"tri",  col:"--c-error"}
   ], function(){ draw(); });
 
   function knnVote(pts, K, a, b){
@@ -2893,12 +2946,14 @@ var KNNC = (function(){
     }
     if (L.on("logit"))
       p.fnline(function(a){ return -(B[0] + B[1]*a)/B[2]; }, {color: col("--c-alt"), w:2.6});
-    if (L.on("pts")){
-      TR.forEach(function(d){
-        p.dots([[d.a, d.b]], {r:3.6, color: alpha(col(d.y ? "--c-error" : "--c-test"), .8),
-                              ring: alpha(col("--surface"), .9)});
-      });
-    }
+    /* shape, not just colour: the two shaded regions behind these points are
+       already carrying the same two hues */
+    TR.forEach(function(d){
+      if (!L.on(d.y ? "pat" : "ctrl")) return;
+      p.dots([[d.a, d.b]], {r:3.6, shape: d.y ? "triangle" : "circle",
+                            color: alpha(col(d.y ? "--c-error" : "--c-test"), .85),
+                            ring: alpha(col("--surface"), .9)});
+    });
     p.axes({xt:[-1,0,1], yt:[-1,0,1], xlabel:"feature 1", ylabel:"feature 2",
             fmt:function(v){ return v.toFixed(0); }});
 
