@@ -587,7 +587,8 @@ section.tabpanel{padding:2.6rem 0 0}
     <a href="#s10"><span class="n">04</span><span>How good is the fit?</span></a>
     <a href="#s11"><span class="n">05</span><span>Noisy data, small samples</span></a>
     <a href="#s13"><span class="n">06</span><span>More than one predictor</span></a>
-    <a href="#s12"><span class="n">07</span><span>Glossary</span></a>
+    <a href="#s14"><span class="n">07</span><span>Coefficient interpretation</span></a>
+    <a href="#s12"><span class="n">08</span><span>Glossary</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -1079,56 +1080,172 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
     <b>Adding a feature can only lower RSS.</b> Even a column of random noise gives the model somewhere to put a little error, so R<sup>2</sup> creeps up every single time. In neuroscience, where <span class="m">p</span> is often larger than <span class="m">n</span>, this stops being a nuisance and becomes the central problem. Next class: what to do about it.
   </div>
 </section>
+
+<!-- ==================== 14 ==================== -->
+<section id="s14">
+  <div class="shead"><div class="num">07</div><h2 data-ed="part2/07-coefficient-interpretation.html:0">Coefficient interpretation</h2></div>
+  <div class="prose">
+    <p data-ed="part2/07-coefficient-interpretation.html:1">We have the numbers. Now we have to say what they mean, because the coefficient is usually the thing the paper is about.</p>
+    <p data-ed="part2/07-coefficient-interpretation.html:2">Take the model from the previous tab, recall predicted from two measurements:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">recall<sub>i</sub></span> = <span class="m">&beta;<sub>0</sub></span>
+    + <span class="m">&beta;<sub>1</sub></span><span class="m">age<sub>i</sub></span>
+    + <span class="m">&beta;<sub>2</sub></span><span class="m">HipVol<sub>i</sub></span>
+    + <span class="m">&epsilon;<sub>i</sub></span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/07-coefficient-interpretation.html:3">Each <span class="m">&beta;<sub>j</sub></span> answers one question, and it is a question about a change, not about a level:</p>
+  </div>
+
+  <div class="eq">
+    If&nbsp; <span class="m">x<sub>j</sub></span> &rarr; <span class="m">x<sub>j</sub></span> + 1
+    &nbsp;&nbsp;then&nbsp;&nbsp;
+    <span class="m">y</span> &rarr; <span class="m">y</span> + <span class="m">&beta;<sub>j</sub></span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/07-coefficient-interpretation.html:4">One more unit of that predictor adds <span class="m">&beta;<sub>j</sub></span> to the prediction. The units matter: <span class="m">&beta;<sub>1</sub></span> is recall points <em>per year</em> and <span class="m">&beta;<sub>2</sub></span> is recall points <em>per cm&sup3;</em>.</p>
+    <p data-ed="part2/07-coefficient-interpretation.html:5">And there is a clause attached that is easy to drop and expensive to forget: <strong>assuming every other predictor stays where it is</strong>. <span class="m">&beta;<sub>1</sub></span> is not the effect of age. It is the effect of age among subjects of the same hippocampal volume.</p>
+    <p data-ed="part2/07-coefficient-interpretation.html:6">The intercept is the same statement at zero: the prediction when every predictor is 0. Both predictors here are measured from the group mean, so <span class="m">&beta;<sub>0</sub></span> is the predicted recall of an average subject. Measured from zero instead, it would be the predicted recall of a newborn with no hippocampus, which is why we centre.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part2/07-coefficient-interpretation.html:7">Where one prediction comes from</div>
+      <div class="hint" data-ed="part2/07-coefficient-interpretation.html:8">move a subject and watch each term pay in</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvCoef" class="cv" height="250"></canvas>
+        <div id="coefLayers"></div>
+        <div class="tblwrap">
+          <table class="tbl" id="coefTbl"></table>
+        </div>
+        <p class="notecap" id="coefCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>age, years from the mean <span class="v" id="ciAv">0.0</span></label>
+          <input type="range" id="ciA" min="-150" max="150" value="0" step="1">
+        </div>
+        <div class="ctl-row">
+          <label>volume, cm&sup3; from the mean <span class="v" id="ciVv">0.00</span></label>
+          <input type="range" id="ciV" min="-100" max="100" value="0" step="1">
+        </div>
+        <div class="stats" id="coefStats"></div>
+        <p class="notecap" data-ed="part2/07-coefficient-interpretation.html:9">Set both sliders to zero and the prediction is the intercept alone: the average subject. Each slider then adds its own coefficient times its own value, and nothing else moves.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3 data-ed="part2/07-coefficient-interpretation.html:10">Which variable is more important?</h3>
+    <p data-ed="part2/07-coefficient-interpretation.html:11">Here is the table a paper would print, and the question a reader immediately asks:</p>
+  </div>
+
+  <div class="eq tight">
+    <table class="tbl" style="max-width:26rem;margin:0 auto">
+      <tr><th>variable</th><th>coefficient</th></tr>
+      <tr><td>intercept</td><td id="ciT0">&mdash;</td></tr>
+      <tr><td>age</td><td id="ciT1">&mdash;</td></tr>
+      <tr><td>hippocampal volume</td><td id="ciT2">&mdash;</td></tr>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/07-coefficient-interpretation.html:12">Volume&rsquo;s coefficient is more than twenty times the size of age&rsquo;s, so volume must matter more. That reasoning is wrong, and the panel below shows why in one click.</p>
+    <p data-ed="part2/07-coefficient-interpretation.html:13">A coefficient is recall points <em>per unit of its own predictor</em>, and the two predictors are not measured in the same unit. Report volume in mm&sup3; instead of cm&sup3; and its coefficient divides by a thousand. Nothing about the brain changed, nothing about the fit changed, and the ranking flips.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part2/07-coefficient-interpretation.html:14">The same model, two ways of comparing</div>
+      <div class="hint" data-ed="part2/07-coefficient-interpretation.html:15">change the units and watch which bars move</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvImp" class="cv" height="280"></canvas>
+        <div id="impLayers"></div>
+        <p class="notecap" id="impCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>volume reported in</label>
+          <div class="seg" id="impSeg" style="margin-top:.2rem">
+            <button class="on" data-v="cm">cm&sup3;</button>
+            <button data-v="mm">mm&sup3;</button>
+          </div>
+        </div>
+        <div class="stats" id="impStats"></div>
+        <p class="notecap" data-ed="part2/07-coefficient-interpretation.html:16">A <strong>standardised</strong> coefficient is <span class="m">&beta;<sub>j</sub></span> times the standard deviation of <span class="m">x<sub>j</sub></span>: the change in recall for a one-SD move in that predictor. It is in recall points for every predictor, so the numbers can finally be put beside each other.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key">
+    <div class="lbl" data-ed="part2/07-coefficient-interpretation.html:17">Key idea</div>
+    <p data-ed="part2/07-coefficient-interpretation.html:18">Raw coefficients answer &ldquo;per unit&rdquo;, and units are a choice we made. Standardised coefficients answer &ldquo;per standard deviation&rdquo;, and that is a property of the data. Only the second kind can be compared across predictors, and only within the population we measured: a cohort with a narrow age range will make age look unimportant whatever its true effect.</p>
+  </div>
+
+  <div class="warn" data-ed="part2/07-coefficient-interpretation.html:19">
+    <b>&ldquo;Holding the others fixed&rdquo; can be a fiction.</b> It is a statement about the model, not about anything we can do. When predictors are correlated, as age and hippocampal volume certainly are, no subject in the data holds one fixed while the other moves, and the coefficient is estimated from whatever little independent variation is left. That is why coefficients can swing wildly when a correlated predictor is added or dropped, and why none of this is a causal claim.
+  </div>
+</section>
 <!-- ==================== 12 ==================== -->
 <section id="s12">
-  <div class="shead"><div class="num">07</div><h2 data-ed="part2/07-glossary.html:0">Glossary</h2></div>
+  <div class="shead"><div class="num">08</div><h2 data-ed="part2/08-glossary.html:0">Glossary</h2></div>
   <div class="prose">
-    <p data-ed="part2/07-glossary.html:1">Everything introduced today, in the notation the course will keep using.</p>
+    <p data-ed="part2/08-glossary.html:1">Everything introduced today, in the notation the course will keep using.</p>
   </div>
 
   <div class="gloss">
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:2"><span class="m">x</span></div><div class="gd" data-ed="part2/07-glossary.html:3">Feature, or predictor. What we measured and are willing to use as input.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:4"><span class="m">y</span></div><div class="gd" data-ed="part2/07-glossary.html:5">Outcome, or target. What we want the model to produce.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:6"><span class="m">f</span></div><div class="gd" data-ed="part2/07-glossary.html:7">The true relationship between them. Unknown, and stays unknown.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:8"><span class="m"><span class="hat f">f</span></span></div><div class="gd" data-ed="part2/07-glossary.html:9">Our estimate of it: the fitted model. The hat means &ldquo;estimated from data&rdquo;.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:10"><span class="m">&epsilon;</span></div><div class="gd" data-ed="part2/07-glossary.html:11">Irreducible noise. The part of <span class="m">y</span> no model can ever recover.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:12"><span class="m"><span class="hat">y</span><sub>i</sub></span></div><div class="gd" data-ed="part2/07-glossary.html:13">The model&rsquo;s prediction for subject <span class="m">i</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:14"><span class="m">n</span> / <span class="m">p</span></div><div class="gd" data-ed="part2/07-glossary.html:15">Number of observations / number of features. In neuroscience <span class="m">p</span> &gt; <span class="m">n</span> is normal, and it breaks things.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:16">residual</div><div class="gd" data-ed="part2/07-glossary.html:17"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:18">RSS</div><div class="gd" data-ed="part2/07-glossary.html:19">Sum of squared residuals. What least squares minimises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:20">TSS</div><div class="gd" data-ed="part2/07-glossary.html:21">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:22">MSE</div><div class="gd" data-ed="part2/07-glossary.html:23">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:24">RMSE</div><div class="gd" data-ed="part2/07-glossary.html:25">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:26"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/07-glossary.html:27">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:28"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/07-glossary.html:29">Intercept and slope. The weights the model learns.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:30">OLS</div><div class="gd" data-ed="part2/07-glossary.html:31">Ordinary least squares. The recipe for finding those weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:32">training set</div><div class="gd" data-ed="part2/07-glossary.html:33">The data used to choose the weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:34">test set</div><div class="gd" data-ed="part2/07-glossary.html:35">Data held back and touched exactly once, to estimate real performance.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:36">overfitting</div><div class="gd" data-ed="part2/07-glossary.html:37">Fitting the noise. Train error falls, test error rises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:38">supervised</div><div class="gd" data-ed="part2/07-glossary.html:39">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:40">unsupervised</div><div class="gd" data-ed="part2/07-glossary.html:41">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:42">accuracy</div><div class="gd" data-ed="part2/07-glossary.html:43">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/07-glossary.html:44">recall</div><div class="gd" data-ed="part2/07-glossary.html:45">Of the true positives, the fraction the model found.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:2"><span class="m">x</span></div><div class="gd" data-ed="part2/08-glossary.html:3">Feature, or predictor. What we measured and are willing to use as input.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:4"><span class="m">y</span></div><div class="gd" data-ed="part2/08-glossary.html:5">Outcome, or target. What we want the model to produce.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:6"><span class="m">f</span></div><div class="gd" data-ed="part2/08-glossary.html:7">The true relationship between them. Unknown, and stays unknown.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:8"><span class="m"><span class="hat f">f</span></span></div><div class="gd" data-ed="part2/08-glossary.html:9">Our estimate of it: the fitted model. The hat means &ldquo;estimated from data&rdquo;.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:10"><span class="m">&epsilon;</span></div><div class="gd" data-ed="part2/08-glossary.html:11">Irreducible noise. The part of <span class="m">y</span> no model can ever recover.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:12"><span class="m"><span class="hat">y</span><sub>i</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:13">The model&rsquo;s prediction for subject <span class="m">i</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:14"><span class="m">n</span> / <span class="m">p</span></div><div class="gd" data-ed="part2/08-glossary.html:15">Number of observations / number of features. In neuroscience <span class="m">p</span> &gt; <span class="m">n</span> is normal, and it breaks things.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:16">residual</div><div class="gd" data-ed="part2/08-glossary.html:17"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:18">RSS</div><div class="gd" data-ed="part2/08-glossary.html:19">Sum of squared residuals. What least squares minimises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20">TSS</div><div class="gd" data-ed="part2/08-glossary.html:21">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">MSE</div><div class="gd" data-ed="part2/08-glossary.html:23">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24">RMSE</div><div class="gd" data-ed="part2/08-glossary.html:25">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:27">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:29">Intercept and slope. The weights the model learns.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:31"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">centring</div><div class="gd" data-ed="part2/08-glossary.html:33">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34">OLS</div><div class="gd" data-ed="part2/08-glossary.html:35">Ordinary least squares. The recipe for finding those weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">training set</div><div class="gd" data-ed="part2/08-glossary.html:37">The data used to choose the weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">test set</div><div class="gd" data-ed="part2/08-glossary.html:39">Data held back and touched exactly once, to estimate real performance.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:41">Fitting the noise. Train error falls, test error rises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">supervised</div><div class="gd" data-ed="part2/08-glossary.html:43">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:45">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:47">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:48">recall</div><div class="gd" data-ed="part2/08-glossary.html:49">Of the true positives, the fraction the model found.</div></div>
   </div>
 
   <div class="prose" style="margin-top:1.6rem">
-    <h3 data-ed="part2/07-glossary.html:46">Next time</h3>
-    <p data-ed="part2/07-glossary.html:47">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
+    <h3 data-ed="part2/08-glossary.html:50">Next time</h3>
+    <p data-ed="part2/08-glossary.html:51">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
   </div>
 
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/07-glossary.html:48">Class 2: The price of flexibility</div>
-      <p class="cl-d" data-ed="part2/07-glossary.html:49">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:52">Class 2: The price of flexibility</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:53">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
     </div>
     <a href="https://claude.ai/code/artifact/c747a30a-ce77-4fee-8339-d8726a4e94e2" data-local="class2_interactions_and_flexibility.html">On to class 2 &rarr;</a>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/07-glossary.html:50">Part 1: What is machine learning</div>
-      <p class="cl-d" data-ed="part2/07-glossary.html:51">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:54">Part 1: What is machine learning</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:55">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
     </div>
     <a href="https://claude.ai/code/artifact/d74b446f-4367-4f83-b6b9-47ba4cd98888" data-local="class1_part1_what_is_ml.html">Back to part 1 &rarr;</a>
   </div>
@@ -2796,6 +2913,201 @@ function lrAxes(p){
   reg(draw);
 })();
 
+
+/* ============================================================
+   14 — coefficient interpretation
+   ============================================================ */
+var CI = (function(){
+  /* The same 44 subjects as the multiple-regression tab. Regenerated from the
+     same seed rather than shared, so the two tabs cannot drift apart. */
+  var N = 44, X1 = [], X2 = [], Y = [];
+  var r = rng(51423);
+  for (var i=0;i<N;i++){
+    var v = gauss(r)*0.42;                 /* volume, cm3 from the mean */
+    var a = gauss(r)*7.5;                  /* age, years from the mean  */
+    X1.push(v); X2.push(a);
+    Y.push(10.6 + 4.1*v - 0.16*a + gauss(r)*1.15);
+  }
+  var B = lstsq(X1.map(function(v,k){ return [1, X2[k], v]; }), Y);  /* b0, age, vol */
+  return { N:N, vol:X1, age:X2, y:Y, b0:B[0], bAge:B[1], bVol:B[2],
+           sdAge: sd(X2), sdVol: sd(X1) };
+})();
+
+(function(){
+  var p = mkPlot("cvCoef", {xd:[0, 1], yd:[0, 1], padL:16, padR:16, padT:26, padB:40});
+  if (!p) return;
+  var eA = document.getElementById("ciA"), lA = document.getElementById("ciAv");
+  var eV = document.getElementById("ciV"), lV = document.getElementById("ciVv");
+  var capEl = document.getElementById("coefCap"), statsEl = document.getElementById("coefStats");
+  var tblEl = document.getElementById("coefTbl");
+
+  var L = layerToggles("coefLayers", [
+    {k:"base", label:"the intercept",      kind:"dot", col:"--ink-faint"},
+    {k:"age",  label:"what age adds",      kind:"dot", col:"--c-test"},
+    {k:"vol",  label:"what volume adds",   kind:"dot", col:"--c-model"}
+  ], function(){ draw(); });
+
+  /* a horizontal bar built from the three terms, so the prediction is visibly
+     the intercept plus one payment per predictor */
+  function draw(){
+    var a = (+eA.value)/10, v = (+eV.value)/100;
+    lA.textContent = a.toFixed(1); lV.textContent = v.toFixed(2);
+    var tAge = CI.bAge*a, tVol = CI.bVol*v;
+    var pred = CI.b0 + tAge + tVol;
+
+    var lo = 0, hi = 20;
+    p.dom([lo, hi], [0, 1]);
+    p.sync(); p.frame();
+    p.grid([0,5,10,15,20], null);
+    var ctx = p.ctx, yMid = 0.55, h = 0.3;
+
+    function bar(from, to, colr, on){
+      if (!on || Math.abs(to-from) < 1e-9) return;
+      var x0 = Math.min(from,to), x1 = Math.max(from,to);
+      ctx.save(); p.clip();
+      ctx.fillStyle = alpha(colr, .75);
+      ctx.fillRect(p.x(x0), p.y(yMid+h/2), p.x(x1)-p.x(x0), p.y(yMid-h/2)-p.y(yMid+h/2));
+      ctx.strokeStyle = colr; ctx.lineWidth = 1.2;
+      ctx.strokeRect(p.x(x0), p.y(yMid+h/2), p.x(x1)-p.x(x0), p.y(yMid-h/2)-p.y(yMid+h/2));
+      p.unclip(); ctx.restore();
+    }
+    var cur = 0;
+    bar(0, CI.b0, col("--ink-faint"), L.on("base"));  cur = CI.b0;
+    bar(cur, cur + tAge, col("--c-test"), L.on("age"));  if (L.on("age")) cur += tAge;
+    bar(cur, cur + tVol, col("--c-model"), L.on("vol")); if (L.on("vol")) cur += tVol;
+
+    /* the running total, marked where it lands */
+    p.seg(cur, yMid-h/2-0.12, cur, yMid+h/2+0.12, {color: col("--ink"), w:2});
+    p.txt(fmt(cur,2), p.x(cur), p.y(yMid+h/2+0.18),
+          {align:"center", color: col("--ink"), font:'600 12px "IBM Plex Mono", monospace'});
+    p.txt("predicted recall", p.x(cur), p.y(yMid-h/2-0.20),
+          {align:"center", color: col("--ink-soft"), font:'9.5px "IBM Plex Mono", monospace'});
+    p.axes({xt:[0,5,10,15,20], yt:null, xlabel:"recall score",
+            fmt:function(z){ return z.toFixed(0); }});
+
+    tblEl.innerHTML =
+      "<tr><th>term</th><th>coefficient</th><th>value</th><th>contributes</th></tr>" +
+      "<tr><td>intercept</td><td>" + fmt(CI.b0,2) + "</td><td>&mdash;</td><td class='hi'>" + fmt(CI.b0,2) + "</td></tr>" +
+      "<tr><td>age</td><td>" + fmt(CI.bAge,3) + " / year</td><td>" + fmt(a,1) + " yr</td><td class='hi'>" + fmt(tAge,2) + "</td></tr>" +
+      "<tr><td>volume</td><td>" + fmt(CI.bVol,3) + " / cm&sup3;</td><td>" + fmt(v,2) + " cm&sup3;</td><td class='hi'>" + fmt(tVol,2) + "</td></tr>" +
+      "<tr class='tot'><td>prediction</td><td></td><td></td><td>" + fmt(pred,2) + "</td></tr>";
+
+    function row(cls,k,val){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+val+'</span></div>'; }
+    statsEl.innerHTML =
+      row("plain", "predicted recall", fmt(pred,2)) +
+      row("test",  "one more year of age", fmt(CI.bAge,3)) +
+      row("model", "one more cm&sup3; of volume", fmt(CI.bVol,3));
+
+    capEl.innerHTML =
+      "This subject is " + fmt(Math.abs(a),1) + " years " + (a >= 0 ? "older" : "younger") +
+      " than average and has " + fmt(Math.abs(v),2) + " cm&sup3; " + (v >= 0 ? "more" : "less") +
+      " hippocampus, so the model predicts <b>" + fmt(pred,2) + "</b>: " + fmt(CI.b0,2) +
+      " for an average subject, " + fmt(tAge,2) + " from age, " + fmt(tVol,2) + " from volume.";
+  }
+  eA.addEventListener("input", draw);
+  eV.addEventListener("input", draw);
+  reg(draw);
+
+  /* the printed table in the prose above the second panel */
+  var t0 = document.getElementById("ciT0");
+  if (t0){
+    t0.textContent = fmt(CI.b0, 2);
+    document.getElementById("ciT1").textContent = fmt(CI.bAge, 3);
+    document.getElementById("ciT2").textContent = fmt(CI.bVol, 3);
+  }
+})();
+
+
+/* ============================================================
+   14b — per unit against per standard deviation
+   ============================================================ */
+(function(){
+  var p = mkPlot("cvImp", {xd:[0, 1], yd:[0, 4], padL:112, padB:40, padT:18});
+  if (!p) return;
+  var capEl = document.getElementById("impCap"), statsEl = document.getElementById("impStats");
+  var seg = document.getElementById("impSeg");
+  var unit = "cm";
+
+  var L = layerToggles("impLayers", [
+    {k:"unit", label:"for one unit of the predictor", kind:"dot", col:"--ink-faint"},
+    {k:"sd",   label:"for one standard deviation",    kind:"dot", col:"--c-model"}
+  ], function(){ draw(); });
+
+  function draw(){
+    /* reporting volume in mm3 divides its coefficient by 1000 and multiplies
+       its spread by the same 1000, so the standardised value cannot move */
+    var k = unit === "cm" ? 1 : 1000;
+    var bVol = CI.bVol / k, sdVol = CI.sdVol * k;
+    var rows = [
+      { name:"volume", u: Math.abs(bVol),     s: Math.abs(bVol*sdVol),  c:"--c-model" },
+      { name:"age",    u: Math.abs(CI.bAge),  s: Math.abs(CI.bAge*CI.sdAge), c:"--c-test" }
+    ];
+    var top = 0, i;
+    for (i=0;i<rows.length;i++) top = Math.max(top, rows[i].u, rows[i].s);
+    top = Math.max(top*1.25, 0.5);
+
+    p.dom([0, top], [0, 4]);
+    p.sync(); p.frame();
+    var xt = ticks(0, top, 4);
+    p.grid(xt, null);
+    var ctx = p.ctx;
+
+    /* four bars: each predictor measured both ways */
+    var slots = [
+      { r:rows[0], kind:"unit", y:3.4 }, { r:rows[0], kind:"sd", y:2.6 },
+      { r:rows[1], kind:"unit", y:1.4 }, { r:rows[1], kind:"sd", y:0.6 }
+    ];
+    slots.forEach(function(s){
+      var on = L.on(s.kind === "unit" ? "unit" : "sd");
+      if (!on) return;
+      var v = s.kind === "unit" ? s.r.u : s.r.s;
+      var colr = s.kind === "unit" ? col("--ink-faint") : col(s.r.c);
+      ctx.save(); p.clip();
+      ctx.fillStyle = alpha(colr, s.kind === "unit" ? .45 : .8);
+      var hh = p.y(s.y-0.3) - p.y(s.y+0.3);
+      ctx.fillRect(p.L, p.y(s.y+0.3), Math.max(1, p.x(v)-p.L), hh);
+      p.unclip(); ctx.restore();
+      p.txt(s.r.name + ", " + (s.kind === "unit"
+              ? "per " + (s.r.name === "age" ? "year" : (unit === "cm" ? "cm\u00B3" : "mm\u00B3"))
+              : "per SD"),
+            p.L - 7, p.y(s.y) + 4,
+            {align:"right", color: col("--ink-soft"), font:'10px "IBM Plex Mono", monospace'});
+      p.txt(v < 0.01 ? v.toExponential(1) : fmt(v, v < 1 ? 3 : 2),
+            Math.max(p.x(v) + 7, p.L + 7), p.y(s.y) + 4,
+            {color: colr, font:'600 10.5px "IBM Plex Mono", monospace'});
+    });
+    p.axes({xt:xt, yt:null, xlabel:"recall points",
+            fmt:function(z){ return z < 0.01 ? "0" : (z < 1 ? z.toFixed(2) : z.toFixed(1)); }});
+
+    var ratioU = rows[1].u > 0 ? rows[0].u/rows[1].u : 0;
+    var ratioS = rows[1].s > 0 ? rows[0].s/rows[1].s : 0;
+    function row(cls,kk,v){ return '<div class="stat '+cls+'"><span class="k">'+kk+'</span><span class="val">'+v+'</span></div>'; }
+    statsEl.innerHTML =
+      row("model", "volume, raw", (rows[0].u < 0.01 ? rows[0].u.toExponential(1) : fmt(rows[0].u,3))) +
+      row("test",  "age, raw", fmt(rows[1].u,3)) +
+      /* in mm3 the ratio inverts, and "0.0x bigger" reads as a bug rather than
+         as the point being made */
+      row("plain", ratioU >= 1 ? "volume looks this much bigger"
+                               : "age looks this much bigger",
+          fmt(ratioU >= 1 ? ratioU : 1/ratioU, 1) + "x") +
+      row("error", "and per SD, volume by only", fmt(ratioS,1) + "x");
+
+    capEl.innerHTML = unit === "cm"
+      ? "In cm&sup3;, volume's coefficient is <b>" + fmt(ratioU,0) +
+        " times</b> age's, which is the comparison the table invites. Per standard deviation the gap is only <b>" +
+        fmt(ratioS,1) + " times</b>. Now switch the units."
+      : "The very same fit, with volume reported in mm&sup3;. Its coefficient is now <b>" +
+        rows[0].u.toExponential(1) + "</b>, a thousandth of what it was, and age's raw coefficient dwarfs it. " +
+        "The standardised bars did not move at all: still <b>" + fmt(ratioS,1) +
+        " times</b>, because a thousandth of the coefficient goes with a thousand times the spread.";
+  }
+  seg.addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
+    unit = b.getAttribute("data-v"); draw();
+  });
+  reg(draw);
+})();
 
 /* first paint after fonts settle */
 window.addEventListener("load", function(){ requestAnimationFrame(redrawAll); });
