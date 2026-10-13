@@ -262,6 +262,7 @@ input[type=range]::-moz-range-thumb{
 .stat.model{border-left-color:var(--c-model)} .stat.model .val{color:var(--c-model)}
 .stat.error{border-left-color:var(--c-error)} .stat.error .val{color:var(--c-error)}
 .stat.test{border-left-color:var(--c-test)}  .stat.test .val{color:var(--c-test)}
+.stat.alt{border-left-color:var(--c-alt)}  .stat.alt .val{color:var(--c-alt)}
 .stat.plain .val{color:var(--ink)}
 
 .legend{display:flex;flex-wrap:wrap;gap:.35rem .95rem;font-family:var(--mono);font-size:.68rem;color:var(--ink-soft)}
@@ -631,15 +632,24 @@ section.tabpanel{padding:2.6rem 0 0}
       <br><span class="m">&epsilon;</span> is everything that we cannot, or did not measure and control for: measurement noise, biological variability, the variables we did not record. 
       <br><span class="m">&epsilon;</span> is why two subjects with identical <span class="m">x</span> still give you different <span class="m">y</span>, and why two measurements from the same subject still give you different <span class="m">y</span>.</p>
     <p data-ed="part1/01-what-is-machine-learning.html:3">Importantly, we never get to see <span class="m">f</span>.
-      <br>We only see a list of noisy <span class="m">(x, y)</span> pairs. Machine learning is the process of using that list to build an estimation of <span class="m">f</span>, called <span class="m"><span class="hat f">f</span></span> (f-hat), that is good enough to be useful.</p>
-    <p data-ed="part1/01-what-is-machine-learning.html:4">For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function f that maps the two is a fifth-degree polynomial. 
+      <br>We only see a list of noisy <span class="m">(x, y)</span> pairs. Machine learning is the process of using that list to build an estimation of <span class="m">f</span>, called <span class="m"><span class="hat f">f</span></span> (f-hat), that is good enough to be useful.
+      <br>Once we have <span class="m"><span class="hat f">f</span></span>, we can give it any <span class="m">x</span> and get back a prediction of <span class="m">y</span>, called <span class="m"><span class="hat">y</span></span> (y-hat):</p>
+  </div>
+
+  <div class="eq"><span class="m"><span class="hat">y</span></span> = <span class="m"><span class="hat f">f</span></span>(<span class="m">x</span>)</div>
+
+  <div class="prose">
+    <p data-ed="part1/01-what-is-machine-learning.html:4">Our goal is to estimate <span class="m"><span class="hat f">f</span></span> in the best way to predict <span class="m">y</span>.
+      <br>Notice there is no <span class="m">&epsilon;</span> here. <span class="m"><span class="hat f">f</span></span> can only learn the part of <span class="m">y</span> that <span class="m">x</span> explains.
+      <br>So even a perfect <span class="m"><span class="hat f">f</span></span> gives <span class="m"><span class="hat">y</span></span> &asymp; <span class="m">y</span>, never <span class="m"><span class="hat">y</span></span> = <span class="m">y</span>.</p>
+    <p data-ed="part1/01-what-is-machine-learning.html:5">For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function f that maps the two is a fifth-degree polynomial. 
       <br>The simulation knows that polynomial, but we just get a table of observations:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part1/01-what-is-machine-learning.html:5">Your data</div>
-      <div class="hint" data-ed="part1/01-what-is-machine-learning.html:6">live: it tracks the controls below</div>
+      <div class="t" data-ed="part1/01-what-is-machine-learning.html:6">Your data</div>
+      <div class="hint" data-ed="part1/01-what-is-machine-learning.html:7">live: it tracks the controls below</div>
     </div>
     <div class="panel-body dfsplit">
       <div class="tblwrap" style="margin:0">
@@ -649,20 +659,20 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part1/01-what-is-machine-learning.html:7">Plotted, those rows become a scatter.
-      <br><strong>Try to draw the curve yourself first</strong>, then switch on the estimate, and only then reveal the truth.</p>
+    <p data-ed="part1/01-what-is-machine-learning.html:8">Plotted, those rows become a scatter.
+      <br><strong>Drag across the plot to draw our own guess first</strong>, then switch on the estimate, and only then reveal the truth.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part1/01-what-is-machine-learning.html:8">The unknown function</div>
-      <div class="hint" data-ed="part1/01-what-is-machine-learning.html:9">switch the layers on and off under the plot</div>
+      <div class="t" data-ed="part1/01-what-is-machine-learning.html:9">The unknown function</div>
+      <div class="hint" data-ed="part1/01-what-is-machine-learning.html:10">switch the layers on and off under the plot</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvTruth" class="cv" height="330"></canvas>
         <div id="truthLayers"></div>
-        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:10">This cell is not a textbook bell. It has a best frequency near 7 kHz, a suppressed band around 15 kHz, and a second response region near 23 kHz. Not a shape we could guess from a handful of trials.</p>
+        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:11">This cell is not a textbook bell. It has a best frequency near 7 kHz, a suppressed band around 15 kHz, and a second response region near 23 kHz. Not a shape we could guess from a handful of trials.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -673,18 +683,19 @@ section.tabpanel{padding:2.6rem 0 0}
           <label>noise <span class="m">&sigma;</span> (spikes/s) <span class="v" id="truthSv">10</span></label>
           <input type="range" id="truthS" min="0" max="20" value="10" step="1">
         </div>
-        <div class="btnrow"><button class="btn" id="truthNew">new sample</button></div>
+        <div class="btnrow"><button class="btn" id="truthNew">new sample</button><button class="btn" id="truthClear">clear my guess</button></div>
         <div class="stats">
           <div class="stat model"><span class="k">how far <span class="hat f">f</span> is from f</span><span class="val" id="truthGap">&mdash;</span></div>
+          <div class="stat alt"><span class="k">how far my guess is from f</span><span class="val" id="truthMine">&mdash;</span></div>
         </div>
-        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:11">Root-mean-square gap between the two curves. More trials, or less noise, pulls it down. It never reaches zero: a smooth estimate can only chase so many bends.</p>
+        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:12">Root-mean-square gap from the true curve. Our guess is scored only where we drew, and only once true f is switched on. More trials, or less noise, pulls it down. It never reaches zero: a smooth estimate can only chase so many bends.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part1/01-what-is-machine-learning.html:12">Key idea</div>
-    <p data-ed="part1/01-what-is-machine-learning.html:13">Many different curves are compatible with our data. Adding data does not change the underlying <span class="m">f</span>, but it narrows down which <span class="m"><span class="hat f">f</span></span> can be estimated.</p>
+    <div class="lbl" data-ed="part1/01-what-is-machine-learning.html:13">Key idea</div>
+    <p data-ed="part1/01-what-is-machine-learning.html:14">Many different curves are compatible with our data. Adding data does not change the underlying <span class="m">f</span>, but it narrows down which <span class="m"><span class="hat f">f</span></span> can be estimated.</p>
   </div>
 </section>
 
@@ -1603,8 +1614,11 @@ var TABS = (function(){
   var lbN = document.getElementById("truthNv"), lbS = document.getElementById("truthSv");
   var btn = document.getElementById("truthNew");
   var gapEl = document.getElementById("truthGap");
+  var mineEl = document.getElementById("truthMine");
+  var clrBtn = document.getElementById("truthClear");
   var L = layerToggles("truthLayers", [
     {k:"data",  label:"the trials",   kind:"dot",  col:"--c-data"},
+    {k:"mine",  label:"my guess",     kind:"ln",   col:"--c-alt"},
     {k:"hat",   label:"estimate <span class='hat f'>f</span>", kind:"ln",   col:"--c-model", on:false},
     {k:"truth", label:"true f",       kind:"dash", col:"--ink-faint", on:false}
   ], function(){ draw(); });
@@ -1618,6 +1632,47 @@ var TABS = (function(){
   function trueF(x){
     var t = (x - 18)/14;                    /* -1 .. 1 */
     return ((((359.924*t - 96.469)*t - 435.470)*t + 85.396)*t + 85.663)*t + 30.724;
+  }
+
+  /* The reader's own guess, drawn freehand by dragging across the plot.
+     Stored as one y per 0.25 kHz bin, so dragging back over a stretch redraws
+     it, and a new sample keeps the guess (f did not change, only the data). */
+  var GX = 0.25, NB = Math.round((X1 - X0)/GX) + 1;
+  var guess = [], pen = null, k;          /* pen: last [bin, y] while drawing */
+  for (k=0;k<NB;k++) guess.push(null);
+
+  function ink(e){
+    var r = p.el.getBoundingClientRect();
+    var xv = Math.max(X0, Math.min(X1, p.ix(e.clientX - r.left)));
+    var yv = Math.max(0, Math.min(100, p.iy(e.clientY - r.top)));
+    var b = Math.round((xv - X0)/GX);
+    /* fill every bin between this point and the last one, so a fast stroke
+       leaves no gaps */
+    var a = pen || [b, yv], lo = Math.min(a[0], b), hi = Math.max(a[0], b), j;
+    for (j=lo;j<=hi;j++) guess[j] = (hi === lo) ? yv : a[1] + (yv - a[1])*(j - a[0])/(b - a[0]);
+    pen = [b, yv];
+    draw();
+  }
+  p.el.addEventListener("pointerdown", function(e){
+    if (!L.on("mine")) return;
+    pen = null; p.el.setPointerCapture(e.pointerId); ink(e);
+  });
+  p.el.addEventListener("pointermove", function(e){ if (pen) ink(e); });
+  window.addEventListener("pointerup", function(){ pen = null; });
+  window.addEventListener("pointercancel", function(){ pen = null; });
+  clrBtn.addEventListener("click", function(){ for (k=0;k<NB;k++) guess[k] = null; draw(); });
+
+  function drawGuess(){
+    var ctx = p.ctx, open = false, j;
+    ctx.save(); p.clip(); ctx.beginPath();
+    for (j=0;j<NB;j++){
+      if (guess[j] === null){ open = false; continue; }
+      var gx = p.x(X0 + j*GX), gy = p.y(guess[j]);
+      if (open) ctx.lineTo(gx, gy); else { ctx.moveTo(gx, gy); open = true; }
+    }
+    ctx.strokeStyle = col("--c-alt"); ctx.lineWidth = 2.6;
+    ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.stroke(); p.unclip(); ctx.restore();
   }
 
   function draw(){
@@ -1643,17 +1698,33 @@ var TABS = (function(){
     }
     gapEl.textContent = fmt(Math.sqrt(acc/Math.max(1,cnt)), 1) + " spk/s";
 
+    /* the guess is scored only where it was drawn, and only once the truth is
+       on screen: a live score would let the reader steer toward f blind */
+    var gs = 0, gn = 0;
+    for (i=0;i<NB;i++){
+      if (guess[i] === null) continue;
+      var gd = guess[i] - trueF(X0 + i*GX); gs += gd*gd; gn++;
+    }
+    mineEl.textContent = !gn ? "draw on the plot" :
+                         !L.on("truth") ? "switch on true f" :
+                         fmt(Math.sqrt(gs/gn), 1) + " spk/s";
+
     p.sync(); p.frame();
+    p.el.classList.toggle("drag", L.on("mine"));
     var xt = [4,8,12,16,20,24,28,32], yt = [0,20,40,60,80,100];
     p.grid(xt, yt);
     if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:2, dash:[6,5]});
     if (L.on("hat"))   p.fnline(fhat, {color: col("--c-model"), w:2.8});
+    if (L.on("mine") && gn) drawGuess();
     if (L.on("data"))  p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.8, color: alpha(col("--c-data"), 0.9)});
     p.axes({xt:xt, yt:yt,
       xlabel:"x: tone frequency (kHz)",
       ylabel:"y: firing rate (spikes/s)",
       fmt:function(v){return v.toFixed(0);}});
-    if (!L.on("hat") && !L.on("truth"))
+    if (L.on("mine") && !gn)
+      p.txt("drag across the plot to draw a curve", p.R - 8, p.T + 14,
+            {align:"right", color: col("--ink-faint")});
+    else if (!L.on("mine") && !L.on("hat") && !L.on("truth"))
       p.txt("what curve would you draw?", p.R - 8, p.T + 14,
             {align:"right", color: col("--ink-faint")});
 
@@ -1683,10 +1754,10 @@ var TABS = (function(){
   var elD = document.getElementById("overD"), lbD = document.getElementById("overDv");
   var trEl = document.getElementById("overTr"), teEl = document.getElementById("overTe");
   var L = layerToggles("overLayers", [
-    {k:"train", label:"train (20)",       kind:"dot",  col:"--c-data"},
-    {k:"test",  label:"test (60, unseen)",kind:"ring", col:"--c-test"},
-    {k:"fit",   label:"fitted <span class='hat f'>f</span>",       kind:"ln",   col:"--c-model"},
-    {k:"truth", label:"true f",           kind:"dash", col:"--ink-faint"}
+    {k:"train", label:"train (20)",       kind:"dot",  col:"--ink-faint"},
+    {k:"test",  label:"test (60, unseen)",kind:"ring", col:"--c-error", on:false},
+    {k:"fit",   label:"fitted <span class='hat f'>f</span>",       kind:"ln",   col:"--c-model", on:false},
+    {k:"truth", label:"true f",           kind:"dash", col:"--c-data", on:false}
   ], function(){ draw(); });
   var seed = 42, D = { xtr:[], ytr:[], xte:[], yte:[] };
   var MAXD = 12;
@@ -1719,10 +1790,10 @@ var TABS = (function(){
     p.sync(); p.frame();
     var xt = [0,0.25,0.5,0.75,1], yt = ticks(-2.5,2.5,5);
     p.grid(xt, yt);
-    if (L.on("truth")) p.fnline(trueF, {color: col("--ink-faint"), w:1.8, dash:[6,5]});
+    if (L.on("truth")) p.fnline(trueF, {color: col("--c-data"), w:1.8, dash:[6,5]});
     if (L.on("fit"))   p.fnline(f, {color: col("--c-model"), w:2.8, n:420});
-    if (L.on("test"))  p.dots(D.xte.map(function(v,k){ return [v, D.yte[k]]; }), {hollow:true, r:3.4, color: alpha(col("--c-test"), 0.75), lw:1.4});
-    if (L.on("train")) p.dots(D.xtr.map(function(v,k){ return [v, D.ytr[k]]; }), {r:4.4, color: col("--c-data")});
+    if (L.on("test"))  p.dots(D.xte.map(function(v,k){ return [v, D.yte[k]]; }), {hollow:true, r:3.4, color: alpha(col("--c-error"), 0.75), lw:1.4});
+    if (L.on("train")) p.dots(D.xtr.map(function(v,k){ return [v, D.ytr[k]]; }), {r:4.4, color: col("--ink-faint")});
     p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y", fmt:function(v){return v.toFixed(2);}, fmtY:function(v){return v.toFixed(1);}});
 
     /* U-curve */

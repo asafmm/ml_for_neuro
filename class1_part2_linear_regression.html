@@ -262,6 +262,7 @@ input[type=range]::-moz-range-thumb{
 .stat.model{border-left-color:var(--c-model)} .stat.model .val{color:var(--c-model)}
 .stat.error{border-left-color:var(--c-error)} .stat.error .val{color:var(--c-error)}
 .stat.test{border-left-color:var(--c-test)}  .stat.test .val{color:var(--c-test)}
+.stat.alt{border-left-color:var(--c-alt)}  .stat.alt .val{color:var(--c-alt)}
 .stat.plain .val{color:var(--ink)}
 
 .legend{display:flex;flex-wrap:wrap;gap:.35rem .95rem;font-family:var(--mono);font-size:.68rem;color:var(--ink-soft)}
@@ -582,13 +583,14 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <nav class="toc" id="toc">
     <a href="#s7"><span class="n">01</span><span>The linear model</span></a>
-    <a href="#s8"><span class="n">02</span><span>Least squares</span></a>
-    <a href="#s9"><span class="n">03</span><span>Solving it with calculus</span></a>
-    <a href="#s10"><span class="n">04</span><span>How good is the fit?</span></a>
-    <a href="#s11"><span class="n">05</span><span>Noisy data, small samples</span></a>
-    <a href="#s13"><span class="n">06</span><span>More than one predictor</span></a>
-    <a href="#s14"><span class="n">07</span><span>Coefficient interpretation</span></a>
-    <a href="#s12"><span class="n">08</span><span>Glossary</span></a>
+    <a href="#s15"><span class="n">02</span><span>Probability recap</span></a>
+    <a href="#s8"><span class="n">03</span><span>Least squares</span></a>
+    <a href="#s9"><span class="n">04</span><span>Solving it with calculus</span></a>
+    <a href="#s10"><span class="n">05</span><span>How good is the fit?</span></a>
+    <a href="#s11"><span class="n">06</span><span>Noisy data, small samples</span></a>
+    <a href="#s13"><span class="n">07</span><span>More than one predictor</span></a>
+    <a href="#s14"><span class="n">08</span><span>Coefficient interpretation</span></a>
+    <a href="#s12"><span class="n">09</span><span>Glossary</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -672,9 +674,119 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 </section>
 
+<!-- ==================== 15 ==================== -->
+<section id="s15">
+  <div class="shead"><div class="num">02</div><h2 data-ed="part2/01b-probability-recap.html:0">A short recap on probability</h2></div>
+  <div class="prose">
+    <p data-ed="part2/01b-probability-recap.html:1">Before we fit the line, three tools from probability. We will lean on them for the rest of the course.
+      <br>Our running example: a neuron in visual cortex, shown gratings at six contrast levels.
+      <br>On every trial we count its spikes. <span class="m">X</span> is the contrast level (1 to 6), and <span class="m">Y</span> is the spike count.</p>
+    <p data-ed="part2/01b-probability-recap.html:2">A capital letter is the variable. A lowercase letter is one value it can take.
+      <br>So <span class="m">X</span> = <span class="m">x</span> reads &ldquo;the contrast on this trial was <span class="m">x</span>&rdquo;.</p>
+
+    <h3 data-ed="part2/01b-probability-recap.html:3">Probability</h3>
+    <p data-ed="part2/01b-probability-recap.html:4"><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) is how often <span class="m">X</span> takes the value <span class="m">x</span>. <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>) is the same for <span class="m">Y</span>.
+      <br>Summed over all values, either one adds up to 1.
+      <br><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>, <span class="m">Y</span> = <span class="m">y</span>) is the probability that both happen on the same trial (the joint probability).</p>
+
+    <h3 data-ed="part2/01b-probability-recap.html:5">Expected value</h3>
+    <p data-ed="part2/01b-probability-recap.html:6">The expected value is the average of <span class="m">Y</span>, where every value is weighted by how often it happens:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">E</span>[<span class="m">Y</span>] =
+    <span class="sum"><span class="lim">&nbsp;</span><span class="sig">&Sigma;</span><span class="lim">y</span></span>
+    <span class="m">y</span> &middot; <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>)
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/01b-probability-recap.html:7">If we recorded infinitely many trials and averaged the spike counts, we would get <span class="m">E</span>[<span class="m">Y</span>].
+      <br>A sample mean, <span class="m"><span class="bar">y</span></span>, is our estimate of it from a finite recording.</p>
+
+    <h3 data-ed="part2/01b-probability-recap.html:8">Conditional probability</h3>
+    <p data-ed="part2/01b-probability-recap.html:9">The vertical bar reads &ldquo;given&rdquo;. We keep only the trials where <span class="m">X</span> = <span class="m">x</span>, and ask how <span class="m">Y</span> is spread among them:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span> | <span class="m">X</span> = <span class="m">x</span>) =
+    <span class="frac"><span><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>, <span class="m">Y</span> = <span class="m">y</span>)</span><span><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>)</span></span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/01b-probability-recap.html:10">Dividing by <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) makes the trials we kept add up to 1 again.
+      <br>The same pieces can be rearranged to turn the condition around. This is Bayes&rsquo; rule:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span> | <span class="m">Y</span> = <span class="m">y</span>) =
+    <span class="frac"><span><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) &middot; <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span> | <span class="m">X</span> = <span class="m">x</span>)</span><span><span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>)</span></span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/01b-probability-recap.html:11">In neuroscience, the two directions have names.
+      <br><span class="m">P</span>(<span class="m">Y</span> | <span class="m">X</span>) is encoding: given the stimulus, what does the neuron do?
+      <br><span class="m">P</span>(<span class="m">X</span> | <span class="m">Y</span>) is decoding: given the spikes, which stimulus was shown?</p>
+
+    <h3 data-ed="part2/01b-probability-recap.html:12">Conditional expected value</h3>
+    <p data-ed="part2/01b-probability-recap.html:13">Same recipe as <span class="m">E</span>[<span class="m">Y</span>], but with the conditional probabilities:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>] =
+    <span class="sum"><span class="lim">&nbsp;</span><span class="sig">&Sigma;</span><span class="lim">y</span></span>
+    <span class="m">y</span> &middot; <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span> | <span class="m">X</span> = <span class="m">x</span>)
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/01b-probability-recap.html:14">It is the average spike count on the trials where the contrast was <span class="m">x</span>.
+      <br>Every <span class="m">x</span> gets its own number, so <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>] is a function of <span class="m">x</span>.
+      <br>Pick a contrast below and watch its column become a distribution of its own:</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part2/01b-probability-recap.html:15">One neuron, six contrasts</div>
+      <div class="hint" data-ed="part2/01b-probability-recap.html:16">click a column, or use the slider</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvProbJ" class="cv drag" height="320"></canvas>
+        <div id="probLayers"></div>
+        <canvas id="cvProbC" class="cv" height="170" style="margin-top:.9rem"></canvas>
+        <p class="notecap" data-ed="part2/01b-probability-recap.html:17">Top: the joint probability <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>, <span class="m">Y</span> = <span class="m">y</span>). A bigger circle is a more common combination. Bottom: the chosen column, divided by <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) so it sums to 1. The grey outline is <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>), ignoring the contrast.</p>
+      </div>
+      <div class="ctl">
+        <div class="btnrow">
+          <div class="seg" id="probSeg">
+            <button class="on" data-v="lin">linear neuron</button>
+            <button data-v="sat">saturating</button>
+          </div>
+        </div>
+        <div class="ctl-row">
+          <label>condition on <span class="m">X</span> = <span class="v" id="probXv">3</span></label>
+          <input type="range" id="probX" min="1" max="6" value="3" step="1">
+        </div>
+        <div class="stats">
+          <div class="stat plain"><span class="k">P(X = x), how often this contrast was shown</span><span class="val" id="probPx">&mdash;</span></div>
+          <div class="stat plain"><span class="k">E[Y], mean over all trials</span><span class="val" id="probEy">&mdash;</span></div>
+          <div class="stat model"><span class="k">E[Y | X = x], mean on these trials</span><span class="val" id="probEyx">&mdash;</span></div>
+        </div>
+        <p class="notecap" data-ed="part2/01b-probability-recap.html:18">The middle contrasts were shown more often than the extremes, so <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) is not the same for every column.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="key">
+    <div class="lbl" data-ed="part2/01b-probability-recap.html:19">Key idea</div>
+    <p data-ed="part2/01b-probability-recap.html:20">Linear regression is a model of <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>].
+      <br>It assumes the conditional means sit on a straight line: <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>] = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span>.
+      <br>Switch on the straight line. For the linear neuron it passes through every conditional mean. For the saturating neuron it cannot, and it misses at both ends.</p>
+  </div>
+</section>
+
 <!-- ==================== 08 ==================== -->
 <section id="s8">
-  <div class="shead"><div class="num">02</div><h2 data-ed="part2/02-least-squares.html:0">Least squares</h2></div>
+  <div class="shead"><div class="num">03</div><h2 data-ed="part2/02-least-squares.html:0">Least squares</h2></div>
   <div class="prose">
     <p data-ed="part2/02-least-squares.html:1">We just moved a line until it looked right. To do that automatically, we need to say precisely what &ldquo;right&rdquo; means.</p>
     <p data-ed="part2/02-least-squares.html:2">For each subject the model predicts <span class="m"><span class="hat">y</span><sub>i</sub></span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>i</sub></span>, and reality delivered <span class="m">y<sub>i</sub></span>.
@@ -729,7 +841,7 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="prose">
     <p data-ed="part2/02-least-squares.html:11">Every pair (<span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span>) is one possible line, and each one has its own RSS. Treat that number as a height and the whole space of lines becomes a landscape.</p>
     <p data-ed="part2/02-least-squares.html:12">It is a bowl, a paraboloid. One bottom, no local minima to get trapped in, no flat plateaus. That is a rare luxury, and it is why linear regression has an exact formula while most models in this course have to be searched for numerically.</p>
-    <p data-ed="part2/02-least-squares.html:13">The bowl also sits upright rather than leaning, because <span class="m">x</span> is measured from its own mean. That is the same fact as the pivot in the previous tab: with a centred predictor, the best slope does not depend on the intercept.</p>
+    <p data-ed="part2/02-least-squares.html:13">The bowl also sits upright rather than leaning, because <span class="m">x</span> is measured from its own mean. That is the same fact as the pivot in the first tab: with a centred predictor, the best slope does not depend on the intercept.</p>
     <p data-ed="part2/02-least-squares.html:14">On the left is the surface itself. On the right is the same surface seen from directly above, drawn as a contour map. The dot is our current line and the cross is the least-squares solution, on both.</p>
   </div>
 
@@ -757,7 +869,7 @@ section.tabpanel{padding:2.6rem 0 0}
 </section>
 <!-- ==================== 09 ==================== -->
 <section id="s9">
-  <div class="shead"><div class="num">03</div><h2 data-ed="part2/03-solving-with-calculus.html:0">Solving it with calculus</h2></div>
+  <div class="shead"><div class="num">04</div><h2 data-ed="part2/03-solving-with-calculus.html:0">Solving it with calculus</h2></div>
   <div class="prose">
     <p data-ed="part2/03-solving-with-calculus.html:1">Hunting for the best line by hand is fine for two parameters, but we can do better.
       <br>Think of RSS as a function of <span class="m">&beta;</span>. It is a parabola: steep where the line is badly wrong, flattening out as it improves, and perfectly flat at its lowest point.
@@ -885,7 +997,7 @@ section.tabpanel{padding:2.6rem 0 0}
 </section>
 <!-- ==================== 10 ==================== -->
 <section id="s10">
-  <div class="shead"><div class="num">04</div><h2 data-ed="part2/04-how-good-is-the-fit.html:0">How good is the fit?</h2></div>
+  <div class="shead"><div class="num">05</div><h2 data-ed="part2/04-how-good-is-the-fit.html:0">How good is the fit?</h2></div>
   <div class="prose">
     <p data-ed="part2/04-how-good-is-the-fit.html:1">RSS on its own is unreadable. Is 4,300 good? It depends on the units of <span class="m">y</span> and on how many subjects we have. Two fixes:</p>
     <p data-ed="part2/04-how-good-is-the-fit.html:2"><strong>MSE</strong> divides RSS by <span class="m">n</span>, so it no longer grows just because we collected more data.
@@ -940,7 +1052,7 @@ section.tabpanel{padding:2.6rem 0 0}
 </section>
 <!-- ==================== 11 ==================== -->
 <section id="s11">
-  <div class="shead"><div class="num">05</div><h2 data-ed="part2/05-noisy-data-small-samples.html:0">Noisy data, small samples</h2></div>
+  <div class="shead"><div class="num">06</div><h2 data-ed="part2/05-noisy-data-small-samples.html:0">Noisy data, small samples</h2></div>
   <div class="prose">
     <p data-ed="part2/05-noisy-data-small-samples.html:1">Everything so far works beautifully with 500 clean observations. Neuroscience rarely offers those.
       <br>We get 25 subjects, an effect explaining a few percent of the variance, and a hundred candidate predictors.</p>
@@ -1012,7 +1124,7 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 
 <!-- ==================== 13 ==================== -->
 <section id="s13">
-  <div class="shead"><div class="num">06</div><h2 data-ed="part2/06-multiple-regression.html:0">More than one predictor</h2></div>
+  <div class="shead"><div class="num">07</div><h2 data-ed="part2/06-multiple-regression.html:0">More than one predictor</h2></div>
   <div class="prose">
     <p data-ed="part2/06-multiple-regression.html:1">Nothing so far needed <span class="m">x</span> to be a single measurement. With <span class="m">p</span> features the model just grows a term each:</p>
   </div>
@@ -1083,7 +1195,7 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 
 <!-- ==================== 14 ==================== -->
 <section id="s14">
-  <div class="shead"><div class="num">07</div><h2 data-ed="part2/07-coefficient-interpretation.html:0">Coefficient interpretation</h2></div>
+  <div class="shead"><div class="num">08</div><h2 data-ed="part2/07-coefficient-interpretation.html:0">Coefficient interpretation</h2></div>
   <div class="prose">
     <p data-ed="part2/07-coefficient-interpretation.html:1">We have the numbers. Now we have to say what they mean, because the coefficient is usually the thing the paper is about.</p>
     <p data-ed="part2/07-coefficient-interpretation.html:2">Take the model from the previous tab, recall predicted from two measurements:</p>
@@ -1196,7 +1308,7 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
 </section>
 <!-- ==================== 12 ==================== -->
 <section id="s12">
-  <div class="shead"><div class="num">08</div><h2 data-ed="part2/08-glossary.html:0">Glossary</h2></div>
+  <div class="shead"><div class="num">09</div><h2 data-ed="part2/08-glossary.html:0">Glossary</h2></div>
   <div class="prose">
     <p data-ed="part2/08-glossary.html:1">Everything introduced today, in the notation the course will keep using.</p>
   </div>
@@ -1209,43 +1321,46 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:10"><span class="m">&epsilon;</span></div><div class="gd" data-ed="part2/08-glossary.html:11">Irreducible noise. The part of <span class="m">y</span> no model can ever recover.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:12"><span class="m"><span class="hat">y</span><sub>i</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:13">The model&rsquo;s prediction for subject <span class="m">i</span>.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:14"><span class="m">n</span> / <span class="m">p</span></div><div class="gd" data-ed="part2/08-glossary.html:15">Number of observations / number of features. In neuroscience <span class="m">p</span> &gt; <span class="m">n</span> is normal, and it breaks things.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:16">residual</div><div class="gd" data-ed="part2/08-glossary.html:17"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:18">RSS</div><div class="gd" data-ed="part2/08-glossary.html:19">Sum of squared residuals. What least squares minimises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20">TSS</div><div class="gd" data-ed="part2/08-glossary.html:21">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">MSE</div><div class="gd" data-ed="part2/08-glossary.html:23">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24">RMSE</div><div class="gd" data-ed="part2/08-glossary.html:25">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:27">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:29">Intercept and slope. The weights the model learns.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:31"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">centring</div><div class="gd" data-ed="part2/08-glossary.html:33">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34">OLS</div><div class="gd" data-ed="part2/08-glossary.html:35">Ordinary least squares. The recipe for finding those weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">training set</div><div class="gd" data-ed="part2/08-glossary.html:37">The data used to choose the weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">test set</div><div class="gd" data-ed="part2/08-glossary.html:39">Data held back and touched exactly once, to estimate real performance.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:41">Fitting the noise. Train error falls, test error rises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">supervised</div><div class="gd" data-ed="part2/08-glossary.html:43">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:45">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:47">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:48">recall</div><div class="gd" data-ed="part2/08-glossary.html:49">Of the true positives, the fraction the model found.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:16"><span class="m">E</span>[<span class="m">Y</span>]</div><div class="gd" data-ed="part2/08-glossary.html:17">Expected value. The average of <span class="m">Y</span>, each value weighted by its probability.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:18"><span class="m">P</span>(<span class="m">Y</span> | <span class="m">X</span>)</div><div class="gd" data-ed="part2/08-glossary.html:19">Conditional probability. How <span class="m">Y</span> is spread on the trials where <span class="m">X</span> took a given value.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20"><span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>]</div><div class="gd" data-ed="part2/08-glossary.html:21">Conditional expected value. The average of <span class="m">Y</span> at one value of <span class="m">x</span>. Linear regression assumes it is a straight line in <span class="m">x</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">residual</div><div class="gd" data-ed="part2/08-glossary.html:23"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24">RSS</div><div class="gd" data-ed="part2/08-glossary.html:25">Sum of squared residuals. What least squares minimises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26">TSS</div><div class="gd" data-ed="part2/08-glossary.html:27">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28">MSE</div><div class="gd" data-ed="part2/08-glossary.html:29">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">RMSE</div><div class="gd" data-ed="part2/08-glossary.html:31">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:33">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:35">Intercept and slope. The weights the model learns.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:37"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">centring</div><div class="gd" data-ed="part2/08-glossary.html:39">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">OLS</div><div class="gd" data-ed="part2/08-glossary.html:41">Ordinary least squares. The recipe for finding those weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">training set</div><div class="gd" data-ed="part2/08-glossary.html:43">The data used to choose the weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">test set</div><div class="gd" data-ed="part2/08-glossary.html:45">Data held back and touched exactly once, to estimate real performance.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:47">Fitting the noise. Train error falls, test error rises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:48">supervised</div><div class="gd" data-ed="part2/08-glossary.html:49">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:50">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:51">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:52">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:53">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:54">recall</div><div class="gd" data-ed="part2/08-glossary.html:55">Of the true positives, the fraction the model found.</div></div>
   </div>
 
   <div class="prose" style="margin-top:1.6rem">
-    <h3 data-ed="part2/08-glossary.html:50">Next time</h3>
-    <p data-ed="part2/08-glossary.html:51">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
+    <h3 data-ed="part2/08-glossary.html:56">Next time</h3>
+    <p data-ed="part2/08-glossary.html:57">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
   </div>
 
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/08-glossary.html:52">Class 2: The price of flexibility</div>
-      <p class="cl-d" data-ed="part2/08-glossary.html:53">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:58">Class 2: The price of flexibility</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:59">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
     </div>
     <a href="https://claude.ai/code/artifact/c747a30a-ce77-4fee-8339-d8726a4e94e2" data-local="class2_interactions_and_flexibility.html">On to class 2 &rarr;</a>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/08-glossary.html:54">Part 1: What is machine learning</div>
-      <p class="cl-d" data-ed="part2/08-glossary.html:55">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:60">Part 1: What is machine learning</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:61">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
     </div>
     <a href="https://claude.ai/code/artifact/d74b446f-4367-4f83-b6b9-47ba4cd98888" data-local="class1_part1_what_is_ml.html">Back to part 1 &rarr;</a>
   </div>
@@ -3105,6 +3220,130 @@ var CI = (function(){
     var b = ev.target.closest("button"); if (!b) return;
     Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
     unit = b.getAttribute("data-v"); draw();
+  });
+  reg(draw);
+})();
+
+/* ============================================================
+   01b — probability recap: a joint distribution, one column at a time
+   ============================================================ */
+(function(){
+  var pj = mkPlot("cvProbJ", {xd:[0.5,6.5], yd:[-0.6,16.6], padL:42, padB:34});
+  var pc = mkPlot("cvProbC", {xd:[-0.7,16.7], yd:[0,0.3], padL:42, padB:32, padT:16});
+  if (!pj) return;
+  var elX = document.getElementById("probX"), lbX = document.getElementById("probXv");
+  var pxEl = document.getElementById("probPx"), eyEl = document.getElementById("probEy");
+  var eyxEl = document.getElementById("probEyx");
+  var seg = document.getElementById("probSeg");
+  var L = layerToggles("probLayers", [
+    {k:"cm",   label:"E[Y | X = x], each column", kind:"dot",  col:"--c-model"},
+    {k:"mean", label:"E[Y], ignoring X",          kind:"dash", col:"--ink-faint"},
+    {k:"line", label:"best straight line",        kind:"ln",   col:"--c-alt", on:false}
+  ], function(){ draw(); });
+  var YMAX = 16, mode = "lin";
+
+  /* The experimenter showed the middle contrasts more often. */
+  var PX = [0.10, 0.15, 0.25, 0.25, 0.15, 0.10];
+  /* Mean spike count at each contrast. The linear neuron climbs by the same
+     amount per step; the saturating one follows a Naka-Rushton-like curve and
+     flattens out at high contrast. */
+  function rate(x){
+    return mode === "lin" ? 1 + 1.2*x : 1 + 9*x*x/(x*x + 6.25);
+  }
+  /* P(Y = y | X = x): Poisson spike counts, cut at YMAX and renormalised */
+  function cond(x){
+    var lam = rate(x), out = [], s = 0, pr = Math.exp(-lam), y;
+    for (y=0;y<=YMAX;y++){ if (y > 0) pr *= lam/y; out.push(pr); s += pr; }
+    for (y=0;y<=YMAX;y++) out[y] /= s;
+    return out;
+  }
+  function meanOf(dist){ var m = 0; for (var y=0;y<dist.length;y++) m += y*dist[y]; return m; }
+
+  function draw(){
+    var xs = +elX.value, x, y;
+    lbX.textContent = xs;
+    var C = [], M = [], PY = [], Ey = 0;
+    for (y=0;y<=YMAX;y++) PY.push(0);
+    for (x=1;x<=6;x++){
+      var c = cond(x); C.push(c); M.push(meanOf(c));
+      for (y=0;y<=YMAX;y++) PY[y] += PX[x-1]*c[y];   /* P(Y=y) = sum over x of the joint */
+    }
+    Ey = meanOf(PY);
+    pxEl.textContent = fmt(PX[xs-1], 2);
+    eyEl.textContent = fmt(Ey, 2) + " spikes";
+    eyxEl.textContent = fmt(M[xs-1], 2) + " spikes";
+
+    /* best straight line through the conditional means, each column weighted
+       by how often it was shown: the line least squares would find with
+       infinitely many trials */
+    var sw = 0, mx = 0, my = 0, sxy = 0, sxx = 0;
+    for (x=1;x<=6;x++){ sw += PX[x-1]; mx += PX[x-1]*x; my += PX[x-1]*M[x-1]; }
+    mx /= sw; my /= sw;
+    for (x=1;x<=6;x++){ sxy += PX[x-1]*(x-mx)*(M[x-1]-my); sxx += PX[x-1]*(x-mx)*(x-mx); }
+    var b1 = sxy/sxx, b0 = my - b1*mx;
+
+    /* ---- the joint distribution ---- */
+    pj.sync(); pj.frame();
+    var ctx = pj.ctx, xt = [1,2,3,4,5,6], yt = [0,4,8,12,16];
+    pj.grid(null, yt);
+    var colW = (pj.R - pj.L)/6;
+    ctx.save(); ctx.fillStyle = alpha(col("--c-model"), 0.09);
+    ctx.fillRect(pj.x(xs) - colW/2, pj.T, colW, pj.B - pj.T); ctx.restore();
+    var pmax = 0;
+    for (x=1;x<=6;x++) for (y=0;y<=YMAX;y++) pmax = Math.max(pmax, PX[x-1]*C[x-1][y]);
+    var rmax = Math.min(colW*0.42, (pj.B - pj.T)/(YMAX+1.2)*0.5);
+    for (x=1;x<=6;x++){
+      for (y=0;y<=YMAX;y++){
+        var r = rmax*Math.sqrt(PX[x-1]*C[x-1][y]/pmax);
+        if (r < 0.4) continue;
+        ctx.beginPath(); ctx.arc(pj.x(x), pj.y(y), r, 0, 6.2832);
+        ctx.fillStyle = x === xs ? alpha(col("--c-model"), 0.75) : alpha(col("--c-data"), 0.45);
+        ctx.fill();
+      }
+    }
+    if (L.on("mean")) pj.seg(0.5, Ey, 6.5, Ey, {color: col("--ink-faint"), w:1.6, dash:[6,5]});
+    if (L.on("line")) pj.fnline(function(v){ return b0 + b1*v; }, {color: col("--c-alt"), w:2.4});
+    if (L.on("cm")) pj.dots(M.map(function(m,i){ return [i+1, m]; }),
+                            {r:5, color: col("--c-model"), ring: col("--surface")});
+    pj.axes({xt:xt, yt:yt, xlabel:"X: contrast level", ylabel:"Y: spike count",
+             fmt:function(v){ return v.toFixed(0); }});
+
+    /* ---- the chosen column, renormalised ---- */
+    if (!pc) return;
+    var cs = C[xs-1], top = 0;
+    for (y=0;y<=YMAX;y++) top = Math.max(top, cs[y], PY[y]);
+    pc.dom(null, [0, Math.ceil(top*1.15*20)/20]);
+    pc.sync(); pc.frame();
+    var ytc = [0, pc.o.yd[1]/2, pc.o.yd[1]];
+    pc.grid(null, ytc);
+    var cx = pc.ctx, bw = (pc.R - pc.L)/(YMAX + 1.4)*0.72;
+    for (y=0;y<=YMAX;y++){
+      cx.fillStyle = alpha(col("--c-model"), 0.8);
+      cx.fillRect(pc.x(y) - bw/2, pc.y(cs[y]), bw, pc.B - pc.y(cs[y]));
+    }
+    cx.save(); cx.strokeStyle = col("--ink-faint"); cx.lineWidth = 1.4; cx.beginPath();
+    for (y=0;y<=YMAX;y++){
+      var x0 = pc.x(y - 0.5), x1 = pc.x(y + 0.5), yy = pc.y(PY[y]);
+      if (y === 0) cx.moveTo(x0, pc.B);
+      cx.lineTo(x0, yy); cx.lineTo(x1, yy);
+    }
+    cx.lineTo(pc.x(YMAX + 0.5), pc.B); cx.stroke(); cx.restore();
+    pc.seg(M[xs-1], 0, M[xs-1], pc.o.yd[1], {color: col("--c-model"), w:2});
+    pc.txt("E[Y | X = " + xs + "]", pc.x(M[xs-1]) + 5, pc.T + 10, {color: col("--c-model")});
+    pc.axes({xt:[0,4,8,12,16], yt:ytc, xlabel:"spike count y", ylabel:"probability",
+             fmt:function(v){ return v.toFixed(0); }, fmtY:function(v){ return v.toFixed(2); }});
+  }
+
+  elX.addEventListener("input", draw);
+  pj.el.addEventListener("pointerdown", function(e){
+    var r = pj.el.getBoundingClientRect();
+    elX.value = Math.max(1, Math.min(6, Math.round(pj.ix(e.clientX - r.left))));
+    draw();
+  });
+  seg.addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
+    mode = b.getAttribute("data-v"); draw();
   });
   reg(draw);
 })();
