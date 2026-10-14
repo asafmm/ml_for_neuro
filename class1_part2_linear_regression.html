@@ -583,7 +583,7 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <nav class="toc" id="toc">
     <a href="#s7"><span class="n">01</span><span>The linear model</span></a>
-    <a href="#s15"><span class="n">02</span><span>Probability recap</span></a>
+    <a href="#s16"><span class="n">02</span><span>A real dataset</span></a>
     <a href="#s8"><span class="n">03</span><span>Least squares</span></a>
     <a href="#s9"><span class="n">04</span><span>Solving it with calculus</span></a>
     <a href="#s10"><span class="n">05</span><span>How good is the fit?</span></a>
@@ -634,10 +634,13 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="prose">
     <p data-ed="part2/01-the-linear-model.html:2">Two numbers, both readable in plain language:</p>
     <ul>
-      <li data-ed="part2/01-the-linear-model.html:3"><span class="m">&beta;<sub>0</sub></span>, the <strong>intercept</strong>: the predicted <span class="m">y</span> when <span class="m">x</span> = 0. Here, the recall score of an average-sized hippocampus.</li>
-      <li data-ed="part2/01-the-linear-model.html:4"><span class="m">&beta;<sub>1</sub></span>, the <strong>slope</strong>: how much <span class="m">y</span> moves per one-unit increase in <span class="m">x</span>. This is the number we interpret.</li>
+      <li data-ed="part2/01-the-linear-model.html:3"><span class="m">&beta;<sub>0</sub></span>, the <strong>intercept</strong>: the predicted <span class="m">y</span> when <span class="m">x</span> = 0. Here, the recall score of an average-sized hippocampus.
+        <br>On the plot: the orange ring, where the line crosses the <span class="m">y</span> axis.</li>
+      <li data-ed="part2/01-the-linear-model.html:4"><span class="m">&beta;<sub>1</sub></span>, the <strong>slope</strong>: how much <span class="m">y</span> moves per one-unit increase in <span class="m">x</span>. This is the number we interpret.
+        <br>On the plot: the blue step. Start at the intercept, move one unit right, and the line has climbed by exactly <span class="m">&beta;<sub>1</sub></span>.</li>
     </ul>
-    <p data-ed="part2/01-the-linear-model.html:5">The slope turns the line about <span class="m">x</span> = 0, marked on the plot. That is the one point it leaves alone, which is why we often measure a predictor from its own mean: it puts the pivot inside the data instead of far outside it.</p>
+    <p data-ed="part2/01-the-linear-model.html:5">The slope turns the line about <span class="m">x</span> = 0, so on this plot the <span class="m">y</span> axis stands at <span class="m">x</span> = 0. The line crosses it at <span class="m">&beta;<sub>0</sub></span>, the one point the slope leaves alone.
+      <br>This is why we often measure a predictor from its own mean: it puts the pivot inside the data instead of far outside it.</p>
     <p data-ed="part2/01-the-linear-model.html:6">Fitting the model means nothing more than choosing these two numbers. Try it by hand, you are the optimiser:</p>
   </div>
 
@@ -650,7 +653,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <div>
         <canvas id="cvLine" class="cv drag" height="340"></canvas>
         <div id="lineLayers"></div>
-        <p class="notecap" data-ed="part2/01-the-linear-model.html:9">Hippocampal volume against a delayed-recall score, 14 simulated subjects. Volume is measured as the difference from the group mean, so <span class="m">x</span> = 0 is an average-sized hippocampus. Drag a point to move it, click empty space to add one, shift-click a point to delete it.</p>
+        <p class="notecap" data-ed="part2/01-the-linear-model.html:9">Hippocampal volume against a delayed-recall score, 20 simulated subjects. Volume is measured as the difference from the group mean, so <span class="m">x</span> = 0 is an average-sized hippocampus. Drag a point to move it, click empty space to add one, shift-click a point to delete it.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
@@ -674,113 +677,82 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 </section>
 
-<!-- ==================== 15 ==================== -->
-<section id="s15">
-  <div class="shead"><div class="num">02</div><h2 data-ed="part2/01b-probability-recap.html:0">A short recap on probability</h2></div>
+<!-- ==================== 16 ==================== -->
+<section id="s16">
+  <div class="shead"><div class="num">02</div><h2 data-ed="part2/01b-a-real-dataset.html:0">A real dataset</h2></div>
   <div class="prose">
-    <p data-ed="part2/01b-probability-recap.html:1">Before we fit the line, three tools from probability. We will lean on them for the rest of the course.
-      <br>Our running example: a neuron in visual cortex, shown gratings at six contrast levels.
-      <br>On every trial we count its spikes. <span class="m">X</span> is the contrast level (1 to 6), and <span class="m">Y</span> is the spike count.</p>
-    <p data-ed="part2/01b-probability-recap.html:2">A capital letter is the variable. A lowercase letter is one value it can take.
-      <br>So <span class="m">X</span> = <span class="m">x</span> reads &ldquo;the contrast on this trial was <span class="m">x</span>&rdquo;.</p>
-
-    <h3 data-ed="part2/01b-probability-recap.html:3">Probability</h3>
-    <p data-ed="part2/01b-probability-recap.html:4"><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) is how often <span class="m">X</span> takes the value <span class="m">x</span>. <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>) is the same for <span class="m">Y</span>.
-      <br>Summed over all values, either one adds up to 1.
-      <br><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>, <span class="m">Y</span> = <span class="m">y</span>) is the probability that both happen on the same trial (the joint probability).</p>
-
-    <h3 data-ed="part2/01b-probability-recap.html:5">Expected value</h3>
-    <p data-ed="part2/01b-probability-recap.html:6">The expected value is the average of <span class="m">Y</span>, where every value is weighted by how often it happens:</p>
-  </div>
-
-  <div class="eq">
-    <span class="m">E</span>[<span class="m">Y</span>] =
-    <span class="sum"><span class="lim">&nbsp;</span><span class="sig">&Sigma;</span><span class="lim">y</span></span>
-    <span class="m">y</span> &middot; <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>)
-  </div>
-
-  <div class="prose">
-    <p data-ed="part2/01b-probability-recap.html:7">If we recorded infinitely many trials and averaged the spike counts, we would get <span class="m">E</span>[<span class="m">Y</span>].
-      <br>A sample mean, <span class="m"><span class="bar">y</span></span>, is our estimate of it from a finite recording.</p>
-
-    <h3 data-ed="part2/01b-probability-recap.html:8">Conditional probability</h3>
-    <p data-ed="part2/01b-probability-recap.html:9">The vertical bar reads &ldquo;given&rdquo;. We keep only the trials where <span class="m">X</span> = <span class="m">x</span>, and ask how <span class="m">Y</span> is spread among them:</p>
-  </div>
-
-  <div class="eq">
-    <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span> | <span class="m">X</span> = <span class="m">x</span>) =
-    <span class="frac"><span><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>, <span class="m">Y</span> = <span class="m">y</span>)</span><span><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>)</span></span>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part2/01b-probability-recap.html:10">Dividing by <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) makes the trials we kept add up to 1 again.
-      <br>The same pieces can be rearranged to turn the condition around. This is Bayes&rsquo; rule:</p>
-  </div>
-
-  <div class="eq">
-    <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span> | <span class="m">Y</span> = <span class="m">y</span>) =
-    <span class="frac"><span><span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) &middot; <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span> | <span class="m">X</span> = <span class="m">x</span>)</span><span><span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>)</span></span>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part2/01b-probability-recap.html:11">In neuroscience, the two directions have names.
-      <br><span class="m">P</span>(<span class="m">Y</span> | <span class="m">X</span>) is encoding: given the stimulus, what does the neuron do?
-      <br><span class="m">P</span>(<span class="m">X</span> | <span class="m">Y</span>) is decoding: given the spikes, which stimulus was shown?</p>
-
-    <h3 data-ed="part2/01b-probability-recap.html:12">Conditional expected value</h3>
-    <p data-ed="part2/01b-probability-recap.html:13">Same recipe as <span class="m">E</span>[<span class="m">Y</span>], but with the conditional probabilities:</p>
-  </div>
-
-  <div class="eq">
-    <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>] =
-    <span class="sum"><span class="lim">&nbsp;</span><span class="sig">&Sigma;</span><span class="lim">y</span></span>
-    <span class="m">y</span> &middot; <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span> | <span class="m">X</span> = <span class="m">x</span>)
-  </div>
-
-  <div class="prose">
-    <p data-ed="part2/01b-probability-recap.html:14">It is the average spike count on the trials where the contrast was <span class="m">x</span>.
-      <br>Every <span class="m">x</span> gets its own number, so <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>] is a function of <span class="m">x</span>.
-      <br>Pick a contrast below and watch its column become a distribution of its own:</p>
+    <p data-ed="part2/01b-a-real-dataset.html:1">Time to leave simulated data behind.
+      <br>OASIS is an open MRI dataset: 416 adults aged 18 to 96, each with a structural scan (Marcus et al., 2007).
+      <br>We keep the 316 without dementia, and ask one question: how does brain volume change with age?</p>
+    <p data-ed="part2/01b-a-real-dataset.html:2"><span class="m">x</span> is age, in years.
+      <br><span class="m">y</span> is normalised whole-brain volume: the volume of brain tissue, as a percentage of the space inside the skull (the intracranial volume).
+      <br>Dividing by the skull removes the fact that bigger heads hold bigger brains, so what is left is how much of that space the brain still fills.</p>
+    <p data-ed="part2/01b-a-real-dataset.html:3">Before fitting anything, we set aside a fifth of the people at random: the <strong>test set</strong>.
+      <br>The line is chosen using the other four fifths, the <strong>training set</strong>, and the test set is used once at the end, to see how well the line predicts people it never saw.</p>
+    <p data-ed="part2/01b-a-real-dataset.html:4">Fit it by hand first: move <span class="m">&beta;<sub>0</sub></span> and <span class="m">&beta;<sub>1</sub></span> until the training MSE stops falling. Then let least squares do it.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part2/01b-probability-recap.html:15">One neuron, six contrasts</div>
-      <div class="hint" data-ed="part2/01b-probability-recap.html:16">click a column, or use the slider</div>
+      <div class="t" data-ed="part2/01b-a-real-dataset.html:5">Brain volume across the adult lifespan</div>
+      <div class="hint" data-ed="part2/01b-a-real-dataset.html:6">fit on train, then switch on the test set</div>
     </div>
     <div class="panel-body panel-split">
       <div>
-        <canvas id="cvProbJ" class="cv drag" height="320"></canvas>
-        <div id="probLayers"></div>
-        <canvas id="cvProbC" class="cv" height="170" style="margin-top:.9rem"></canvas>
-        <p class="notecap" data-ed="part2/01b-probability-recap.html:17">Top: the joint probability <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>, <span class="m">Y</span> = <span class="m">y</span>). A bigger circle is a more common combination. Bottom: the chosen column, divided by <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) so it sums to 1. The grey outline is <span class="m">P</span>(<span class="m">Y</span> = <span class="m">y</span>), ignoring the contrast.</p>
+        <canvas id="cvReal" class="cv" height="340"></canvas>
+        <div id="realLayers"></div>
+        <p class="notecap" data-ed="part2/01b-a-real-dataset.html:7">Data: OASIS-1 cross-sectional MRI (Marcus et al., 2007, <em>J Cogn Neurosci</em>), participants without dementia, first scan only. The dashed part of the line runs where we have no data. Notice that <span class="m">&beta;<sub>1</sub></span> turns the line about age 0, far to the left of everyone we scanned.</p>
       </div>
       <div class="ctl">
-        <div class="btnrow">
-          <div class="seg" id="probSeg">
-            <button class="on" data-v="lin">linear neuron</button>
-            <button data-v="sat">saturating</button>
-          </div>
+        <div class="ctl-row">
+          <label>intercept <span class="m">&beta;<sub>0</sub></span> <span class="v" id="realB0v">80.0</span></label>
+          <input type="range" id="realB0" min="6000" max="10000" value="8000" step="1">
         </div>
         <div class="ctl-row">
-          <label>condition on <span class="m">X</span> = <span class="v" id="probXv">3</span></label>
-          <input type="range" id="probX" min="1" max="6" value="3" step="1">
+          <label>slope <span class="m">&beta;<sub>1</sub></span>, per year <span class="v" id="realB1v">0.000</span></label>
+          <input type="range" id="realB1" min="-500" max="200" value="0" step="1">
         </div>
         <div class="stats">
-          <div class="stat plain"><span class="k">P(X = x), how often this contrast was shown</span><span class="val" id="probPx">&mdash;</span></div>
-          <div class="stat plain"><span class="k">E[Y], mean over all trials</span><span class="val" id="probEy">&mdash;</span></div>
-          <div class="stat model"><span class="k">E[Y | X = x], mean on these trials</span><span class="val" id="probEyx">&mdash;</span></div>
+          <div class="stat plain"><span class="k">train MSE<br><span style="color:var(--ink-faint)">how well it fits</span></span><span class="val" id="realTr">&mdash;</span></div>
+          <div class="stat error"><span class="k">test MSE<br><span style="color:var(--ink-faint)">how well it predicts</span></span><span class="val" id="realTe">&mdash;</span></div>
         </div>
-        <p class="notecap" data-ed="part2/01b-probability-recap.html:18">The middle contrasts were shown more often than the extremes, so <span class="m">P</span>(<span class="m">X</span> = <span class="m">x</span>) is not the same for every column.</p>
+        <div class="btnrow">
+          <button class="btn primary" id="realFit">fit least squares on train</button>
+          <button class="btn" id="realNew">new split</button>
+        </div>
+        <div class="ctl-row" style="margin-top:.4rem">
+          <label>predict for age <span class="v" id="realAv">70</span></label>
+          <input type="range" id="realA" min="18" max="96" value="70" step="1">
+        </div>
+        <div class="stats">
+          <div class="stat model"><span class="k">predicted volume, <span class="hat">y</span></span><span class="val" id="realYh">&mdash;</span></div>
+        </div>
       </div>
     </div>
   </div>
 
+  <div class="prose">
+    <p data-ed="part2/01b-a-real-dataset.html:8">With this split, least squares on the training set gives:</p>
+  </div>
+
+  <div class="eq">
+    <span class="m"><span class="hat">y</span></span> = 88.97 &minus; 0.175 &middot; <span class="m">age</span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/01b-a-real-dataset.html:9"><span class="m">&beta;<sub>1</sub></span> = &minus;0.175: for every extra year of age, the predicted brain volume is 0.175 percentage points smaller. Ten years: 1.75 points.</p>
+    <p data-ed="part2/01b-a-real-dataset.html:10"><span class="m">&beta;<sub>0</sub></span> = 88.97: the predicted volume at age 0.
+      <br>Nobody in the dataset is younger than 18, so this is the line extended far outside the data, not a statement about newborns.
+      <br>That is the reason we centre a predictor, as in the first tab: measured from the mean age instead, <span class="m">&beta;<sub>0</sub></span> would describe a person we actually scanned.</p>
+    <p data-ed="part2/01b-a-real-dataset.html:11">Press <em>new split</em> a few times. The coefficients barely move, but the test MSE does: sometimes it lands above the training MSE, sometimes below it.
+      <br>With only 63 people in the test set, which people land there matters.</p>
+  </div>
+
   <div class="key">
-    <div class="lbl" data-ed="part2/01b-probability-recap.html:19">Key idea</div>
-    <p data-ed="part2/01b-probability-recap.html:20">Linear regression is a model of <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>].
-      <br>It assumes the conditional means sit on a straight line: <span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>] = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">x</span>.
-      <br>Switch on the straight line. For the linear neuron it passes through every conditional mean. For the saturating neuron it cannot, and it misses at both ends.</p>
+    <div class="lbl" data-ed="part2/01b-a-real-dataset.html:12">Key idea</div>
+    <p data-ed="part2/01b-a-real-dataset.html:13">The training MSE tells us how well the line describes the people it was fitted on.
+      <br>The test MSE tells us how well it predicts new people, and that is the number we report.
+      <br>On real data neither is ever zero: the spread around the line is as much a part of the answer as the slope.</p>
   </div>
 </section>
 
@@ -831,7 +803,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat model"><span class="k">minimum achievable</span><span class="val" id="sqMin">&mdash;</span></div>
         </div>
         <div class="btnrow"><button class="btn primary" id="sqFit">minimise</button></div>
-        <p class="notecap" data-ed="part2/02-least-squares.html:10">The same 14 subjects and the same line as the first tab. Move either one and both follow.</p>
+        <p class="notecap" data-ed="part2/02-least-squares.html:10">The same 20 subjects and the same line as the first tab. Move either one and both follow.</p>
       </div>
     </div>
   </div>
@@ -1041,7 +1013,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat model"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val" id="r2Val">&mdash;</span></div>
           <div class="stat plain"><span class="k">RMSE (recall-score units)</span><span class="val" id="r2RMSE">&mdash;</span></div>
         </div>
-        <p class="notecap" data-ed="part2/04-how-good-is-the-fit.html:7">The same 14 subjects. Go back to the first tab, drag one point far away, and return here to see what a single subject does to R<sup>2</sup>.</p>
+        <p class="notecap" data-ed="part2/04-how-good-is-the-fit.html:7">The same 20 subjects. Go back to the first tab, drag one point far away, and return here to see what a single subject does to R<sup>2</sup>.</p>
       </div>
     </div>
   </div>
@@ -1321,46 +1293,43 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:10"><span class="m">&epsilon;</span></div><div class="gd" data-ed="part2/08-glossary.html:11">Irreducible noise. The part of <span class="m">y</span> no model can ever recover.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:12"><span class="m"><span class="hat">y</span><sub>i</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:13">The model&rsquo;s prediction for subject <span class="m">i</span>.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:14"><span class="m">n</span> / <span class="m">p</span></div><div class="gd" data-ed="part2/08-glossary.html:15">Number of observations / number of features. In neuroscience <span class="m">p</span> &gt; <span class="m">n</span> is normal, and it breaks things.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:16"><span class="m">E</span>[<span class="m">Y</span>]</div><div class="gd" data-ed="part2/08-glossary.html:17">Expected value. The average of <span class="m">Y</span>, each value weighted by its probability.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:18"><span class="m">P</span>(<span class="m">Y</span> | <span class="m">X</span>)</div><div class="gd" data-ed="part2/08-glossary.html:19">Conditional probability. How <span class="m">Y</span> is spread on the trials where <span class="m">X</span> took a given value.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20"><span class="m">E</span>[<span class="m">Y</span> | <span class="m">X</span> = <span class="m">x</span>]</div><div class="gd" data-ed="part2/08-glossary.html:21">Conditional expected value. The average of <span class="m">Y</span> at one value of <span class="m">x</span>. Linear regression assumes it is a straight line in <span class="m">x</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">residual</div><div class="gd" data-ed="part2/08-glossary.html:23"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24">RSS</div><div class="gd" data-ed="part2/08-glossary.html:25">Sum of squared residuals. What least squares minimises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26">TSS</div><div class="gd" data-ed="part2/08-glossary.html:27">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28">MSE</div><div class="gd" data-ed="part2/08-glossary.html:29">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">RMSE</div><div class="gd" data-ed="part2/08-glossary.html:31">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:33">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:35">Intercept and slope. The weights the model learns.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:37"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">centring</div><div class="gd" data-ed="part2/08-glossary.html:39">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">OLS</div><div class="gd" data-ed="part2/08-glossary.html:41">Ordinary least squares. The recipe for finding those weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">training set</div><div class="gd" data-ed="part2/08-glossary.html:43">The data used to choose the weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">test set</div><div class="gd" data-ed="part2/08-glossary.html:45">Data held back and touched exactly once, to estimate real performance.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:47">Fitting the noise. Train error falls, test error rises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:48">supervised</div><div class="gd" data-ed="part2/08-glossary.html:49">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:50">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:51">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:52">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:53">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:54">recall</div><div class="gd" data-ed="part2/08-glossary.html:55">Of the true positives, the fraction the model found.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:16">residual</div><div class="gd" data-ed="part2/08-glossary.html:17"><span class="m">e<sub>i</sub></span> = <span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>. The vertical miss for one observation.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:18">RSS</div><div class="gd" data-ed="part2/08-glossary.html:19">Sum of squared residuals. What least squares minimises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20">TSS</div><div class="gd" data-ed="part2/08-glossary.html:21">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">MSE</div><div class="gd" data-ed="part2/08-glossary.html:23">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24">RMSE</div><div class="gd" data-ed="part2/08-glossary.html:25">Square root of MSE, back in the units of <span class="m">y</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:27">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:29">Intercept and slope. The weights the model learns.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:31"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">centring</div><div class="gd" data-ed="part2/08-glossary.html:33">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34">OLS</div><div class="gd" data-ed="part2/08-glossary.html:35">Ordinary least squares. The recipe for finding those weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">training set</div><div class="gd" data-ed="part2/08-glossary.html:37">The data used to choose the weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">test set</div><div class="gd" data-ed="part2/08-glossary.html:39">Data held back and touched exactly once, to estimate real performance.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:41">Fitting the noise. Train error falls, test error rises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">supervised</div><div class="gd" data-ed="part2/08-glossary.html:43">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:45">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:47">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:48">recall</div><div class="gd" data-ed="part2/08-glossary.html:49">Of the true positives, the fraction the model found.</div></div>
   </div>
 
   <div class="prose" style="margin-top:1.6rem">
-    <h3 data-ed="part2/08-glossary.html:56">Next time</h3>
-    <p data-ed="part2/08-glossary.html:57">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
+    <h3 data-ed="part2/08-glossary.html:50">Next time</h3>
+    <p data-ed="part2/08-glossary.html:51">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
   </div>
 
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/08-glossary.html:58">Class 2: The price of flexibility</div>
-      <p class="cl-d" data-ed="part2/08-glossary.html:59">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:52">Class 2: The price of flexibility</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:53">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
     </div>
     <a href="https://claude.ai/code/artifact/c747a30a-ce77-4fee-8339-d8726a4e94e2" data-local="class2_interactions_and_flexibility.html">On to class 2 &rarr;</a>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/08-glossary.html:60">Part 1: What is machine learning</div>
-      <p class="cl-d" data-ed="part2/08-glossary.html:61">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:54">Part 1: What is machine learning</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:55">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
     </div>
     <a href="https://claude.ai/code/artifact/d74b446f-4367-4f83-b6b9-47ba4cd98888" data-local="class1_part1_what_is_ml.html">Back to part 1 &rarr;</a>
   </div>
@@ -1368,7 +1337,7 @@ model.coef_               <span class="cm"># beta_1 ... beta_p</span>
   <footer>
     Machine Learning for Neuroscience &middot; 1501.1027 &middot; Semester A, 5787<br>
     Course text: James, Witten, Hastie &amp; Tibshirani, <em>An Introduction to Statistical Learning with Applications in Python</em> (2023). Chapter 3 covers today.<br>
-    All data on this page is simulated.
+    All data on this page is simulated, except the OASIS brain volumes in <em>A real dataset</em> (Marcus et al., 2007).
   </footer>
 </section>
 
@@ -1955,6 +1924,16 @@ var TABS = (function(){
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ redrawAll(); });
 })();
 
+/* OASIS-1 cross-sectional MRI (Marcus et al., 2007, J Cogn Neurosci 19:1498).
+   Taken from the NeuroDataSets R package (OASIS_cross_tbl_df), via Rdatasets.
+   Kept: the 316 participants with no dementia (CDR 0, or not rated because
+   under 60), first scan only; the 20 same-day reliability rescans are dropped.
+   age: years. nwbv: normalised whole-brain volume, as a percentage of the
+   estimated intracranial volume (the column x 100, to one decimal). */
+var OASIS = {
+  age: [74,55,28,18,24,21,20,74,52,30,81,19,21,39,89,48,24,58,43,21,65,89,80,51,27,23,38,21,47,29,57,20,48,24,21,20,21,46,20,20,73,48,77,90,67,33,63,49,60,43,83,18,20,64,25,25,18,90,70,47,21,40,20,18,22,28,47,23,19,29,18,19,24,20,81,20,25,61,84,23,69,83,62,52,25,19,26,22,21,30,18,68,24,22,65,64,24,80,72,23,24,22,34,82,25,23,20,25,23,23,20,86,40,57,20,18,74,41,50,88,71,35,23,88,54,44,80,49,48,44,84,48,22,43,21,31,23,76,89,21,69,60,85,23,71,48,78,51,55,22,20,74,48,18,71,26,75,94,49,22,26,81,55,19,20,22,75,37,20,72,29,74,80,22,28,21,20,85,71,70,21,78,87,28,46,24,54,51,93,89,58,50,22,73,78,28,45,18,91,20,59,64,69,20,20,28,90,90,22,67,48,54,20,22,20,27,86,33,31,19,65,50,27,73,50,19,80,54,72,26,41,81,77,19,71,88,68,20,54,23,22,43,21,22,74,73,68,55,65,21,20,87,74,45,46,22,73,23,70,59,46,31,25,58,20,59,58,38,22,26,26,55,24,22,26,25,20,71,54,19,73,25,55,22,34,23,25,21,23,30,21,22,22,69,75,82,84,45,22,58,50,23,22,66,21,23,52,30,90,80,22,71,19,61,61,62],
+  nwbv: [74.3,81.0,80.3,84.8,86.2,83.0,84.3,68.9,82.7,84.2,67.9,85.6,84.5,81.3,71.5,78.5,89.3,82.0,83.4,85.8,76.4,68.2,73.5,83.1,84.2,83.9,82.4,84.6,82.9,82.9,78.4,88.7,84.1,83.5,84.8,83.1,86.2,81.7,82.7,84.0,75.4,81.8,76.7,64.5,80.5,78.4,80.1,80.8,82.3,84.7,72.0,83.9,85.2,80.9,82.6,85.7,85.7,72.7,79.1,83.5,84.5,86.5,86.2,83.4,83.4,85.6,80.9,81.6,87.8,84.0,85.0,85.0,84.1,83.9,71.7,85.3,85.4,81.3,69.7,85.5,73.3,76.8,80.4,78.4,78.3,83.8,82.0,83.2,88.5,86.2,84.6,78.9,82.4,85.0,81.4,80.1,87.3,70.6,77.9,87.2,84.6,86.5,83.1,74.2,84.5,81.1,87.5,85.6,83.0,85.0,83.4,75.6,82.1,81.3,87.2,85.9,78.7,84.9,84.6,71.8,72.5,82.9,86.5,71.2,83.8,85.3,74.5,82.0,81.6,81.6,73.1,79.0,85.3,81.3,83.5,83.9,83.1,76.6,74.7,85.2,78.4,80.7,75.4,86.5,77.9,79.7,74.7,81.9,82.3,84.2,84.9,69.7,80.1,87.0,79.2,84.3,74.2,69.6,80.5,85.2,77.7,75.9,83.2,84.6,85.2,85.7,77.1,84.2,87.6,76.4,82.3,75.4,73.7,84.1,87.1,83.7,85.2,70.5,73.7,73.9,87.0,77.3,71.9,84.5,78.4,84.9,81.3,83.4,70.3,74.0,81.5,80.2,84.1,72.1,67.0,83.5,81.9,83.6,74.6,84.3,76.7,76.6,78.3,84.1,80.3,86.9,67.1,76.1,83.1,83.1,85.0,78.6,86.3,83.0,83.8,84.0,70.2,83.6,82.1,84.3,77.6,82.6,86.9,70.0,79.4,87.8,75.2,82.1,76.2,85.0,85.2,67.6,73.6,85.3,77.2,76.5,81.1,85.1,83.1,84.3,84.1,85.8,86.9,80.0,77.6,79.0,74.0,82.0,83.9,86.4,84.2,70.2,75.4,81.3,84.1,85.6,77.2,84.7,78.3,81.7,77.5,81.7,83.1,82.1,86.6,80.9,74.6,84.4,84.1,83.8,85.1,78.2,84.8,84.7,83.4,83.2,84.6,71.6,82.7,83.3,77.6,85.5,80.7,86.1,79.8,87.0,86.6,85.9,85.2,85.5,86.2,84.8,84.7,80.9,74.9,79.1,75.1,80.8,82.2,77.9,81.9,82.0,85.3,78.7,84.4,84.7,81.4,86.0,67.3,74.8,85.8,81.8,88.0,82.5,78.0,76.6]
+};
 
 /* ============================================================
    HERO: the residuals shrinking onto the least-squares line
@@ -2017,9 +1996,11 @@ var LR = (function(){
   S.reset = function(){
     var r = rng(2718);
     S.pts = [];
-    for (var i=0;i<14;i++){
-      var x = -0.75 + (i/13)*1.5 + (r()-0.5)*0.09;
-      var y = 10.5 + 4.6*x + gauss(r)*1.5;
+    for (var i=0;i<20;i++){
+      var x = -0.75 + (i/19)*1.5 + (r()-0.5)*0.09;
+      /* a gentle bend: recall levels off for the largest volumes, so the
+         best straight line runs a little high at both ends */
+      var y = 10.9 + 4.8*x - 2.4*x*x + gauss(r)*1.8;
       S.pts.push([Math.round(x*100)/100, Math.max(0.6, Math.min(17.4, Math.round(y*100)/100))]);
     }
   };
@@ -2052,9 +2033,37 @@ function drawResiduals(p, b0, b1, opt){
   });
   ctx.restore(); p.unclip();
 }
-function lrAxes(p){
+function lrAxes(p, atZero){
   var xt = [-1,-0.5,0,0.5,1], yt = [0,4,8,12,16];
   p.grid(xt, yt);
+  /* atZero: the y axis stands at x = 0 instead of the left edge, so the
+     intercept is simply where the line crosses it */
+  if (atZero) return function(){
+    var ctx = p.ctx, X = Math.round(p.x(0)) + 0.5, i;
+    ctx.save();
+    ctx.strokeStyle = col("--c-axis"); ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(p.L, Math.round(p.B) + 0.5); ctx.lineTo(p.R, Math.round(p.B) + 0.5);
+    ctx.moveTo(X, p.T - 6); ctx.lineTo(X, p.B);
+    for (i=0;i<yt.length;i++){ var Y = Math.round(p.y(yt[i])) + 0.5; ctx.moveTo(X - 4, Y); ctx.lineTo(X, Y); }
+    ctx.stroke();
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.fillStyle = col("--ink-faint");
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (i=0;i<xt.length;i++) ctx.fillText(xt[i].toFixed(1), p.x(xt[i]), p.B + 6);
+    /* y ticks sit inside the plot, so a halo keeps them readable over dots */
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.strokeStyle = col("--surface-2");
+    for (i=1;i<yt.length;i++){
+      ctx.strokeText(String(yt[i]), X - 7, p.y(yt[i]));
+      ctx.fillText(String(yt[i]), X - 7, p.y(yt[i]));
+    }
+    ctx.fillStyle = col("--ink-soft"); ctx.font = '10.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    ctx.fillText("x: hippocampal volume (cm³ from the group mean)", (p.L + p.R)/2, p.H - 1);
+    ctx.fillText("y: delayed recall score", X, p.T - 9);
+    ctx.restore();
+  };
   return function(){
     p.axes({ xt:xt, yt:yt,
       xlabel:"x: hippocampal volume (cm³ from the group mean)",
@@ -2065,7 +2074,7 @@ function lrAxes(p){
 
 /* ---- 07: move the line ---- */
 (function(){
-  var p = mkPlot("cvLine", {xd:LR.XD, yd:LR.YD, padL:46, padB:38});
+  var p = mkPlot("cvLine", {xd:LR.XD, yd:LR.YD, padL:16, padT:28, padB:38});
   if (!p) return;
   var s0 = document.getElementById("lineB0"), s1 = document.getElementById("lineB1");
   var l0 = document.getElementById("lineB0v"), l1 = document.getElementById("lineB1v");
@@ -2074,8 +2083,21 @@ function lrAxes(p){
     {k:"data",   label:"the subjects",       kind:"dot",  col:"--c-data"},
     {k:"line",   label:"our line",           kind:"ln",   col:"--c-model"},
     {k:"resid",  label:"residuals",          kind:"ln",   col:"--c-error"},
-    {k:"origin", label:"intercept at x = 0", kind:"dash", col:"--ink-faint"}
+    {k:"origin", label:"intercept &beta;<sub>0</sub>", kind:"ring", col:"--c-model"},
+    {k:"step",   label:"slope &beta;<sub>1</sub>: one step in x", kind:"ln", col:"--c-alt"}
   ], function(){ LR.emit(); });
+
+  /* a label with a halo, so it stays readable over the line and the dots */
+  function tag(str, X, Y, color, align, base){
+    var ctx = p.ctx;
+    ctx.save();
+    ctx.font = '600 11px "IBM Plex Mono", monospace';
+    ctx.textAlign = align; ctx.textBaseline = base || "alphabetic";
+    ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.strokeStyle = col("--surface-2");
+    ctx.strokeText(str, X, Y);
+    ctx.fillStyle = color; ctx.fillText(str, X, Y);
+    ctx.restore();
+  }
   s0.min = 0;   s0.max = 180; s0.step = 1;
   s1.min = -60;  s1.max = 140; s1.step = 1;
 
@@ -2122,33 +2144,49 @@ function lrAxes(p){
     bestEl.textContent = fmt(LR.rss(f.b0, f.b1), 1);
 
     p.sync(); p.frame();
-    var ax = lrAxes(p);
+    var ax = lrAxes(p, true);
     if (L.on("resid")) drawResiduals(p, LR.b0, LR.b1);
     if (L.on("line"))  p.fnline(function(x){ return LR.b0 + LR.b1*x; }, {w:2.8});
-
-    if (L.on("origin")){
-      var ctx = p.ctx;
-      /* x = 0 is the pivot: moving the slope turns the line about this point,
-         and moving the intercept slides the point up and down the line. */
-      ctx.save();
-      ctx.strokeStyle = alpha(col("--ink-faint"), .8); ctx.lineWidth = 1.2; ctx.setLineDash([3,4]);
-      ctx.beginPath(); ctx.moveTo(p.x(0), p.T); ctx.lineTo(p.x(0), p.B); ctx.stroke();
-      ctx.restore();
-      p.txt("x = 0", p.x(0) + 5, p.B - 6, {color: col("--ink-faint"), font:'10px "IBM Plex Mono", monospace'});
-
-      /* the intercept itself, sitting on the pivot line */
-      if (LR.b0 >= LR.YD[0] && LR.b0 <= LR.YD[1]){
-        ctx.save();
-        ctx.beginPath(); ctx.arc(p.x(0), p.y(LR.b0), 5.5, 0, 6.2832);
-        ctx.fillStyle = col("--surface"); ctx.fill();
-        ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.4; ctx.stroke();
-        ctx.restore();
-        p.txt("b0 = " + LR.b0.toFixed(1), p.x(0) - 8, p.y(LR.b0) - 9,
-              {align:"right", color: col("--c-model"), font:'600 11px "IBM Plex Mono", monospace'});
-      }
+    /* What beta1 means, drawn: start at the intercept, walk one unit right,
+       and the line has climbed by exactly beta1. */
+    var b0 = LR.b0, b1 = LR.b1, stepOn = L.on("step");
+    if (stepOn){
+      var sc = p.ctx;
+      p.clip(); sc.save();
+      sc.strokeStyle = col("--c-alt"); sc.lineWidth = 2; sc.lineCap = "round";
+      sc.setLineDash([5,4]);
+      sc.beginPath(); sc.moveTo(p.x(0), p.y(b0)); sc.lineTo(p.x(1), p.y(b0)); sc.stroke();
+      sc.setLineDash([]);
+      sc.beginPath(); sc.moveTo(p.x(1), p.y(b0)); sc.lineTo(p.x(1), p.y(b0 + b1)); sc.stroke();
+      sc.restore(); p.unclip();
     }
     if (L.on("data")) p.dots(LR.pts, {r:5, color: col("--c-data"), ring: col("--surface")});
     ax();
+
+    /* The y axis stands at x = 0, the pivot: moving the slope turns the line
+       about this point, and moving the intercept slides it up and down the axis.
+       Labels: "+beta1" sits inside the step, beside the rise. beta0 and "+1"
+       sit on the other side of the run, away from the line, with "+1" pushed
+       right if beta0's label would otherwise run into it. */
+    var away = b1 >= 0 ? 1 : -1;               /* 1 = below the run, on screen */
+    var labEnd = p.x(0);
+    if (L.on("origin") && b0 >= LR.YD[0] && b0 <= LR.YD[1]){
+      var ctx = p.ctx, lab = "β0 = " + b0.toFixed(1);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(p.x(0), p.y(b0), 5.5, 0, 6.2832);
+      ctx.fillStyle = col("--surface"); ctx.fill();
+      ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.font = '600 11px "IBM Plex Mono", monospace';
+      labEnd = p.x(0) + 10 + ctx.measureText(lab).width;
+      ctx.restore();
+      tag(lab, p.x(0) + 10, p.y(b0) + away*9, col("--c-model"), "left", away > 0 ? "top" : "bottom");
+    }
+    if (stepOn){
+      tag("+1", Math.max(p.x(0.5), labEnd + 16), p.y(b0) + away*9, col("--c-alt"),
+          "center", away > 0 ? "top" : "bottom");
+      tag((b1 >= 0 ? "+" : "−") + "β1 = " + Math.abs(b1).toFixed(1),
+          p.x(1) - 7, p.y(b0 + b1/2), col("--c-alt"), "right", "middle");
+    }
   }
   function fromSlider(){ LR.set((+s0.value)/10, (+s1.value)/10); }
   s0.addEventListener("input", fromSlider);
@@ -3225,125 +3263,118 @@ var CI = (function(){
 })();
 
 /* ============================================================
-   01b — probability recap: a joint distribution, one column at a time
+   07b — a real dataset: OASIS brain volume against age, with a
+   train/test split and a line the reader fits by hand
    ============================================================ */
 (function(){
-  var pj = mkPlot("cvProbJ", {xd:[0.5,6.5], yd:[-0.6,16.6], padL:42, padB:34});
-  var pc = mkPlot("cvProbC", {xd:[-0.7,16.7], yd:[0,0.3], padL:42, padB:32, padT:16});
-  if (!pj) return;
-  var elX = document.getElementById("probX"), lbX = document.getElementById("probXv");
-  var pxEl = document.getElementById("probPx"), eyEl = document.getElementById("probEy");
-  var eyxEl = document.getElementById("probEyx");
-  var seg = document.getElementById("probSeg");
-  var L = layerToggles("probLayers", [
-    {k:"cm",   label:"E[Y | X = x], each column", kind:"dot",  col:"--c-model"},
-    {k:"mean", label:"E[Y], ignoring X",          kind:"dash", col:"--ink-faint"},
-    {k:"line", label:"best straight line",        kind:"ln",   col:"--c-alt", on:false}
+  var p = mkPlot("cvReal", {xd:[0,100], yd:[62,94], padL:46, padB:38});
+  if (!p || typeof OASIS === "undefined") return;
+  function $(id){ return document.getElementById(id); }
+  var s0 = $("realB0"), s1 = $("realB1"), l0 = $("realB0v"), l1 = $("realB1v");
+  var elA = $("realA"), lbA = $("realAv"), yhEl = $("realYh");
+  var trEl = $("realTr"), teEl = $("realTe");
+  var L = layerToggles("realLayers", [
+    {k:"train", label:"train",                         kind:"dot",  col:"--ink-faint"},
+    {k:"test",  label:"test (unseen)",                 kind:"ring", col:"--c-error", on:false},
+    {k:"line",  label:"our line",                      kind:"ln",   col:"--c-model"},
+    {k:"b0",    label:"intercept &beta;<sub>0</sub>",  kind:"ring", col:"--c-model"},
+    {k:"pred",  label:"prediction",                    kind:"dot",  col:"--c-test"}
   ], function(){ draw(); });
-  var YMAX = 16, mode = "lin";
 
-  /* The experimenter showed the middle contrasts more often. */
-  var PX = [0.10, 0.15, 0.25, 0.25, 0.15, 0.10];
-  /* Mean spike count at each contrast. The linear neuron climbs by the same
-     amount per step; the saturating one follows a Naka-Rushton-like curve and
-     flattens out at high contrast. */
-  function rate(x){
-    return mode === "lin" ? 1 + 1.2*x : 1 + 9*x*x/(x*x + 6.25);
+  var X = OASIS.age, Y = OASIS.nwbv, N = X.length;
+  var XLO = Math.min.apply(null, X), XHI = Math.max.apply(null, X);
+  /* A fifth of the people go to the test set. Seed 13 is the default split:
+     the prose quotes its least-squares line, 88.97 - 0.175 age. */
+  var seed = 13, TR = [], TE = [];
+  function split(){
+    var r = rng(seed), idx = [], j, k, t;
+    for (j=0;j<N;j++) idx.push(j);
+    for (j=N-1;j>0;j--){ k = Math.floor(r()*(j+1)); t = idx[j]; idx[j] = idx[k]; idx[k] = t; }
+    var nte = Math.round(N*0.2);
+    TE = idx.slice(0, nte); TR = idx.slice(nte);
   }
-  /* P(Y = y | X = x): Poisson spike counts, cut at YMAX and renormalised */
-  function cond(x){
-    var lam = rate(x), out = [], s = 0, pr = Math.exp(-lam), y;
-    for (y=0;y<=YMAX;y++){ if (y > 0) pr *= lam/y; out.push(pr); s += pr; }
-    for (y=0;y<=YMAX;y++) out[y] /= s;
-    return out;
+  function mse(ix, b0, b1){
+    var s = 0;
+    for (var k=0;k<ix.length;k++){ var e = Y[ix[k]] - (b0 + b1*X[ix[k]]); s += e*e; }
+    return s/ix.length;
   }
-  function meanOf(dist){ var m = 0; for (var y=0;y<dist.length;y++) m += y*dist[y]; return m; }
+  split();
+
+  function tag(str, x, y, color, align, base){
+    var ctx = p.ctx;
+    ctx.save();
+    ctx.font = '600 11px "IBM Plex Mono", monospace';
+    ctx.textAlign = align; ctx.textBaseline = base || "alphabetic";
+    ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.strokeStyle = col("--surface-2");
+    ctx.strokeText(str, x, y);
+    ctx.fillStyle = color; ctx.fillText(str, x, y);
+    ctx.restore();
+  }
 
   function draw(){
-    var xs = +elX.value, x, y;
-    lbX.textContent = xs;
-    var C = [], M = [], PY = [], Ey = 0;
-    for (y=0;y<=YMAX;y++) PY.push(0);
-    for (x=1;x<=6;x++){
-      var c = cond(x); C.push(c); M.push(meanOf(c));
-      for (y=0;y<=YMAX;y++) PY[y] += PX[x-1]*c[y];   /* P(Y=y) = sum over x of the joint */
-    }
-    Ey = meanOf(PY);
-    pxEl.textContent = fmt(PX[xs-1], 2);
-    eyEl.textContent = fmt(Ey, 2) + " spikes";
-    eyxEl.textContent = fmt(M[xs-1], 2) + " spikes";
+    var b0 = (+s0.value)/100, b1 = (+s1.value)/1000, a = +elA.value;
+    function yh(x){ return b0 + b1*x; }
+    l0.textContent = b0.toFixed(2); l1.textContent = b1.toFixed(3); lbA.textContent = a;
+    trEl.textContent = fmt(mse(TR, b0, b1), 2);
+    teEl.textContent = fmt(mse(TE, b0, b1), 2);
+    yhEl.textContent = fmt(yh(a), 1) + "%";
 
-    /* best straight line through the conditional means, each column weighted
-       by how often it was shown: the line least squares would find with
-       infinitely many trials */
-    var sw = 0, mx = 0, my = 0, sxy = 0, sxx = 0;
-    for (x=1;x<=6;x++){ sw += PX[x-1]; mx += PX[x-1]*x; my += PX[x-1]*M[x-1]; }
-    mx /= sw; my /= sw;
-    for (x=1;x<=6;x++){ sxy += PX[x-1]*(x-mx)*(M[x-1]-my); sxx += PX[x-1]*(x-mx)*(x-mx); }
-    var b1 = sxy/sxx, b0 = my - b1*mx;
-
-    /* ---- the joint distribution ---- */
-    pj.sync(); pj.frame();
-    var ctx = pj.ctx, xt = [1,2,3,4,5,6], yt = [0,4,8,12,16];
-    pj.grid(null, yt);
-    var colW = (pj.R - pj.L)/6;
-    ctx.save(); ctx.fillStyle = alpha(col("--c-model"), 0.09);
-    ctx.fillRect(pj.x(xs) - colW/2, pj.T, colW, pj.B - pj.T); ctx.restore();
-    var pmax = 0;
-    for (x=1;x<=6;x++) for (y=0;y<=YMAX;y++) pmax = Math.max(pmax, PX[x-1]*C[x-1][y]);
-    var rmax = Math.min(colW*0.42, (pj.B - pj.T)/(YMAX+1.2)*0.5);
-    for (x=1;x<=6;x++){
-      for (y=0;y<=YMAX;y++){
-        var r = rmax*Math.sqrt(PX[x-1]*C[x-1][y]/pmax);
-        if (r < 0.4) continue;
-        ctx.beginPath(); ctx.arc(pj.x(x), pj.y(y), r, 0, 6.2832);
-        ctx.fillStyle = x === xs ? alpha(col("--c-model"), 0.75) : alpha(col("--c-data"), 0.45);
-        ctx.fill();
-      }
+    p.sync(); p.frame();
+    var xt = [0,20,40,60,80,100], yt = [65,70,75,80,85,90];
+    p.grid(xt, yt);
+    var ctx = p.ctx;
+    if (L.on("train")) p.dots(TR.map(function(i){ return [X[i], Y[i]]; }),
+                              {r:3.2, color: alpha(col("--ink-faint"), 0.7)});
+    if (L.on("test"))  p.dots(TE.map(function(i){ return [X[i], Y[i]]; }),
+                              {hollow:true, r:3.6, color: alpha(col("--c-error"), 0.85), lw:1.5});
+    if (L.on("line")){
+      /* solid where there is data, dashed where the line is only extended */
+      p.clip(); ctx.save();
+      ctx.strokeStyle = col("--c-model"); ctx.lineCap = "round";
+      ctx.lineWidth = 2.8;
+      ctx.beginPath(); ctx.moveTo(p.x(XLO), p.y(yh(XLO))); ctx.lineTo(p.x(XHI), p.y(yh(XHI))); ctx.stroke();
+      ctx.lineWidth = 2; ctx.setLineDash([6,5]);
+      ctx.beginPath(); ctx.moveTo(p.x(0), p.y(yh(0))); ctx.lineTo(p.x(XLO), p.y(yh(XLO)));
+      ctx.moveTo(p.x(XHI), p.y(yh(XHI))); ctx.lineTo(p.x(100), p.y(yh(100))); ctx.stroke();
+      ctx.restore(); p.unclip();
     }
-    if (L.on("mean")) pj.seg(0.5, Ey, 6.5, Ey, {color: col("--ink-faint"), w:1.6, dash:[6,5]});
-    if (L.on("line")) pj.fnline(function(v){ return b0 + b1*v; }, {color: col("--c-alt"), w:2.4});
-    if (L.on("cm")) pj.dots(M.map(function(m,i){ return [i+1, m]; }),
-                            {r:5, color: col("--c-model"), ring: col("--surface")});
-    pj.axes({xt:xt, yt:yt, xlabel:"X: contrast level", ylabel:"Y: spike count",
-             fmt:function(v){ return v.toFixed(0); }});
-
-    /* ---- the chosen column, renormalised ---- */
-    if (!pc) return;
-    var cs = C[xs-1], top = 0;
-    for (y=0;y<=YMAX;y++) top = Math.max(top, cs[y], PY[y]);
-    pc.dom(null, [0, Math.ceil(top*1.15*20)/20]);
-    pc.sync(); pc.frame();
-    var ytc = [0, pc.o.yd[1]/2, pc.o.yd[1]];
-    pc.grid(null, ytc);
-    var cx = pc.ctx, bw = (pc.R - pc.L)/(YMAX + 1.4)*0.72;
-    for (y=0;y<=YMAX;y++){
-      cx.fillStyle = alpha(col("--c-model"), 0.8);
-      cx.fillRect(pc.x(y) - bw/2, pc.y(cs[y]), bw, pc.B - pc.y(cs[y]));
+    var predIn = yh(a) >= p.o.yd[0] && yh(a) <= p.o.yd[1];
+    if (L.on("pred") && predIn){
+      /* guides from the chosen age up to the line and across to the y axis */
+      ctx.save();
+      ctx.strokeStyle = alpha(col("--c-test"), 0.8); ctx.lineWidth = 1.3; ctx.setLineDash([2,3]);
+      ctx.beginPath();
+      ctx.moveTo(p.x(a), p.B); ctx.lineTo(p.x(a), p.y(yh(a)));
+      ctx.lineTo(p.x(0), p.y(yh(a)));
+      ctx.stroke(); ctx.restore();
+      p.dots([[a, yh(a)]], {r:5.5, color: col("--c-test"), ring: col("--surface")});
     }
-    cx.save(); cx.strokeStyle = col("--ink-faint"); cx.lineWidth = 1.4; cx.beginPath();
-    for (y=0;y<=YMAX;y++){
-      var x0 = pc.x(y - 0.5), x1 = pc.x(y + 0.5), yy = pc.y(PY[y]);
-      if (y === 0) cx.moveTo(x0, pc.B);
-      cx.lineTo(x0, yy); cx.lineTo(x1, yy);
+    var b0In = b0 >= p.o.yd[0] && b0 <= p.o.yd[1];
+    if (L.on("b0") && b0In){
+      ctx.save();
+      ctx.beginPath(); ctx.arc(p.x(0), p.y(b0), 5.5, 0, 6.2832);
+      ctx.fillStyle = col("--surface"); ctx.fill();
+      ctx.strokeStyle = col("--c-model"); ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.restore();
     }
-    cx.lineTo(pc.x(YMAX + 0.5), pc.B); cx.stroke(); cx.restore();
-    pc.seg(M[xs-1], 0, M[xs-1], pc.o.yd[1], {color: col("--c-model"), w:2});
-    pc.txt("E[Y | X = " + xs + "]", pc.x(M[xs-1]) + 5, pc.T + 10, {color: col("--c-model")});
-    pc.axes({xt:[0,4,8,12,16], yt:ytc, xlabel:"spike count y", ylabel:"probability",
-             fmt:function(v){ return v.toFixed(0); }, fmtY:function(v){ return v.toFixed(2); }});
+    p.axes({xt:xt, yt:yt, xlabel:"x: age (years)",
+            ylabel:"y: brain volume (% of skull)",
+            fmt:function(v){ return v.toFixed(0); }});
+    /* labels last, so nothing paints over them */
+    if (L.on("b0") && b0In)
+      tag("β0 = " + b0.toFixed(1), p.x(0) + 10, p.y(b0) + (b1 > 0 ? 9 : -9),
+          col("--c-model"), "left", b1 > 0 ? "top" : "bottom");
+    if (L.on("pred") && predIn)
+      tag(fmt(yh(a), 1) + "%", p.x(a) + 9, p.y(yh(a)) - 8, col("--c-test"), "left", "bottom");
   }
-
-  elX.addEventListener("input", draw);
-  pj.el.addEventListener("pointerdown", function(e){
-    var r = pj.el.getBoundingClientRect();
-    elX.value = Math.max(1, Math.min(6, Math.round(pj.ix(e.clientX - r.left))));
+  [s0, s1, elA].forEach(function(e){ e.addEventListener("input", draw); });
+  $("realFit").addEventListener("click", function(){
+    var f = ols(TR.map(function(i){ return X[i]; }), TR.map(function(i){ return Y[i]; }));
+    s0.value = Math.round(f.b0*100); s1.value = Math.round(f.b1*1000);
     draw();
   });
-  seg.addEventListener("click", function(ev){
-    var b = ev.target.closest("button"); if (!b) return;
-    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c===b); });
-    mode = b.getAttribute("data-v"); draw();
+  $("realNew").addEventListener("click", function(){
+    seed = (seed*1664525 + 1013904223) >>> 0; split(); draw();
   });
   reg(draw);
 })();
