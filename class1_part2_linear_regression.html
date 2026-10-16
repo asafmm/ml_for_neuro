@@ -588,7 +588,8 @@ section.tabpanel{padding:2.6rem 0 0}
     <a href="#s9"><span class="n">04</span><span>Solving it with calculus</span></a>
     <a href="#s13"><span class="n">05</span><span>More than one predictor</span></a>
     <a href="#s14"><span class="n">06</span><span>Coefficient interpretation</span></a>
-    <a href="#s12"><span class="n">07</span><span>Glossary</span></a>
+    <a href="#s17"><span class="n">07</span><span>Evaluation metrics</span></a>
+    <a href="#s12"><span class="n">08</span><span>Glossary</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -1199,9 +1200,112 @@ section.tabpanel{padding:2.6rem 0 0}
     <b>&ldquo;Holding the others fixed&rdquo; can be a fiction.</b> It is a statement about the model, not about anything we can do. When predictors are correlated, as age and hippocampal volume certainly are, no subject in the data holds one fixed while the other moves, and the coefficient is estimated from whatever little independent variation is left. That is why coefficients can swing wildly when a correlated predictor is added or dropped, and why none of this is a causal claim.
   </div>
 </section>
+
+<!-- ==================== 17 ==================== -->
+<section id="s17">
+  <div class="shead"><div class="num">07</div><h2 data-ed="part2/07b-evaluation-metrics.html:0">Evaluation metrics</h2></div>
+  <div class="prose">
+    <p data-ed="part2/07b-evaluation-metrics.html:1">We have a fitted line. How good is it?
+      <br>Three numbers come up again and again, and each one answers a different question.</p>
+  </div>
+
+  <div class="eq tight">
+    MSE =
+    <span class="frac"><span>1</span><span><span class="m">n</span></span></span>
+    <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
+    (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/07b-evaluation-metrics.html:2"><strong>MSE</strong>, the mean squared error, is the average squared miss, in the units of <span class="m">y</span> squared.
+      <br>On its own it is hard to judge: whether an MSE of 6 is good depends on how spread out <span class="m">y</span> was in the first place.</p>
+  </div>
+
+  <div class="eq tight">
+    <span class="m">R</span><sup>2</sup> = 1 &minus;
+    <span class="frac">
+      <span>&Sigma; (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup></span>
+      <span>&Sigma; (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="bar">y</span></span>)<sup>2</sup></span>
+    </span>
+    = 1 &minus;
+    <span class="frac"><span>RSS</span><span>TSS</span></span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/07b-evaluation-metrics.html:3"><strong><span class="m">R</span><sup>2</sup></strong> fixes that by comparing our errors with those of the simplest model there is: predict the mean <span class="m"><span class="bar">y</span></span> for everyone.
+      <br>1 means perfect predictions. 0 means no better than the mean.
+      <br>Nothing stops it from going below 0. That simply means worse than the mean.</p>
+    <p data-ed="part2/07b-evaluation-metrics.html:4"><strong><span class="m">r</span></strong> is the correlation between the real values and the predictions, the same <span class="m">r</span> as in <em>Solving it with calculus</em>.
+      <br>It asks whether the predictions rise and fall together with the truth. It does not ask whether they are right.</p>
+    <p data-ed="part2/07b-evaluation-metrics.html:5">For a least-squares line, on the data it was fitted to, the two agree: <span class="m">R</span><sup>2</sup> = <span class="m">r</span><sup>2</sup>. Anywhere else they can part ways.</p>
+  </div>
+
+
+  <h3 style="font-family:var(--serif);font-size:1.1rem;font-weight:600;margin:2.4rem 0 .55rem">High <span class="m">r</span>, low <span class="m">R</span><sup>2</sup></h3>
+  <div class="prose">
+    <p data-ed="part2/07b-evaluation-metrics.html:6">Each dot is one person from the test set of <em>A real dataset</em>: real brain volume across, the line&rsquo;s prediction up. Perfect predictions would sit on the dashed diagonal.
+      <br>The line was fitted on the training set, so these are people it never saw.
+      <br>Shift or stretch the predictions. <span class="m">r</span> does not move, because the dots still lie along a straight line just as tightly.
+      <br><span class="m">R</span><sup>2</sup> falls, because that line is no longer the diagonal.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part2/07b-evaluation-metrics.html:7">Predicted against real</div>
+      <div class="hint" data-ed="part2/07b-evaluation-metrics.html:8">move the predictions, watch r stand still</div>
+    </div>
+    <div class="panel-body panel-split">
+      <div>
+        <canvas id="cvRp" class="cv" height="340"></canvas>
+        <div id="rpLayers"></div>
+        <p class="notecap" data-ed="part2/07b-evaluation-metrics.html:9">The 63 test people of the default split, predicted by the least-squares line fitted on the other 253. An error is the vertical distance from a dot to the diagonal.</p>
+      </div>
+      <div class="ctl">
+        <div class="ctl-row">
+          <label>shift every prediction <span class="v" id="rpShv">0.00</span></label>
+          <input type="range" id="rpSh" min="-800" max="800" value="0" step="10">
+        </div>
+        <div class="ctl-row">
+          <label>stretch them about their mean <span class="v" id="rpScv">&times;1.00</span></label>
+          <input type="range" id="rpSc" min="-100" max="300" value="100" step="5">
+        </div>
+        <div class="stats">
+          <div class="stat alt"><span class="k"><span class="m">r</span></span><span class="val" id="rpR">&mdash;</span></div>
+          <div class="stat model"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val" id="rpR2">&mdash;</span></div>
+          <div class="stat error"><span class="k">MSE</span><span class="val" id="rpMse">&mdash;</span></div>
+        </div>
+        <div class="btnrow">
+          <button class="btn primary" id="rpLs">least squares</button>
+          <button class="btn" id="rpUp">shift up by 5</button>
+          <button class="btn" id="rpX3">stretch &times;3</button>
+          <button class="btn" id="rpBest">shift to lowest MSE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part2/07b-evaluation-metrics.html:10">At the least-squares line, <span class="m">r</span> = 0.865 and <span class="m">R</span><sup>2</sup> = 0.742, a little below 0.865<sup>2</sup> = 0.748.
+      <br>These people were not used for fitting, so <span class="m">R</span><sup>2</sup> = <span class="m">r</span><sup>2</sup> no longer has to hold.
+      <br>Shift every prediction up by 5 points: <span class="m">r</span> is still 0.865, and <span class="m">R</span><sup>2</sup> is &minus;0.06.
+      <br>Stretch them three times: <span class="m">r</span> is still 0.865, and <span class="m">R</span><sup>2</sup> is &minus;1.52.</p>
+    <p data-ed="part2/07b-evaluation-metrics.html:11">A model that is always off by the same amount, or that exaggerates every difference, can correlate strongly with the truth and still predict worse than the mean.
+      <br>Keep this in mind when reading papers: &ldquo;predicted and observed scores correlated at <span class="m">r</span> = 0.5&rdquo; is a weaker claim than <span class="m">R</span><sup>2</sup> = 0.25 on held-out data.</p>
+    <p data-ed="part2/07b-evaluation-metrics.html:12">The last button keeps the stretch and picks the shift with the smallest test MSE.
+      <br>It lands on &minus;0.06, not 0. Least squares lined up the average prediction with the average <span class="m">y</span> of the training people, and the test people average out slightly differently.
+      <br>The MSE only drops from 8.21 to 8.20, so the line fitted on the training set was already almost as good as any shift can make it.
+      <br>After a stretch &times;3, the best shift still leaves <span class="m">R</span><sup>2</sup> at &minus;1.52. A shift can only fix an error that is the same for everyone.</p>
+  </div>
+
+  <div class="key">
+    <div class="lbl" data-ed="part2/07b-evaluation-metrics.html:13">Key idea</div>
+    <p data-ed="part2/07b-evaluation-metrics.html:14">MSE is the error, in units. <span class="m">R</span><sup>2</sup> is the error compared with predicting the mean. <span class="m">r</span> only says whether the predictions move with the truth.
+      <br>Report MSE or <span class="m">R</span><sup>2</sup>. A high <span class="m">r</span> can hide a model that predicts worse than the mean.</p>
+  </div>
+</section>
 <!-- ==================== 12 ==================== -->
 <section id="s12">
-  <div class="shead"><div class="num">07</div><h2 data-ed="part2/08-glossary.html:0">Glossary</h2></div>
+  <div class="shead"><div class="num">08</div><h2 data-ed="part2/08-glossary.html:0">Glossary</h2></div>
   <div class="prose">
     <p data-ed="part2/08-glossary.html:1">Everything introduced today, in the notation the course will keep using.</p>
   </div>
@@ -1218,38 +1322,39 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:18">RSS</div><div class="gd" data-ed="part2/08-glossary.html:19">Sum of squared residuals. What least squares minimises.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20">TSS</div><div class="gd" data-ed="part2/08-glossary.html:21">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">MSE</div><div class="gd" data-ed="part2/08-glossary.html:23">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:25">1 &minus; RSS/TSS. Fraction of variance in <span class="m">y</span> the model accounts for.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:27">Intercept and slope. The weights the model learns.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:29"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">centring</div><div class="gd" data-ed="part2/08-glossary.html:31">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">OLS</div><div class="gd" data-ed="part2/08-glossary.html:33">Ordinary least squares. The recipe for finding those weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34">training set</div><div class="gd" data-ed="part2/08-glossary.html:35">The data used to choose the weights.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">test set</div><div class="gd" data-ed="part2/08-glossary.html:37">Data held back and touched exactly once, to estimate real performance.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:39">Fitting the noise. Train error falls, test error rises.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">supervised</div><div class="gd" data-ed="part2/08-glossary.html:41">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:43">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:45">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">recall</div><div class="gd" data-ed="part2/08-glossary.html:47">Of the true positives, the fraction the model found.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:25">1 &minus; RSS/TSS. Our errors compared with always predicting the mean: 1 is perfect, 0 is no better than the mean. On test data it can be negative.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">r</span></div><div class="gd" data-ed="part2/08-glossary.html:27">Correlation between real values and predictions. Says whether they move together, not whether they are right: shifted or stretched predictions keep the same <span class="m">r</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:29">Intercept and slope. The weights the model learns.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">standardised<br>coefficient</div><div class="gd" data-ed="part2/08-glossary.html:31"><span class="m">&beta;<sub>j</sub></span> &times; sd(<span class="m">x<sub>j</sub></span>). The change in <span class="m">y</span> for a one-SD move in that predictor, so predictors in different units can be compared.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">centring</div><div class="gd" data-ed="part2/08-glossary.html:33">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34">OLS</div><div class="gd" data-ed="part2/08-glossary.html:35">Ordinary least squares. The recipe for finding those weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">training set</div><div class="gd" data-ed="part2/08-glossary.html:37">The data used to choose the weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">test set</div><div class="gd" data-ed="part2/08-glossary.html:39">Data held back and touched exactly once, to estimate real performance.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:41">Fitting the noise. Train error falls, test error rises.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">supervised</div><div class="gd" data-ed="part2/08-glossary.html:43">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:45">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:47">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:48">recall</div><div class="gd" data-ed="part2/08-glossary.html:49">Of the true positives, the fraction the model found.</div></div>
   </div>
 
   <div class="prose" style="margin-top:1.6rem">
-    <h3 data-ed="part2/08-glossary.html:48">Next time</h3>
-    <p data-ed="part2/08-glossary.html:49">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
+    <h3 data-ed="part2/08-glossary.html:50">Next time</h3>
+    <p data-ed="part2/08-glossary.html:51">What happens when features correlate with each other, why adding them always helps in-sample and often hurts out-of-sample, and the first tool for dealing with it, regularisation.</p>
   </div>
 
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/08-glossary.html:50">Class 2: The price of flexibility</div>
-      <p class="cl-d" data-ed="part2/08-glossary.html:51">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:52">Class 2: The price of flexibility</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:53">Interactions with a group and between two continuous predictors, KNN regression, and the bias-variance tradeoff.</p>
     </div>
     <a href="https://claude.ai/code/artifact/c747a30a-ce77-4fee-8339-d8726a4e94e2" data-local="class2_interactions_and_flexibility.html">On to class 2 &rarr;</a>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part2/08-glossary.html:52">Part 1: What is machine learning</div>
-      <p class="cl-d" data-ed="part2/08-glossary.html:53">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
+      <div class="cl-t" data-ed="part2/08-glossary.html:54">Part 1: What is machine learning</div>
+      <p class="cl-d" data-ed="part2/08-glossary.html:55">Fitting vs. predicting, supervised vs. unsupervised, regression vs. classification, and EDA.</p>
     </div>
     <a href="https://claude.ai/code/artifact/d74b446f-4367-4f83-b6b9-47ba4cd98888" data-local="class1_part1_what_is_ml.html">Back to part 1 &rarr;</a>
   </div>
@@ -3151,6 +3256,16 @@ var CI = (function(){
    07b — a real dataset: OASIS brain volume against age, with a
    train/test split and a line the reader fits by hand
    ============================================================ */
+/* Indices of the OASIS people in each half of a split: a fifth, shuffled by
+   seed, go to the test set. */
+function oasisSplit(seed){
+  var n = OASIS.age.length, r = rng(seed), idx = [], j, k, t;
+  for (j=0;j<n;j++) idx.push(j);
+  for (j=n-1;j>0;j--){ k = Math.floor(r()*(j+1)); t = idx[j]; idx[j] = idx[k]; idx[k] = t; }
+  var nte = Math.round(n*0.2);
+  return { te: idx.slice(0, nte), tr: idx.slice(nte) };
+}
+
 (function(){
   var p = mkPlot("cvReal", {xd:[0,100], yd:[62,94], padL:46, padB:38});
   if (!p || typeof OASIS === "undefined") return;
@@ -3168,16 +3283,10 @@ var CI = (function(){
 
   var X = OASIS.age, Y = OASIS.nwbv, N = X.length;
   var XLO = Math.min.apply(null, X), XHI = Math.max.apply(null, X);
-  /* A fifth of the people go to the test set. Seed 13 is the default split:
-     the prose quotes its least-squares line, 88.97 - 0.175 age. */
+  /* Seed 13 is the default split: the prose quotes its least-squares line,
+     88.97 - 0.175 age, and the evaluation-metrics tab reuses it. */
   var seed = 13, TR = [], TE = [];
-  function split(){
-    var r = rng(seed), idx = [], j, k, t;
-    for (j=0;j<N;j++) idx.push(j);
-    for (j=N-1;j>0;j--){ k = Math.floor(r()*(j+1)); t = idx[j]; idx[j] = idx[k]; idx[k] = t; }
-    var nte = Math.round(N*0.2);
-    TE = idx.slice(0, nte); TR = idx.slice(nte);
-  }
+  function split(){ var s = oasisSplit(seed); TR = s.tr; TE = s.te; }
   function mse(ix, b0, b1){
     var s = 0;
     for (var k=0;k<ix.length;k++){ var e = Y[ix[k]] - (b0 + b1*X[ix[k]]); s += e*e; }
@@ -3260,6 +3369,94 @@ var CI = (function(){
   });
   $("realNew").addEventListener("click", function(){
     seed = (seed*1664525 + 1013904223) >>> 0; split(); draw();
+  });
+  reg(draw);
+})();
+
+/* ============================================================
+   17 — evaluation metrics: r against R²
+   ============================================================ */
+/* r, R² and MSE of predictions P for the real values Y. R² is measured
+   against Y's own mean, as sklearn's r2_score does. r is undefined when every
+   prediction is the same, and comes back NaN. */
+function evalMetrics(Y, P){
+  var n = Y.length, my = 0, mp = 0, i;
+  for (i=0;i<n;i++){ my += Y[i]; mp += P[i]; }
+  my /= n; mp /= n;
+  var sse = 0, syy = 0, spp = 0, syp = 0;
+  for (i=0;i<n;i++){
+    var dy = Y[i] - my, dp = P[i] - mp, e = Y[i] - P[i];
+    sse += e*e; syy += dy*dy; spp += dp*dp; syp += dy*dp;
+  }
+  return { r: spp > 1e-12 ? syp/Math.sqrt(syy*spp) : NaN, r2: 1 - sse/syy, mse: sse/n };
+}
+
+/* ---- 17a: predicted against real, on the test people of the default
+        split. Shifting or stretching the predictions leaves r alone and
+        moves R² ---- */
+(function(){
+  var p = mkPlot("cvRp", {xd:[58,98], yd:[58,98], padB:38});
+  if (!p || typeof OASIS === "undefined") return;
+  function $(id){ return document.getElementById(id); }
+  var sh = $("rpSh"), sc = $("rpSc");
+  var S = oasisSplit(13);
+  function pick(a, ix){ return ix.map(function(k){ return a[k]; }); }
+  var f = ols(pick(OASIS.age, S.tr), pick(OASIS.nwbv, S.tr));
+  var Y = pick(OASIS.nwbv, S.te), X = pick(OASIS.age, S.te), N = Y.length;
+  var BASE = X.map(function(a){ return f.b0 + f.b1*a; });
+  var MP = BASE.reduce(function(a, b){ return a + b; }, 0)/N;
+  var MY = Y.reduce(function(a, b){ return a + b; }, 0)/N;
+  var shift = 0, stretch = 1;
+  var L = layerToggles("rpLayers", [
+    {k:"pts",  label:"one person",               kind:"dot",  col:"--c-data"},
+    {k:"diag", label:"perfect prediction, ŷ = y", kind:"dash", col:"--ink-soft"},
+    {k:"fit",  label:"the line r measures",      kind:"ln",   col:"--c-alt"},
+    {k:"err",  label:"errors",                   kind:"ln",   col:"--c-error", on:false}
+  ], function(){ draw(); });
+
+  function draw(){
+    var P = BASE.map(function(v){ return MP + stretch*(v - MP) + shift; });
+    var m = evalMetrics(Y, P), i;
+    sh.value = Math.round(shift*100); sc.value = Math.round(stretch*100);
+    $("rpShv").textContent = (shift > 0 ? "+" : "") + shift.toFixed(2);
+    $("rpScv").textContent = "×" + stretch.toFixed(2);
+    $("rpR").textContent   = isNaN(m.r) ? "—" : fmt(m.r, 3);
+    $("rpR2").textContent  = fmt(m.r2, 3);
+    $("rpMse").textContent = fmt(m.mse, 1);
+
+    var t = [60,70,80,90];
+    p.sync(); p.frame(); p.grid(t, t);
+    var ctx = p.ctx;
+    /* an error is the vertical gap between (y, ŷ) and (y, y) */
+    if (L.on("err")){
+      p.clip(); ctx.save();
+      ctx.strokeStyle = alpha(col("--c-error"), .35); ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (i=0;i<N;i++){ ctx.moveTo(p.x(Y[i]), p.y(P[i])); ctx.lineTo(p.x(Y[i]), p.y(Y[i])); }
+      ctx.stroke(); ctx.restore(); p.unclip();
+    }
+    if (L.on("diag")) p.fnline(function(v){ return v; }, {color: col("--ink-soft"), w:1.6, dash:[6,5]});
+    if (L.on("fit") && !isNaN(m.r)){
+      var g = ols(Y, P);
+      p.fnline(function(v){ return g.b0 + g.b1*v; }, {color: col("--c-alt"), w:2.2});
+    }
+    if (L.on("pts")){
+      p.clip();
+      p.dots(Y.map(function(v, k){ return [v, P[k]]; }), {r:3.2, color: alpha(col("--c-data"), .7)});
+      p.unclip();
+    }
+    p.axes({ xt:t, yt:t, xlabel:"real brain volume, y (%)", ylabel:"predicted, ŷ (%)" });
+  }
+  sh.addEventListener("input", function(){ shift = (+sh.value)/100; draw(); });
+  sc.addEventListener("input", function(){ stretch = (+sc.value)/100; draw(); });
+  function preset(a, b){ return function(){ shift = a; stretch = b; draw(); }; }
+  $("rpLs").addEventListener("click", preset(0, 1));
+  $("rpUp").addEventListener("click", preset(5, 1));
+  $("rpX3").addEventListener("click", preset(0, 3));
+  /* whatever the stretch, MSE is lowest when the mean prediction meets the
+     mean of the test y; rounded to 0.01, so it never shows as -0.00 */
+  $("rpBest").addEventListener("click", function(){
+    shift = Math.round((MY - MP)*100)/100; draw();
   });
   reg(draw);
 })();
