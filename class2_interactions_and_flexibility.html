@@ -870,7 +870,7 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <canvas id="cvKnn" class="cv" height="330"></canvas>
-        <canvas id="cvKnnU" class="cv" height="160" style="margin-top:.7rem"></canvas>
+        <canvas id="cvKnnU" class="cv" height="190" style="margin-top:.7rem"></canvas>
         <div id="knnLayers"></div>
       </div>
       <div class="ctl">
@@ -1225,6 +1225,13 @@ function hex2rgb(hex){
 }
 
 /* ---------- tiny plotting layer ---------- */
+/* Axis text, sized to be read off a projector from the back of the room.
+   AX_EXTRA is the bottom margin the bigger ticks and x label need on top of
+   each plot's own padB. */
+var AX_TICK  = '12.5px "IBM Plex Mono", monospace';
+var AX_LABEL = '13.5px "IBM Plex Mono", monospace';
+var AX_EXTRA = 6;
+
 function mkPlot(id, opts){
   var canvas = document.getElementById(id);
   if (!canvas) return null;
@@ -1247,7 +1254,7 @@ function mkPlot(id, opts){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,r.width, r.height || cssH);
     p.W = r.width; p.H = r.height || cssH;
-    p.L = Math.max(o.padL, p.autoL); p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB;
+    p.L = Math.max(o.padL, p.autoL); p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB - AX_EXTRA;
   };
   p.dom = function(xd, yd){ if(xd) o.xd = xd; if(yd) o.yd = yd; };
   p.x  = function(v){ return p.L + (v - o.xd[0])/(o.xd[1]-o.xd[0]) * (p.R - p.L); };
@@ -1268,6 +1275,15 @@ function mkPlot(id, opts){
     if (yt) for (i=0;i<yt.length;i++){ var Y = Math.round(p.y(yt[i]))+0.5; ctx.beginPath(); ctx.moveTo(p.L,Y); ctx.lineTo(p.R,Y); ctx.stroke(); }
     ctx.restore();
   };
+  /* the label font at full size, or as much smaller as it takes for a long
+     label to fit in a narrow plot, but never below the old 10.5px */
+  function fitFont(text, room){
+    for (var px = 13.5; px > 10.5; px -= 0.5){
+      ctx.font = px + 'px "IBM Plex Mono", monospace';
+      if (ctx.measureText(text).width <= room) return;
+    }
+    ctx.font = '10.5px "IBM Plex Mono", monospace';
+  }
   p.axes = function(cfg){
     cfg = cfg || {};
     var f = cfg.fmt || function(v){ return String(Math.round(v*100)/100); };
@@ -1277,10 +1293,14 @@ function mkPlot(id, opts){
     ctx.beginPath(); ctx.moveTo(p.L, Math.round(p.B)+0.5); ctx.lineTo(p.R, Math.round(p.B)+0.5);
     ctx.moveTo(Math.round(p.L)+0.5, p.T); ctx.lineTo(Math.round(p.L)+0.5, p.B); ctx.stroke();
     ctx.fillStyle = col("--ink-faint");
-    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.font = AX_TICK;
     var i;
     if (cfg.xt){ ctx.textAlign="center"; ctx.textBaseline="top";
-      for(i=0;i<cfg.xt.length;i++) ctx.fillText(f(cfg.xt[i]), p.x(cfg.xt[i]), p.B+6); }
+      /* an end tick at the edge of a narrow plot is kept inside the canvas */
+      for(i=0;i<cfg.xt.length;i++){
+        var tl = f(cfg.xt[i]), hw = ctx.measureText(tl).width/2 + 1;
+        ctx.fillText(tl, Math.max(hw, Math.min(p.W - hw, p.x(cfg.xt[i]))), p.B+6);
+      } }
     /* measure while drawing: the widest tick decides where the y label can go */
     var tickW = 0;
     if (cfg.yt){ ctx.textAlign="right"; ctx.textBaseline="middle";
@@ -1291,12 +1311,16 @@ function mkPlot(id, opts){
         ctx.fillText(lab, p.L-7, p.y(cfg.yt[i]));
       } }
     ctx.fillStyle = col("--ink-soft");
-    ctx.font = '10.5px "IBM Plex Mono", monospace';
-    if (cfg.xlabel){ ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(cfg.xlabel, (p.L+p.R)/2, p.H-1); }
+    if (cfg.xlabel){
+      /* centred on the plot, not the canvas, so the nearer edge decides */
+      fitFont(cfg.xlabel, 2*Math.min((p.L+p.R)/2, p.W - (p.L+p.R)/2) - 8);
+      ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(cfg.xlabel, (p.L+p.R)/2, p.H-1);
+    }
     if (cfg.ylabel){
+      fitFont(cfg.ylabel, p.H - 8);
       /* The label is rotated, so it occupies a vertical BAND of screen width,
          not its text length. Park it just clear of the widest tick. */
-      var BAND = 14, GAP = 6, EDGE = 3;
+      var BAND = 17, GAP = 6, EDGE = 3;
       var lx = Math.max(EDGE, p.L - 7 - tickW - GAP - BAND);
       ctx.save(); ctx.translate(lx, (p.T+p.B)/2); ctx.rotate(-Math.PI/2);
       ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillText(cfg.ylabel, 0, 0); ctx.restore();
@@ -1569,7 +1593,7 @@ function mk3d(id, height){
   /* labels are clamped: free rotation can swing a corner off the canvas */
   S.label = function(text, x, y, z, dy, font, color){
     ctx.save();
-    ctx.font = font || '10px "IBM Plex Mono", monospace';
+    ctx.font = font || AX_LABEL;
     ctx.fillStyle = color || col("--ink-soft");
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     var q = S.at(x,y,z), half = ctx.measureText(text).width/2 + 3;
@@ -2099,7 +2123,7 @@ var SADDLE = null;
       var z = S3.frontZ(), x = S3.frontX();
       S3.label("x1: sleep", 0, -1, z*1.32, 0);
       S3.label("x2: age", x*1.34, -1, 0, 0);
-      S3.label("y", -1, 1.24, -1, 0, '10.5px "IBM Plex Mono", monospace');
+      S3.label("y", -1, 1.24, -1, 0);
     }
   }
   S3.orbit(draw);
@@ -2298,10 +2322,12 @@ var SADDLE = null;
     ctx.beginPath(); ctx.moveTo(pu.x(1/K), pu.T); ctx.lineTo(pu.x(1/K), pu.B); ctx.stroke();
     ctx.restore();
     pu.dots([[1/K, sw[K-1]]], {r:4.5, color: col("--c-model")});
-    var tk = [1,2,5,10,20,40];
+    /* 20 and 40 would sit on top of 10 at this font size */
+    var tk = [1,2,5,10];
     pu.axes({xt: tk.map(function(v){ return 1/v; }), yt: ticks(lo,hi,4),
              xlabel:"more flexible  ->  fewer neighbours",
-             fmt:function(v){ return String(Math.round(1/v)); }});
+             fmt:function(v){ return String(Math.round(1/v)); },
+             fmtY:function(v){ return v.toFixed(2); }});
     pu.txt("KNN test MSE", pu.R-6, pu.T+11, {align:"right", color: col("--c-model"), font:'10px "IBM Plex Mono", monospace'});
     pu.txt("linear test MSE", pu.R-6, pu.T+24, {align:"right", color: col("--c-test"), font:'10px "IBM Plex Mono", monospace'});
 
@@ -2447,14 +2473,14 @@ var KNN2D = (function(){
     ctx.strokeStyle = col("--c-axis"); ctx.lineWidth = 1;
     ctx.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
     ctx.fillStyle = col("--ink-faint");
-    ctx.font = '9.5px "IBM Plex Mono", monospace';
+    ctx.font = AX_TICK;
     ctx.textAlign = "left"; ctx.textBaseline = "middle";
     [VHI, (VHI+VLO)/2, VLO].forEach(function(v){
       var yy = by + bh*(1 - (v - VLO)/(VHI - VLO));
       ctx.fillText(v.toFixed(1), bx + bw + 4, yy);
     });
     ctx.fillStyle = col("--ink-soft");
-    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.font = AX_LABEL;
     ctx.textAlign = "center"; ctx.textBaseline = "bottom";
     ctx.fillText("y", bx + bw/2, by - 5);
     /* where the current prediction sits on the scale */
@@ -2709,7 +2735,7 @@ var KNN2D = (function(){
       var zf = S3.frontZ(), xf = S3.frontX();
       S3.label("x1", 0, -1, zf*1.3, 0);
       S3.label("x2", xf*1.32, -1, 0, 0);
-      S3.label("y",  -1, 1.26, -1, 0, '10.5px "IBM Plex Mono", monospace');
+      S3.label("y",  -1, 1.26, -1, 0);
     }
 
     /* how flat the surface has become: the mean absolute step between cells */
@@ -2840,7 +2866,7 @@ var KNN2D = (function(){
       var zf = S3.frontZ(), xf = S3.frontX();
       S3.label("x1", 0, -1, zf*1.3, 0);
       if (P_ >= 2) S3.label("x2", xf*1.32, -1, 0, 0);
-      if (P_ >= 3) S3.label("x3", -1, 1.26, -1, 0, '10.5px "IBM Plex Mono", monospace');
+      if (P_ >= 3) S3.label("x3", -1, 1.26, -1, 0);
     }
 
     function row(cls,k,v){ return '<div class="stat '+cls+'"><span class="k">'+k+'</span><span class="val">'+v+'</span></div>'; }

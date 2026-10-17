@@ -584,8 +584,8 @@ section.tabpanel{padding:2.6rem 0 0}
   <nav class="toc" id="toc">
     <a href="#s1"><span class="n">01</span><span>What is machine learning?</span></a>
     <a href="#s3"><span class="n">02</span><span>Fitting vs. predicting</span></a>
-    <a href="#s4"><span class="n">03</span><span>Supervised vs. unsupervised</span></a>
-    <a href="#s5"><span class="n">04</span><span>Regression vs. classification</span></a>
+    <a href="#s5"><span class="n">03</span><span>Regression vs. classification</span></a>
+    <a href="#s4"><span class="n">04</span><span>Supervised vs. unsupervised</span></a>
     <a href="#s6"><span class="n">05</span><span>Look before you model</span></a>
   </nav>
 
@@ -676,12 +676,12 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>trials recorded <span class="v" id="truthNv">12</span></label>
-          <input type="range" id="truthN" min="4" max="200" value="12" step="1">
+          <label>trials recorded <span class="v" id="truthNv">40</span></label>
+          <input type="range" id="truthN" min="4" max="200" value="40" step="1">
         </div>
         <div class="ctl-row">
-          <label>noise <span class="m">&sigma;</span> (spikes/s) <span class="v" id="truthSv">10</span></label>
-          <input type="range" id="truthS" min="0" max="20" value="10" step="1">
+          <label>noise <span class="m">&sigma;</span> (spikes/s) <span class="v" id="truthSv">14</span></label>
+          <input type="range" id="truthS" min="0" max="20" value="14" step="1">
         </div>
         <div class="btnrow"><button class="btn" id="truthNew">new sample</button><button class="btn" id="truthClear">clear my guess</button></div>
         <div class="stats">
@@ -751,88 +751,19 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 </section>
 
-<!-- ==================== 04 ==================== -->
-<section id="s4">
-  <div class="shead"><div class="num">03</div><h2 data-ed="part1/04-supervised-vs-unsupervised.html:0">Supervised vs. unsupervised</h2></div>
-  <div class="prose">
-    <p data-ed="part1/04-supervised-vs-unsupervised.html:1">The dividing question is simple: <strong>do we have <span class="m">y</span>?</strong></p>
-    <p data-ed="part1/04-supervised-vs-unsupervised.html:2">If every observation arrives with a label (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
-      <br>Someone already decided what the right answer is, so we can measure how often we get it wrong, and then minimise that.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part1/04-supervised-vs-unsupervised.html:3">Supervised: the labels come with the data</div>
-      <div class="hint" data-ed="part1/04-supervised-vs-unsupervised.html:4">120 subjects, two known groups</div>
-    </div>
-    <div class="panel-body panel-duo">
-      <div>
-        <canvas id="cvSupA" class="cv" height="290"></canvas>
-        <p class="notecap" data-ed="part1/04-supervised-vs-unsupervised.html:5"><b>What we have.</b> Colour is the diagnosis, and it was given to us. No algorithm worked it out.</p>
-      </div>
-      <div>
-        <canvas id="cvSupB" class="cv" height="290"></canvas>
-        <div id="supLayers"></div>
-        <p class="notecap" data-ed="part1/04-supervised-vs-unsupervised.html:6"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part1/04-supervised-vs-unsupervised.html:7">If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">x</span>.
-      <br>Which brain regions behave alike? How many cell types are in this recording?
-      <br>Nothing here is right or wrong, so there is no error to minimise.</p>
-    <p data-ed="part1/04-supervised-vs-unsupervised.html:8"><strong>Clustering</strong> is the usual first step. We hand over the points and one number, <span class="m">k</span>, the number of groups to look for, and the algorithm splits the data so that points in a group sit close together.
-      <br>It repeats two steps until nothing moves: assign every point to its nearest centre, then recompute each centre from the points assigned to it.</p>
-    <p data-ed="part1/04-supervised-vs-unsupervised.html:9">The data below really has three groups, but the algorithm is never told that. Ask it for the wrong number and see what happens:</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part1/04-supervised-vs-unsupervised.html:10">Unsupervised: no labels anywhere</div>
-      <div class="hint" data-ed="part1/04-supervised-vs-unsupervised.html:11">choose how many clusters to look for</div>
-    </div>
-    <div class="panel-body">
-      <div class="btnrow" style="margin-bottom:.95rem">
-        <div class="seg" id="cluSeg">
-          <button data-v="2">k = 2</button>
-          <button class="on" data-v="3">k = 3</button>
-          <button data-v="4">k = 4</button>
-          <button data-v="5">k = 5</button>
-        </div>
-      </div>
-      <div class="panel-duo">
-        <div>
-          <canvas id="cvCluA" class="cv" height="290"></canvas>
-          <p class="notecap" data-ed="part1/04-supervised-vs-unsupervised.html:12"><b>What we have.</b> 150 recordings, two measurements each. No colour, because there is no label to colour by.</p>
-        </div>
-        <div>
-          <canvas id="cvCluB" class="cv" height="290"></canvas>
-          <div id="cluLayers"></div>
-          <p class="notecap" id="cluCap"></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="warn" data-ed="part1/04-supervised-vs-unsupervised.html:13">
-    <b>It always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Both times it hands back tidy clusters and crisp centres, with no hint that anything went wrong. Deciding whether the structure is real, and whether <span class="m">k</span> was right, is on us, not the algorithm.
-  </div>
-</section>
-
 <!-- ==================== 05 ==================== -->
 <section id="s5">
-  <div class="shead"><div class="num">04</div><h2 data-ed="part1/05-regression-vs-classification.html:0">Regression vs. classification</h2></div>
+  <div class="shead"><div class="num">03</div><h2 data-ed="part1/04-regression-vs-classification.html:0">Regression vs. classification</h2></div>
   <div class="prose">
-    <p data-ed="part1/05-regression-vs-classification.html:1">Within supervised learning, the split is about the type of <span class="m">y</span>:
+    <p data-ed="part1/04-regression-vs-classification.html:1">The first split is about the type of <span class="m">y</span>, the thing we want to predict:
       <br>Continuous <span class="m">y</span> gives us <strong>regression</strong>. Categorical <span class="m">y</span> gives us <strong>classification</strong>.
       <br>That choice decides which model we reach for, and which number we report.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part1/05-regression-vs-classification.html:2">Two tasks, two error measures</div>
-      <div class="hint" data-ed="part1/05-regression-vs-classification.html:3">switch tasks</div>
+      <div class="t" data-ed="part1/04-regression-vs-classification.html:2">Two tasks, two error measures</div>
+      <div class="hint" data-ed="part1/04-regression-vs-classification.html:3">switch tasks</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -855,7 +786,7 @@ section.tabpanel{padding:2.6rem 0 0}
             <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
             (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup>
           </div>
-          <p class="notecap" data-ed="part1/05-regression-vs-classification.html:4">The average squared miss. Squaring means one wild error costs far more than several small ones. It also means the units are <span class="m">y</span> squared, which is why we often report the square root instead.</p>
+          <p class="notecap" data-ed="part1/04-regression-vs-classification.html:4">The average squared miss. Squaring means one wild error costs far more than several small ones. It also means the units are <span class="m">y</span> squared, which is why we often report the square root instead.</p>
         </div>
         <div id="rcClsBox" style="display:none">
           <div class="eq tight" style="margin-top:0">
@@ -864,39 +795,133 @@ section.tabpanel{padding:2.6rem 0 0}
             <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
             <span class="mu">&#120128;</span>(<span class="m">y<sub>i</sub></span> = <span class="m"><span class="hat">y</span><sub>i</sub></span>)
           </div>
-          <p class="notecap" data-ed="part1/05-regression-vs-classification.html:5">The proportion we got right. <span class="mu">&#120128;</span> is 1 when the prediction matches and 0 when it does not.</p>
+          <p class="notecap" data-ed="part1/04-regression-vs-classification.html:5">The proportion we got right. <span class="mu">&#120128;</span> is 1 when the prediction matches and 0 when it does not.</p>
         </div>
         <div class="stats" id="rcStats"></div>
       </div>
     </div>
   </div>
 
-  <div class="warn" data-ed="part1/05-regression-vs-classification.html:6">
-    <b>Accuracy lies when classes are unbalanced.</b> If 5&#37; of our cohort has the disease, a model that answers &ldquo;healthy&rdquo; every time scores 95&#37; accuracy and has learned nothing. Drag the slider below and watch a useless model look excellent.
+  <div class="warn" data-ed="part1/04-regression-vs-classification.html:6">
+    <b>Accuracy lies when classes are unbalanced.</b> If 5&#37; of our cohort has the disease, a model that answers &ldquo;healthy&rdquo; every time scores 95&#37; accuracy and has learned nothing.
+  </div>
+
+  <div class="prose">
+    <p data-ed="part1/04-regression-vs-classification.html:7">Below are 200 subjects, each with one biomarker measurement. Patients tend to have higher values than healthy subjects, but the two groups overlap.
+      <br>We compare two models. One ignores the biomarker and says <em>healthy</em> for everyone. The other says <em>patient</em> whenever the biomarker is high.
+      <br>Make the patients rarer, or press play, and watch which model accuracy prefers.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part1/05-regression-vs-classification.html:7">The always-healthy classifier</div>
-      <div class="hint" data-ed="part1/05-regression-vs-classification.html:8">a model with no inputs at all</div>
+      <div class="t" data-ed="part1/04-regression-vs-classification.html:8">The always-healthy classifier</div>
+      <div class="hint" data-ed="part1/04-regression-vs-classification.html:9">make patients rare, or press play</div>
     </div>
     <div class="panel-body panel-split">
       <div>
-        <canvas id="cvBal" class="cv" height="180"></canvas>
-        <p class="notecap" data-ed="part1/05-regression-vs-classification.html:9">Every square is a subject. This &ldquo;model&rdquo; predicts <em>healthy</em> for all of them, always.</p>
+        <div class="btnrow" style="margin-bottom:.85rem">
+          <div class="seg" id="balSeg">
+            <button class="on" data-v="none">always healthy</button>
+            <button data-v="cut">uses the biomarker</button>
+          </div>
+        </div>
+        <canvas id="cvBal" class="cv" height="360"></canvas>
+        <div id="balLayers"></div>
+        <p class="notecap" data-ed="part1/04-regression-vs-classification.html:10">Each dot is one subject, placed by their biomarker: healthy above the line, patients below. The shading is what the model says, and rings mark its mistakes.</p>
+        <canvas id="cvBalAcc" class="cv" height="190"></canvas>
+        <p class="notecap" data-ed="part1/04-regression-vs-classification.html:11">Accuracy of both models at every prevalence. Click or drag on it to change the prevalence.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
           <label>prevalence of disease <span class="v" id="balPv">50&#37;</span></label>
           <input type="range" id="balP" min="1" max="50" value="50" step="1">
         </div>
+        <div class="btnrow">
+          <button class="btn primary" id="balPlay">play: patients become rare</button>
+        </div>
         <div class="stats">
           <div class="stat model"><span class="k">accuracy</span><span class="val" id="balAcc">&mdash;</span></div>
-          <div class="stat error"><span class="k">patients found (recall)</span><span class="val" id="balRec">0&#37;</span></div>
+          <div class="stat error"><span class="k">patients found</span><span class="val" id="balRec">&mdash;</span></div>
+          <div class="stat plain"><span class="k">healthy cleared</span><span class="val" id="balSpec">&mdash;</span></div>
         </div>
-        <p class="notecap" data-ed="part1/05-regression-vs-classification.html:10">Accuracy climbs toward 99&#37; while the model catches exactly zero patients. Always report a measure that can see the class we actually care about.</p>
+        <p class="notecap" id="balNote"></p>
       </div>
     </div>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part1/04-regression-vs-classification.html:12">When patients are rare, the model that learned nothing gets the higher accuracy, and the model that uses the biomarker is the only one that finds anyone.
+      <br>Accuracy alone cannot tell them apart. We also need to know how many of the patients a model found.</p>
+  </div>
+</section>
+
+<!-- ==================== 04 ==================== -->
+<section id="s4">
+  <div class="shead"><div class="num">04</div><h2 data-ed="part1/05-supervised-vs-unsupervised.html:0">Supervised vs. unsupervised</h2></div>
+  <div class="prose">
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:1">The dividing question is simple: <strong>do we have <span class="m">y</span>?</strong></p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:2">If every observation arrives with a label (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
+      <br>Someone already decided what the right answer is, so we can measure how often we get it wrong, and then minimise that.
+      <br>Regression and classification, from the last tab, are both supervised: in both, every subject comes with its <span class="m">y</span>.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part1/05-supervised-vs-unsupervised.html:3">Supervised: the labels come with the data</div>
+      <div class="hint" data-ed="part1/05-supervised-vs-unsupervised.html:4">120 subjects, two known groups</div>
+    </div>
+    <div class="panel-body panel-duo">
+      <div>
+        <canvas id="cvSupA" class="cv" height="290"></canvas>
+        <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:5"><b>What we have.</b> Colour is the diagnosis, and it was given to us. No algorithm worked it out.</p>
+      </div>
+      <div>
+        <canvas id="cvSupB" class="cv" height="290"></canvas>
+        <div id="supLayers"></div>
+        <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:6"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:7">If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">x</span>.
+      <br>Which brain regions behave alike? How many cell types are in this recording?
+      <br>Nothing here is right or wrong, so there is no error to minimise.</p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:8"><strong>Clustering</strong> is the usual first step. We hand over the points and one number, <span class="m">k</span>, the number of groups to look for, and the algorithm splits the data so that points in a group sit close together.
+      <br>It repeats two steps until nothing moves: assign every point to its nearest centre, then recompute each centre from the points assigned to it.</p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:9">The data below really has three groups, but the algorithm is never told that. Ask it for the wrong number and see what happens:</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part1/05-supervised-vs-unsupervised.html:10">Unsupervised: no labels anywhere</div>
+      <div class="hint" data-ed="part1/05-supervised-vs-unsupervised.html:11">choose how many clusters to look for</div>
+    </div>
+    <div class="panel-body">
+      <div class="btnrow" style="margin-bottom:.95rem">
+        <div class="seg" id="cluSeg">
+          <button data-v="2">k = 2</button>
+          <button class="on" data-v="3">k = 3</button>
+          <button data-v="4">k = 4</button>
+          <button data-v="5">k = 5</button>
+        </div>
+      </div>
+      <div class="panel-duo">
+        <div>
+          <canvas id="cvCluA" class="cv" height="290"></canvas>
+          <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:12"><b>What we have.</b> 150 recordings, two measurements each. No colour, because there is no label to colour by.</p>
+        </div>
+        <div>
+          <canvas id="cvCluB" class="cv" height="290"></canvas>
+          <div id="cluLayers"></div>
+          <p class="notecap" id="cluCap"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn" data-ed="part1/05-supervised-vs-unsupervised.html:13">
+    <b>It always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Both times it hands back tidy clusters and crisp centres, with no hint that anything went wrong. Deciding whether the structure is real, and whether <span class="m">k</span> was right, is on us, not the algorithm.
   </div>
 </section>
 
@@ -907,45 +932,66 @@ section.tabpanel{padding:2.6rem 0 0}
     <p data-ed="part1/06-look-before-you-model.html:1">Exploratory data analysis is not a warm-up. It is where we find out that a sensor was disconnected for subject 12, that age and scanner site are confounded, or that our &ldquo;continuous&rdquo; variable is really four discrete values.</p>
     <p data-ed="part1/06-look-before-you-model.html:2">Two habits are worth building now.</p>
 
-    <h3 data-ed="part1/06-look-before-you-model.html:3">Know what a correlation looks like</h3>
-    <p data-ed="part1/06-look-before-you-model.html:4">Neuroscience papers are full of <span class="m">r</span> = 0.3. Most of us picture a much tighter cloud than that. Calibrate your eye:</p>
+    <h3 data-ed="part1/06-look-before-you-model.html:3">Look at each variable, then at the pair</h3>
+    <p data-ed="part1/06-look-before-you-model.html:4">Before fitting anything, we plot every variable on its own, and then plot them against each other.
+      <br>Below are the 40 trials we started with in the first tab: the tone frequency we played, and how fast the neuron fired.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part1/06-look-before-you-model.html:5">What does <span class="m">r</span> = 0.3 look like?</div>
-      <div class="hint" data-ed="part1/06-look-before-you-model.html:6">drag through the whole range</div>
+      <div class="t" data-ed="part1/06-look-before-you-model.html:5">Frequency and firing rate, one at a time and together</div>
+      <div class="hint" data-ed="part1/06-look-before-you-model.html:6">drag across a histogram to pick a group</div>
     </div>
     <div class="panel-body panel-split">
       <div>
-        <canvas id="cvCorr" class="cv" height="300"></canvas>
-        <div id="corrLayers"></div>
+        <div class="panel-duo">
+          <div><canvas id="cvEdaX" class="cv" height="200"></canvas></div>
+          <div><canvas id="cvEdaY" class="cv" height="200"></canvas></div>
+        </div>
+        <canvas id="cvEdaS" class="cv" height="320" style="margin-top:1.05rem"></canvas>
+        <p class="notecap" data-ed="part1/06-look-before-you-model.html:7">Top: how many trials fall in each range of frequency, and of firing rate. Bottom: one dot per trial, with both measurements. The same 40 trials the first tab starts with.</p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>correlation <span class="m">r</span> <span class="v" id="corrRv">0.30</span></label>
-          <input type="range" id="corrR" min="-95" max="95" value="30" step="1">
+          <label>histogram bins <span class="v" id="edaBinsV">7</span></label>
+          <input type="range" id="edaBins" min="3" max="20" value="7" step="1">
         </div>
+        <div class="btnrow">
+          <button class="btn" id="edaLow">7&ndash;15 kHz</button>
+          <button class="btn" id="edaMid">15&ndash;23 kHz</button>
+          <button class="btn primary" id="edaAll">all trials</button>
+        </div>
+        <p class="notecap" id="edaWho"></p>
         <div class="stats">
-          <div class="stat plain"><span class="k">sample <span class="m">r</span></span><span class="val" id="corrSamp">&mdash;</span></div>
-          <div class="stat model"><span class="k"><span class="m">r</span><sup>2</sup>: variance explained</span><span class="val" id="corrR2">&mdash;</span></div>
+          <div class="stat plain"><span class="k">trials</span><span class="val" id="edaN">&mdash;</span></div>
+          <div class="stat alt"><span class="k">frequency</span><span class="val" id="edaMx">&mdash;</span></div>
+          <div class="stat test"><span class="k">firing rate</span><span class="val" id="edaMy">&mdash;</span></div>
+          <div class="stat model"><span class="k">correlation <span class="m">r</span></span><span class="val" id="edaR">&mdash;</span></div>
         </div>
-        <div class="btnrow"><button class="btn" id="corrNew">new sample</button></div>
-        <p class="notecap" data-ed="part1/06-look-before-you-model.html:7">At <span class="m">r</span> = 0.3 the model accounts for 9&#37; of the variance in <span class="m">y</span>. The cloud looks close to round, and it should.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part1/06-look-before-you-model.html:8">Never trust a summary statistic on its own</h3>
-    <p data-ed="part1/06-look-before-you-model.html:9">These four datasets share the same mean <span class="m">x</span>, the same mean <span class="m">y</span>, the same variances, the same correlation, and the same fitted line, to two decimal places.
+    <p data-ed="part1/06-look-before-you-model.html:8">The frequency histogram is flat. That is not a finding about the neuron: we chose the tones, and we spread them evenly.</p>
+    <p data-ed="part1/06-look-before-you-model.html:9">The firing-rate histogram is wide, from 0 to 95 spikes/s. One trial sits at exactly 0, because a firing rate cannot go below it.</p>
+    <p data-ed="part1/06-look-before-you-model.html:10">The scatter shows what neither histogram can: the rate falls from 7 to 15 kHz, then rises again towards 23 kHz.
+      <br>Over all 40 trials the correlation is <span class="m">r</span> = &minus;0.60.
+      <br><span class="m">r</span> runs from &minus;1 to 1. Its sign says which way the cloud slopes, and its size says how tightly the dots hug a straight line.</p>
+    <p data-ed="part1/06-look-before-you-model.html:11">Now pick out 7&ndash;15 kHz, and then 15&ndash;23 kHz. The correlation is &minus;0.76 in one and +0.71 in the other.
+      <br>A single <span class="m">r</span> says this neuron prefers low tones. The scatter says the story is more complicated.</p>
+  </div>
+
+  <div class="prose">
+    <h3 data-ed="part1/06-look-before-you-model.html:12">Never trust a summary statistic on its own</h3>
+    <p data-ed="part1/06-look-before-you-model.html:13">These four datasets share the same mean <span class="m">x</span>, the same mean <span class="m">y</span>, the same variances, the same correlation, and the same fitted line, to two decimal places.
       <br>Anscombe built them in 1973 to make exactly this point, and it has not aged a day.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part1/06-look-before-you-model.html:10">Anscombe&rsquo;s quartet</div>
-      <div class="hint" data-ed="part1/06-look-before-you-model.html:11">identical statistics, four different stories</div>
+      <div class="t" data-ed="part1/06-look-before-you-model.html:14">Anscombe&rsquo;s quartet</div>
+      <div class="hint" data-ed="part1/06-look-before-you-model.html:15">identical statistics, four different stories</div>
     </div>
     <div class="panel-body">
       <div class="panel-quad">
@@ -958,18 +1004,18 @@ section.tabpanel{padding:2.6rem 0 0}
       <div class="tblwrap" style="margin-top:1rem">
         <table class="tbl" id="ansTbl"></table>
       </div>
-      <p class="notecap" data-ed="part1/06-look-before-you-model.html:12">I: a real linear relationship. II: a curve, badly served by a line. III: a perfect line plus one outlier that tilts it. IV: no relationship at all, plus one point with total leverage.</p>
+      <p class="notecap" data-ed="part1/06-look-before-you-model.html:16">I: a real linear relationship. II: a curve, badly served by a line. III: a perfect line plus one outlier that tilts it. IV: no relationship at all, plus one point with total leverage.</p>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part1/06-look-before-you-model.html:13">Key idea</div>
-    <p data-ed="part1/06-look-before-you-model.html:14">Plot the data. Then plot the residuals. Two summary numbers and a <span class="m">p</span>-value cannot tell any of these four apart.</p>
+    <div class="lbl" data-ed="part1/06-look-before-you-model.html:17">Key idea</div>
+    <p data-ed="part1/06-look-before-you-model.html:18">Plot the data. Then plot the residuals. Two summary numbers and a <span class="m">p</span>-value cannot tell any of these four apart.</p>
   </div>
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part1/06-look-before-you-model.html:15">Part 2: Linear regression</div>
-      <p class="cl-d" data-ed="part1/06-look-before-you-model.html:16">The linear model, least squares, the OLS derivation, R&sup2;, and what small samples do to all of it.</p>
+      <div class="cl-t" data-ed="part1/06-look-before-you-model.html:19">Part 2: Linear regression</div>
+      <p class="cl-d" data-ed="part1/06-look-before-you-model.html:20">The linear model, least squares, the OLS derivation, R&sup2;, and what small samples do to all of it.</p>
     </div>
     <a href="https://claude.ai/code/artifact/26a2f573-b6e2-40b6-ad0f-83d17b0c0305" data-local="class1_part2_linear_regression.html">Continue &rarr;</a>
   </div>
@@ -1019,6 +1065,13 @@ function hex2rgb(hex){
 }
 
 /* ---------- tiny plotting layer ---------- */
+/* Axis text, sized to be read off a projector from the back of the room.
+   AX_EXTRA is the bottom margin the bigger ticks and x label need on top of
+   each plot's own padB. */
+var AX_TICK  = '12.5px "IBM Plex Mono", monospace';
+var AX_LABEL = '13.5px "IBM Plex Mono", monospace';
+var AX_EXTRA = 6;
+
 function mkPlot(id, opts){
   var canvas = document.getElementById(id);
   if (!canvas) return null;
@@ -1041,7 +1094,7 @@ function mkPlot(id, opts){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,r.width, r.height || cssH);
     p.W = r.width; p.H = r.height || cssH;
-    p.L = Math.max(o.padL, p.autoL); p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB;
+    p.L = Math.max(o.padL, p.autoL); p.R = p.W - o.padR; p.T = o.padT; p.B = p.H - o.padB - AX_EXTRA;
   };
   p.dom = function(xd, yd){ if(xd) o.xd = xd; if(yd) o.yd = yd; };
   p.x  = function(v){ return p.L + (v - o.xd[0])/(o.xd[1]-o.xd[0]) * (p.R - p.L); };
@@ -1062,6 +1115,15 @@ function mkPlot(id, opts){
     if (yt) for (i=0;i<yt.length;i++){ var Y = Math.round(p.y(yt[i]))+0.5; ctx.beginPath(); ctx.moveTo(p.L,Y); ctx.lineTo(p.R,Y); ctx.stroke(); }
     ctx.restore();
   };
+  /* the label font at full size, or as much smaller as it takes for a long
+     label to fit in a narrow plot, but never below the old 10.5px */
+  function fitFont(text, room){
+    for (var px = 13.5; px > 10.5; px -= 0.5){
+      ctx.font = px + 'px "IBM Plex Mono", monospace';
+      if (ctx.measureText(text).width <= room) return;
+    }
+    ctx.font = '10.5px "IBM Plex Mono", monospace';
+  }
   p.axes = function(cfg){
     cfg = cfg || {};
     var f = cfg.fmt || function(v){ return String(Math.round(v*100)/100); };
@@ -1071,10 +1133,14 @@ function mkPlot(id, opts){
     ctx.beginPath(); ctx.moveTo(p.L, Math.round(p.B)+0.5); ctx.lineTo(p.R, Math.round(p.B)+0.5);
     ctx.moveTo(Math.round(p.L)+0.5, p.T); ctx.lineTo(Math.round(p.L)+0.5, p.B); ctx.stroke();
     ctx.fillStyle = col("--ink-faint");
-    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.font = AX_TICK;
     var i;
     if (cfg.xt){ ctx.textAlign="center"; ctx.textBaseline="top";
-      for(i=0;i<cfg.xt.length;i++) ctx.fillText(f(cfg.xt[i]), p.x(cfg.xt[i]), p.B+6); }
+      /* an end tick at the edge of a narrow plot is kept inside the canvas */
+      for(i=0;i<cfg.xt.length;i++){
+        var tl = f(cfg.xt[i]), hw = ctx.measureText(tl).width/2 + 1;
+        ctx.fillText(tl, Math.max(hw, Math.min(p.W - hw, p.x(cfg.xt[i]))), p.B+6);
+      } }
     /* measure while drawing: the widest tick decides where the y label can go */
     var tickW = 0;
     if (cfg.yt){ ctx.textAlign="right"; ctx.textBaseline="middle";
@@ -1085,12 +1151,16 @@ function mkPlot(id, opts){
         ctx.fillText(lab, p.L-7, p.y(cfg.yt[i]));
       } }
     ctx.fillStyle = col("--ink-soft");
-    ctx.font = '10.5px "IBM Plex Mono", monospace';
-    if (cfg.xlabel){ ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(cfg.xlabel, (p.L+p.R)/2, p.H-1); }
+    if (cfg.xlabel){
+      /* centred on the plot, not the canvas, so the nearer edge decides */
+      fitFont(cfg.xlabel, 2*Math.min((p.L+p.R)/2, p.W - (p.L+p.R)/2) - 8);
+      ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(cfg.xlabel, (p.L+p.R)/2, p.H-1);
+    }
     if (cfg.ylabel){
+      fitFont(cfg.ylabel, p.H - 8);
       /* The label is rotated, so it occupies a vertical BAND of screen width,
          not its text length. Park it just clear of the widest tick. */
-      var BAND = 14, GAP = 6, EDGE = 3;
+      var BAND = 17, GAP = 6, EDGE = 3;
       var lx = Math.max(EDGE, p.L - 7 - tickW - GAP - BAND);
       ctx.save(); ctx.translate(lx, (p.T+p.B)/2); ctx.rotate(-Math.PI/2);
       ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillText(cfg.ylabel, 0, 0); ctx.restore();
@@ -1363,7 +1433,7 @@ function mk3d(id, height){
   /* labels are clamped: free rotation can swing a corner off the canvas */
   S.label = function(text, x, y, z, dy, font, color){
     ctx.save();
-    ctx.font = font || '10px "IBM Plex Mono", monospace';
+    ctx.font = font || AX_LABEL;
     ctx.fillStyle = color || col("--ink-soft");
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     var q = S.at(x,y,z), half = ctx.measureText(text).width/2 + 3;
@@ -1606,8 +1676,30 @@ var TABS = (function(){
 /* ============================================================
    01 — the unknown function
    ============================================================ */
+/* The auditory neuron of this tab, shared with "Look before you model",
+   which shows the sample this tab starts with (40 trials, sigma 14, seed 7).
+   The hidden rule is a fifth-degree polynomial in t = (x-18)/14, deliberately
+   not a textbook bell: best frequency ~7 kHz at 83 spikes/s, a suppressed
+   band around 15 kHz, a second response region near 23 kHz, and the start of
+   a third at the top of the range. Stays between 7 and 83 spikes/s. */
+var TONE_X0 = 4, TONE_X1 = 32;              /* pure-tone frequency, kHz */
+function toneF(x){
+  var t = (x - 18)/14;                      /* -1 .. 1 */
+  return ((((359.924*t - 96.469)*t - 435.470)*t + 85.396)*t + 85.663)*t + 30.724;
+}
+/* n trials spread evenly over the range, each jittered within its slot */
+function toneTrials(n, sg, seed){
+  var r = rng(seed), span = TONE_X1 - TONE_X0, X = [], Y = [], i;
+  for (i=0;i<n;i++){
+    var x = TONE_X0 + 0.4 + (i + r()*0.9) * ((span - 0.8)/n);
+    X.push(x);
+    Y.push(Math.max(0, toneF(x) + gauss(r)*sg));   /* a firing rate cannot be negative */
+  }
+  return { X:X, Y:Y };
+}
+
 (function(){
-  var X0 = 4, X1 = 32;                      /* pure-tone frequency, kHz */
+  var X0 = TONE_X0, X1 = TONE_X1;
   var p = mkPlot("cvTruth", {xd:[X0,X1], yd:[0,100], padL:42, padB:34});
   if (!p) return;
   var elN = document.getElementById("truthN"), elS = document.getElementById("truthS");
@@ -1625,14 +1717,7 @@ var TABS = (function(){
   var tblEl = document.getElementById("truthTbl");
   var seed = 7;
 
-  /* The hidden rule. A fifth-degree polynomial in t = (x-18)/14, deliberately
-     not a textbook bell: best frequency ~7 kHz at 83 spikes/s, a suppressed
-     band around 15 kHz, a second response region near 23 kHz, and the start of
-     a third at the top of the range. Stays between 7 and 83 spikes/s. */
-  function trueF(x){
-    var t = (x - 18)/14;                    /* -1 .. 1 */
-    return ((((359.924*t - 96.469)*t - 435.470)*t + 85.396)*t + 85.663)*t + 30.724;
-  }
+  var trueF = toneF;
 
   /* The reader's own guess, drawn freehand by dragging across the plot.
      Stored as one y per 0.25 kHz bin, so dragging back over a stretch redraws
@@ -1679,12 +1764,7 @@ var TABS = (function(){
     var n = +elN.value, sg = +elS.value;
     lbN.textContent = n; lbS.textContent = sg;
     var span = X1 - X0;
-    var r = rng(seed), X = [], Y = [], i;
-    for (i=0;i<n;i++){
-      var x = X0 + 0.4 + (i + r()*0.9) * ((span - 0.8)/n);
-      X.push(x);
-      Y.push(Math.max(0, trueF(x) + gauss(r)*sg));   /* a firing rate cannot be negative */
-    }
+    var D = toneTrials(n, sg, seed), X = D.X, Y = D.Y, i;
     /* Kernel width: the usual n^(-1/5) rate, but never narrower than the gap
        between neighbouring points — otherwise a handful of samples produces a
        staircase rather than a curve. */
@@ -2117,12 +2197,10 @@ var TABS = (function(){
       if (LR_.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.6});
       p.dots(RX.map(function(v,q){ return [v, RY[q]]; }), {r:4.2, color: col("--c-data")});
       p.axes({xt:xt, yt:yt, xlabel:"x: age (years)", ylabel:"y: reaction time (ms × 10)", fmt:function(v){return v.toFixed(0);}});
-      var pred = RX.map(function(v){ return f.b0 + f.b1*v; });
       var mse = rssOf(RX, RY, f.b0, f.b1)/RX.length;
       statsEl.innerHTML =
         statRow("error","MSE", fmt(mse,1)) +
-        statRow("plain","RMSE  (units of y)", fmt(Math.sqrt(mse),2)) +
-        statRow("model","R<sup>2</sup>", fmt(r2Of(RY, pred),3));
+        statRow("plain","RMSE  (units of y)", fmt(Math.sqrt(mse),2));
       capEl.innerHTML = "Every red stick is one residual. The measure has to squeeze all of them into a single number.";
     } else {
       regBox.style.display = "none"; clsBox.style.display = "";
@@ -2154,13 +2232,7 @@ var TABS = (function(){
       }
       ctx2.restore(); p.unclip();
 
-      var tp=0, tn=0, fp=0, fn=0, wrong=[];
-      CP.forEach(function(q){
-        var pr = predC(q);
-        if (q.g===1 && pr===1) tp++; else if (q.g===0 && pr===0) tn++;
-        else if (q.g===0 && pr===1) fp++; else fn++;
-        if (pr !== q.g) wrong.push(q);
-      });
+      var wrong = CP.filter(function(q){ return predC(q) !== q.g; });
       p.dots(CP.filter(function(q){return q.g===0;}).map(function(q){return [q.x,q.y];}), {r:4.2, color: alpha(cA,.9)});
       p.dots(CP.filter(function(q){return q.g===1;}).map(function(q){return [q.x,q.y];}), {r:4.2, color: alpha(cB,.9)});
       if (LC_.on("wrong")){
@@ -2169,12 +2241,10 @@ var TABS = (function(){
         c3.restore();
       }
       p.axes({xt:xt2, yt:yt2, xlabel:"feature 1", ylabel:"feature 2", fmt:function(v){return v.toFixed(0);}});
-      var acc = (tp+tn)/CP.length;
+      var acc = 1 - wrong.length/CP.length;
       statsEl.innerHTML =
         statRow("model","accuracy", (100*acc).toFixed(1)+"%") +
-        statRow("error","misclassified", (CP.length-tp-tn) + " of " + CP.length) +
-        statRow("test","recall  (patients found)", (100*tp/(tp+fn)).toFixed(0)+"%") +
-        statRow("plain","confusion  TP / FP / TN / FN", tp+" / "+fp+" / "+tn+" / "+fn);
+        statRow("error","misclassified", wrong.length + " of " + CP.length);
       capEl.innerHTML = "Red rings mark the mistakes. There is no notion of &ldquo;close&rdquo; here: a prediction is either right or wrong.";
     }
   }
@@ -2188,97 +2258,329 @@ var TABS = (function(){
 })();
 
 /* ============================================================
-   05b — the always-healthy classifier
+   05b — the always-healthy classifier. 200 subjects with one biomarker,
+   against two models: one that ignores it, one that cuts on it. The
+   always-healthy model is the same rule with the cut pushed past everyone.
    ============================================================ */
 (function(){
-  var cvs = document.getElementById("cvBal");
-  if (!cvs) return;
-  var ctx = cvs.getContext("2d");
-  var el = document.getElementById("balP"), lb = document.getElementById("balPv");
-  var accEl = document.getElementById("balAcc"), recEl = document.getElementById("balRec");
-  var order = [];
-  (function(){
-    var r = rng(555), idx = [];
-    for (var i=0;i<100;i++) idx.push(i);
-    for (var j=idx.length-1;j>0;j--){ var k = Math.floor(r()*(j+1)); var t=idx[j]; idx[j]=idx[k]; idx[k]=t; }
-    order = idx;
-  })();
+  var p = mkPlot("cvBal",    {xd:[-3,5.4], yd:[0,1], padL:14, padB:34});
+  var q = mkPlot("cvBalAcc", {xd:[0,50], yd:[40,100], padB:36});
+  if (!p || !q) return;
+  function $(id){ return document.getElementById(id); }
+  var el = $("balP"), lb = $("balPv"), playBtn = $("balPlay");
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  function draw(){
-    var pct = +el.value; lb.textContent = pct + "%";
-    accEl.textContent = (100-pct).toFixed(0) + "%";
-    recEl.textContent = "0%";
-    if (!cvs.style.height) cvs.style.height = "160px";
-    var rect = cvs.getBoundingClientRect();
-    var dpr = Math.min(window.devicePixelRatio||1, 2);
-    cvs.width = Math.max(1, Math.round(rect.width*dpr));
-    cvs.height = Math.max(1, Math.round(160*dpr));
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    var W = rect.width, H = 160;
-    ctx.clearRect(0,0,W,H);
-    var cols = 20, rows = 5, pad = 4;
-    var cw = (W - 8) / cols, ch = Math.min(cw, (H - 34) / rows);
-    var ox = (W - cw*cols)/2, oy = 8;
-    var sick = new Set(order.slice(0, pct));
-    for (var i=0;i<100;i++){
-      var c = i % cols, rr = Math.floor(i/cols);
-      var X = ox + c*cw, Y = oy + rr*ch;
-      var isSick = sick.has(i);
-      ctx.fillStyle = isSick ? col("--c-error") : alpha(col("--ink-faint"), .3);
-      ctx.beginPath();
-      var s = Math.min(cw,ch) - pad;
-      ctx.roundRect ? ctx.roundRect(X + (cw-s)/2, Y + (ch-s)/2, s, s, 2) : ctx.rect(X + (cw-s)/2, Y + (ch-s)/2, s, s);
-      ctx.fill();
-    }
-    ctx.font = '10.5px "IBM Plex Mono", monospace';
-    ctx.textBaseline = "bottom"; ctx.textAlign = "left";
-    ctx.fillStyle = col("--c-error");
-    ctx.fillRect(4, H - 15, 9, 9);
-    ctx.fillText(pct + " patients, all missed", 18, H - 5);
-    var rightTxt = (100-pct) + " healthy, all correct";
-    ctx.textAlign = "right"; ctx.fillStyle = col("--ink-faint");
-    ctx.fillText(rightTxt, W - 4, H - 5);
-    ctx.fillStyle = alpha(col("--ink-faint"), .5);
-    ctx.fillRect(W - 13 - ctx.measureText(rightTxt).width, H - 15, 9, 9);
+  /* Two pools. A cohort at prevalence p% is the first 2p patients and the
+     first 200 - 2p healthy subjects, so moving the slider only adds or
+     removes people; nobody already on screen moves. */
+  var COHORT = 200, CUT = 1.1, BW = 0.2, X0 = -3, XMAX = 5.4;
+  var r = rng(555), S = [], i;
+  function clampX(x){ return Math.max(X0 + 0.05, Math.min(XMAX - 0.05, x)); }
+  function add(sick, x, k){ S.push({ sick:sick, x:x, k:k, vis:0 }); }
+  for (i=0;i<COHORT-2;i++) add(false, clampX(gauss(r)), i);
+  for (i=0;i<COHORT/2;i++) add(true,  clampX(2.2 + gauss(r)), i);
+  /* a dot's height in its stack: how many earlier pool members share its bin */
+  var seen = {}, maxH = 0, maxP = 0;
+  S.forEach(function(s){
+    var b = Math.floor((s.x - X0)/BW), key = (s.sick ? "p" : "h") + b;
+    s.slot = seen[key] = (seen[key] === undefined ? 0 : seen[key] + 1);
+    s.bx = X0 + (b + 0.5)*BW;
+    if (s.sick) maxP = Math.max(maxP, s.slot); else maxH = Math.max(maxH, s.slot);
+  });
+  /* rows above the line for healthy, below for patients, with headroom for the labels */
+  p.dom(null, [-(maxP + 1.5), maxH + 4]);
+
+  function inCohort(s, pct){ return s.sick ? s.k < 2*pct : s.k < COHORT - 2*pct; }
+  function score(pct, cut){
+    var hit = 0, sick = 0, clear = 0, well = 0;
+    S.forEach(function(s){
+      if (!inCohort(s, pct)) return;
+      var saysSick = s.x >= cut;
+      if (s.sick){ sick++; if (saysSick) hit++; } else { well++; if (!saysSick) clear++; }
+    });
+    return { acc:(hit + clear)/(sick + well), hit:hit, sick:sick, clear:clear, well:well };
   }
-  el.addEventListener("input", draw);
-  reg(draw);
+  /* accuracy of both models at every prevalence, for the lower chart, and
+     the highest prevalence at which ignoring the biomarker still wins */
+  var CURVE = { none:[], cut:[] }, cross = 0;
+  for (i=1;i<=50;i++){
+    CURVE.none.push([i, 100*score(i, Infinity).acc]);
+    CURVE.cut.push([i, 100*score(i, CUT).acc]);
+    if (CURVE.none[i-1][1] > CURVE.cut[i-1][1]) cross = i;
+  }
+
+  var model = "none";
+  function cutAt(m){ return m === "cut" ? CUT : XMAX + 0.4; }
+  var cutCur = cutAt(model);
+  var L = layerToggles("balLayers", [
+    {k:"well",  label:"healthy subject", kind:"dot",  col:"--c-test"},
+    {k:"sick",  label:"patient",         kind:"dot",  col:"--c-error"},
+    {k:"wrong", label:"model's mistake", kind:"ring", col:"--ink"}
+  ], function(){ render(); });
+
+  function pct(){ return +el.value; }
+
+  function drawCohort(){
+    p.sync(); p.frame();
+    var ctx = p.ctx, cx = Math.min(p.R, p.x(cutCur));
+    /* what the model says: one tint each side of its cut */
+    ctx.save();
+    ctx.fillStyle = alpha(col("--c-test"), .09); ctx.fillRect(p.L, p.T, cx - p.L, p.B - p.T);
+    if (cx < p.R){ ctx.fillStyle = alpha(col("--c-error"), .09); ctx.fillRect(cx, p.T, p.R - cx, p.B - p.T); }
+    ctx.restore();
+    p.grid([-2,0,2,4], null);
+    p.seg(X0, 0, XMAX, 0, {color: col("--c-axis"), w:1.2});
+    if (cx < p.R - 1){
+      ctx.save(); ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.8; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(cx, p.T); ctx.lineTo(cx, p.B); ctx.stroke(); ctx.restore();
+    }
+    var f = '600 10.5px "IBM Plex Mono", monospace';
+    if (cx >= p.R - 1){
+      p.txt("the model says healthy for everyone", (p.L + p.R)/2, p.T + 14, {align:"center", color: col("--c-test"), font:f});
+    } else {
+      p.txt("says healthy", cx - 8, p.T + 14, {align:"right", color: col("--c-test"),  font:f});
+      p.txt("says patient", cx + 8, p.T + 14, {align:"left",  color: col("--c-error"), font:f});
+    }
+    /* drawn over the dots, so give them a halo in the panel colour */
+    function halo(str, y){
+      ctx.save(); ctx.font = '10.5px "IBM Plex Mono", monospace'; ctx.textBaseline = "alphabetic";
+      ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.strokeStyle = col("--surface-2");
+      ctx.strokeText(str, p.L + 6, y); ctx.fillStyle = col("--ink-soft"); ctx.fillText(str, p.L + 6, y);
+      ctx.restore();
+    }
+
+    var rowPx = Math.abs(p.y(1) - p.y(0)), binPx = Math.abs(p.x(BW) - p.x(0));
+    var R0 = Math.max(1.6, Math.min(rowPx, binPx)/2 - 0.7);
+    S.forEach(function(s){
+      if (s.vis < 0.02 || !L.on(s.sick ? "sick" : "well")) return;
+      var y = s.sick ? -(s.slot + 0.5) : s.slot + 0.5;
+      /* new subjects drop in from a little way off */
+      var dy = (1 - s.vis)*3*(s.sick ? -1 : 1);
+      var pt = [[s.bx, y + dy]], c = col(s.sick ? "--c-error" : "--c-test");
+      p.dots(pt, {r: R0*s.vis, color: alpha(c, .9*s.vis), shape: s.sick ? "triangle" : "circle"});
+      var wrong = s.sick ? s.x < cutCur : s.x >= cutCur;
+      if (wrong && L.on("wrong") && s.vis > 0.5)
+        p.dots(pt, {hollow:true, r: R0 + 1.8, lw:1.2, color: alpha(col("--ink"), .65)});
+    });
+    halo("healthy", p.y(0) - 6);
+    halo("patients", p.y(0) + 14);
+    p.axes({xt:[-2,0,2,4], xlabel:"biomarker level", fmt:function(v){ return v.toFixed(0); }});
+  }
+
+  function line(pts, c, w, a){
+    var ctx = q.ctx;
+    ctx.save(); ctx.strokeStyle = alpha(c, a); ctx.lineWidth = w; ctx.lineJoin = "round";
+    ctx.beginPath();
+    pts.forEach(function(v, k){ if (k) ctx.lineTo(q.x(v[0]), q.y(v[1])); else ctx.moveTo(q.x(v[0]), q.y(v[1])); });
+    ctx.stroke(); ctx.restore();
+  }
+  function drawCurves(){
+    var P = pct(), xt = [0,10,20,30,40,50], yt = [40,60,80,100];
+    q.sync(); q.frame(); q.grid(xt, yt);
+    var cN = col("--c-model"), cC = col("--c-alt");
+    line(CURVE.none, cN, model === "none" ? 2.6 : 1.6, model === "none" ? 1 : .55);
+    line(CURVE.cut,  cC, model === "cut"  ? 2.6 : 1.6, model === "cut"  ? 1 : .55);
+    q.seg(P, 40, P, 100, {color: col("--ink-soft"), w:1.2, dash:[4,4]});
+    q.dots([CURVE.none[P-1]], {r:5, color:cN, ring: col("--surface")});
+    q.dots([CURVE.cut[P-1]],  {r:5, color:cC, ring: col("--surface")});
+    var f = '600 10.5px "IBM Plex Mono", monospace';
+    q.txt("uses the biomarker", q.x(49), q.y(CURVE.cut[49][1]) - 8,  {align:"right", color: cC, font:f});
+    q.txt("always healthy",     q.x(49), q.y(CURVE.none[49][1]) + 16, {align:"right", color: cN, font:f});
+    q.axes({xt:xt, yt:yt, xlabel:"prevalence of disease", ylabel:"accuracy",
+            fmt:function(v){ return v.toFixed(0) + "%"; }});
+  }
+
+  function stats(){
+    var P = pct(), s = score(P, model === "cut" ? CUT : Infinity);
+    lb.textContent = P + "%";
+    $("balAcc").textContent  = (100*s.acc).toFixed(1) + "%";
+    $("balRec").textContent  = s.hit + " of " + s.sick;
+    $("balSpec").textContent = s.clear + " of " + s.well;
+    $("balNote").innerHTML = model === "none"
+      ? "This model never looks at the biomarker. Its accuracy is just the share of healthy subjects, " +
+        (100 - P) + "&#37;, and it finds none of the patients."
+      : "This model says <em>patient</em> above a biomarker level of " + CUT.toFixed(1) +
+        ". Its accuracy barely moves with prevalence, and it finds most of the patients. " +
+        "At " + cross + "&#37; prevalence or less, the always-healthy model beats it on accuracy.";
+  }
+
+  function render(){ drawCohort(); drawCurves(); stats(); }
+
+  /* one animation loop for everything: dots fading in and out, the cut
+     sliding to its new place, and the prevalence stepping down during play */
+  var running = false, playing = false, lastStep = 0;
+  function settle(){
+    var P = pct(), busy = false, t = cutAt(model);
+    S.forEach(function(s){
+      var goal = inCohort(s, P) ? 1 : 0;
+      if (reduced) s.vis = goal;
+      else { s.vis += (goal - s.vis)*0.22; if (Math.abs(goal - s.vis) < 0.01) s.vis = goal; }
+      if (s.vis !== goal) busy = true;
+    });
+    if (reduced) cutCur = t;
+    else { cutCur += (t - cutCur)*0.16; if (Math.abs(t - cutCur) < 0.005) cutCur = t; }
+    return busy || cutCur !== t;
+  }
+  function tick(now){
+    if (playing && now - lastStep > (reduced ? 160 : 90)){
+      lastStep = now;
+      if (pct() > 1) el.value = pct() - 1; else stopPlay();
+    }
+    var busy = settle();
+    render();
+    if (busy || playing) requestAnimationFrame(tick); else running = false;
+  }
+  function kick(){ if (!running){ running = true; requestAnimationFrame(tick); } }
+  function stopPlay(){ playing = false; playBtn.textContent = "play: patients become rare"; }
+
+  el.addEventListener("input", function(){ stopPlay(); kick(); });
+  playBtn.addEventListener("click", function(){
+    if (playing){ stopPlay(); return; }
+    if (pct() <= 1) el.value = 50;
+    playing = true; lastStep = 0; playBtn.textContent = "stop";
+    kick();
+  });
+  var seg = $("balSeg");
+  seg.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c === b); });
+    model = b.dataset.v; kick();
+  });
+  /* the lower chart doubles as a slider */
+  var drag = false;
+  function fromPointer(e){
+    var rect = q.el.getBoundingClientRect();
+    var v = Math.round(q.ix(e.clientX - rect.left));
+    el.value = Math.max(1, Math.min(50, v)); stopPlay(); kick();
+  }
+  q.el.style.cursor = "pointer";
+  q.el.style.touchAction = "none";
+  q.el.addEventListener("pointerdown", function(e){ drag = true; q.el.setPointerCapture(e.pointerId); fromPointer(e); });
+  q.el.addEventListener("pointermove", function(e){ if (drag) fromPointer(e); });
+  q.el.addEventListener("pointerup", function(){ drag = false; });
+
+  S.forEach(function(s){ s.vis = inCohort(s, pct()) ? 1 : 0; });
+  reg(render);
 })();
 
 /* ============================================================
-   06a — what does r look like
+   06a — look at each variable, then at the pair: the 40 trials the
+   first tab starts with, as two histograms and a scatter. Dragging
+   across either histogram picks out a group, and all three plots show
+   where it sits.
    ============================================================ */
 (function(){
-  var p = mkPlot("cvCorr", {xd:[-3.2,3.2], yd:[-3.2,3.2], padL:36, padB:34});
-  if (!p) return;
-  var el = document.getElementById("corrR"), lb = document.getElementById("corrRv");
-  var sEl = document.getElementById("corrSamp"), r2El = document.getElementById("corrR2");
-  var seed = 3;
-  var L = layerToggles("corrLayers", [
-    {k:"fit", label:"fitted line", kind:"ln", col:"--c-model"}
-  ], function(){ draw(); });
-  function draw(){
-    var rho = (+el.value)/100; lb.textContent = rho.toFixed(2);
-    var r = rng(seed), X = [], Y = [];
-    for (var i=0;i<150;i++){
-      var z1 = gauss(r), z2 = gauss(r);
-      X.push(z1); Y.push(rho*z1 + Math.sqrt(Math.max(0,1-rho*rho))*z2);
-    }
-    var sr = corr(X, Y);
-    sEl.textContent = fmt(sr, 3);
-    r2El.textContent = (100*sr*sr).toFixed(1) + "%";
-    p.sync(); p.frame();
-    var t = ticks(-3,3,4);
-    p.grid(t, t);
-    var f = ols(X, Y);
-    if (L.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.4});
-    p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:3.4, color: alpha(col("--c-data"), .72)});
-    p.axes({xt:t, yt:t, xlabel:"x  (z-scored)", ylabel:"y  (z-scored)", fmt:function(v){return v.toFixed(0);}});
+  var hx = mkPlot("cvEdaX", {xd:[TONE_X0, TONE_X1], yd:[0,1], padL:40, padB:36});
+  var hy = mkPlot("cvEdaY", {xd:[0,100], yd:[0,1], padL:40, padB:36});
+  var sc = mkPlot("cvEdaS", {xd:[TONE_X0, TONE_X1], yd:[0,100], padB:38});
+  if (!hx || !hy || !sc) return;
+  function $(id){ return document.getElementById(id); }
+  var D = toneTrials(40, 14, 7), X = D.X, Y = D.Y, N = X.length;
+  var bEl = $("edaBins"), bLb = $("edaBinsV");
+  /* the picked group: a range on one of the two variables, or nothing */
+  var pick = null;
+  var V = { x:{ data:X, plot:hx, lo:TONE_X0, hi:TONE_X1 }, y:{ data:Y, plot:hy, lo:0, hi:100 } };
+
+  function picked(i){
+    if (!pick) return true;
+    var v = V[pick.v].data[i];
+    return v >= pick.a && v <= pick.b;
   }
-  el.addEventListener("input", draw);
-  document.getElementById("corrNew").addEventListener("click", function(){
-    seed = (seed*1664525 + 1013904223) >>> 0; draw();
-  });
+  function stat(a){
+    return a.length ? fmt(mean(a), 1) + " ± " + fmt(sd(a), 1) : "—";
+  }
+
+  function hist(key){
+    var o = V[key], p = o.plot, nb = +bEl.value;
+    var w = (o.hi - o.lo)/nb, all = [], sub = [], i, k, top = 0;
+    for (k=0;k<nb;k++){ all.push(0); sub.push(0); }
+    for (i=0;i<N;i++){
+      k = Math.min(nb - 1, Math.max(0, Math.floor((o.data[i] - o.lo)/w)));
+      all[k]++; if (picked(i)) sub[k]++;
+    }
+    all.forEach(function(c){ top = Math.max(top, c); });
+    var ymax = Math.max(4, Math.ceil(top*1.1/2)*2);
+    p.dom(null, [0, ymax]);
+    p.sync(); p.frame();
+    var yt = ticks(0, ymax, 4), xt = key === "x" ? [4,8,12,16,20,24,28,32] : [0,20,40,60,80,100];
+    p.grid(null, yt);
+    var ctx = p.ctx, c = col(key === "x" ? "--c-alt" : "--c-test");
+    /* 1px of surface between bars; everyone faint, the picked group solid */
+    for (k=0;k<nb;k++){
+      var x0 = p.x(o.lo + k*w) + 1, x1 = p.x(o.lo + (k+1)*w) - 1;
+      if (all[k]){ ctx.fillStyle = alpha(c, pick ? .2 : .85); ctx.fillRect(x0, p.y(all[k]), x1 - x0, p.B - p.y(all[k])); }
+      if (pick && sub[k]){ ctx.fillStyle = alpha(c, .9); ctx.fillRect(x0, p.y(sub[k]), x1 - x0, p.B - p.y(sub[k])); }
+    }
+    if (pick && pick.v === key){
+      var a = p.x(pick.a), b = p.x(pick.b);
+      ctx.save(); ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.3; ctx.setLineDash([4,3]);
+      ctx.strokeRect(a, p.T + 1, b - a, p.B - p.T - 2); ctx.restore();
+    }
+    p.axes({ xt:xt, yt:yt, ylabel:"trials",
+             xlabel: key === "x" ? "tone frequency (kHz)" : "firing rate (spikes/s)",
+             fmt:function(v){ return v.toFixed(0); } });
+  }
+
+  function scatter(){
+    sc.sync(); sc.frame();
+    var xt = [4,8,12,16,20,24,28,32], yt = [0,20,40,60,80,100];
+    sc.grid(xt, yt);
+    var out = [], inn = [], i;
+    for (i=0;i<N;i++) (picked(i) ? inn : out).push([X[i], Y[i]]);
+    sc.dots(out, {r:4.4, color: alpha(col("--c-data"), .18)});
+    sc.dots(inn, {r:4.6, color: alpha(col("--c-data"), .85), ring: pick ? col("--surface") : null});
+    sc.axes({ xt:xt, yt:yt, xlabel:"x: tone frequency (kHz)", ylabel:"y: firing rate (spikes/s)",
+              fmt:function(v){ return v.toFixed(0); } });
+  }
+
+  function stats(){
+    var gx = [], gy = [], i;
+    for (i=0;i<N;i++) if (picked(i)){ gx.push(X[i]); gy.push(Y[i]); }
+    $("edaN").textContent  = gx.length + (pick ? " of " + N : "");
+    $("edaMx").textContent = stat(gx);
+    $("edaMy").textContent = stat(gy);
+    $("edaR").textContent  = gx.length > 2 ? fmt(corr(gx, gy), 2) : "—";
+    $("edaWho").innerHTML = (!pick ? "All 40 trials."
+      : (pick.v === "x" ? "Trials with tones from " + pick.a.toFixed(1) + " to " + pick.b.toFixed(1) + " kHz."
+                        : "Trials with firing rates from " + pick.a.toFixed(0) + " to " + pick.b.toFixed(0) + " spikes/s."))
+      + " Mean &plusmn; sd below.";
+  }
+
+  function draw(){
+    bLb.textContent = bEl.value;
+    hist("x"); hist("y"); scatter(); stats();
+  }
+
+  /* drag across a histogram to pick a range; a click without a drag clears it */
+  function brush(key){
+    var p = V[key].plot, start = null, tiny = (V[key].hi - V[key].lo)/200;
+    function val(e){
+      var r = p.el.getBoundingClientRect();
+      return Math.max(V[key].lo, Math.min(V[key].hi, p.ix(e.clientX - r.left)));
+    }
+    p.el.style.cursor = "crosshair";
+    p.el.style.touchAction = "none";
+    p.el.addEventListener("pointerdown", function(e){
+      start = val(e); p.el.setPointerCapture(e.pointerId);
+    });
+    p.el.addEventListener("pointermove", function(e){
+      if (start === null) return;
+      var v = val(e);
+      if (Math.abs(v - start) < tiny) return;
+      pick = { v:key, a:Math.min(start, v), b:Math.max(start, v) }; draw();
+    });
+    p.el.addEventListener("pointerup", function(e){
+      if (start !== null && Math.abs(val(e) - start) < tiny){ pick = null; draw(); }
+      start = null;
+    });
+  }
+  brush("x"); brush("y");
+
+  bEl.addEventListener("input", draw);
+  function preset(v, a, b){ return function(){ pick = { v:v, a:a, b:b }; draw(); }; }
+  $("edaLow").addEventListener("click", preset("x", 7, 15));
+  $("edaMid").addEventListener("click", preset("x", 15, 23));
+  $("edaAll").addEventListener("click", function(){ pick = null; draw(); });
   reg(draw);
 })();
 
