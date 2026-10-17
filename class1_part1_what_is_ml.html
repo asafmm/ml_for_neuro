@@ -586,7 +586,6 @@ section.tabpanel{padding:2.6rem 0 0}
     <a href="#s3"><span class="n">02</span><span>Fitting vs. predicting</span></a>
     <a href="#s5"><span class="n">03</span><span>Regression vs. classification</span></a>
     <a href="#s4"><span class="n">04</span><span>Supervised vs. unsupervised</span></a>
-    <a href="#s6"><span class="n">05</span><span>Look before you model</span></a>
   </nav>
 
   <div class="rail-foot">
@@ -922,102 +921,6 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="warn" data-ed="part1/05-supervised-vs-unsupervised.html:13">
     <b>It always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Both times it hands back tidy clusters and crisp centres, with no hint that anything went wrong. Deciding whether the structure is real, and whether <span class="m">k</span> was right, is on us, not the algorithm.
-  </div>
-</section>
-
-<!-- ==================== 06 ==================== -->
-<section id="s6">
-  <div class="shead"><div class="num">05</div><h2 data-ed="part1/06-look-before-you-model.html:0">Look before you model</h2></div>
-  <div class="prose">
-    <p data-ed="part1/06-look-before-you-model.html:1">Exploratory data analysis is not a warm-up. It is where we find out that a sensor was disconnected for subject 12, that age and scanner site are confounded, or that our &ldquo;continuous&rdquo; variable is really four discrete values.</p>
-    <p data-ed="part1/06-look-before-you-model.html:2">Two habits are worth building now.</p>
-
-    <h3 data-ed="part1/06-look-before-you-model.html:3">Look at each variable, then at the pair</h3>
-    <p data-ed="part1/06-look-before-you-model.html:4">Before fitting anything, we plot every variable on its own, and then plot them against each other.
-      <br>Below are the 40 trials we started with in the first tab: the tone frequency we played, and how fast the neuron fired.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part1/06-look-before-you-model.html:5">Frequency and firing rate, one at a time and together</div>
-      <div class="hint" data-ed="part1/06-look-before-you-model.html:6">drag across a histogram to pick a group</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <div class="panel-duo">
-          <div><canvas id="cvEdaX" class="cv" height="200"></canvas></div>
-          <div><canvas id="cvEdaY" class="cv" height="200"></canvas></div>
-        </div>
-        <canvas id="cvEdaS" class="cv" height="320" style="margin-top:1.05rem"></canvas>
-        <p class="notecap" data-ed="part1/06-look-before-you-model.html:7">Top: how many trials fall in each range of frequency, and of firing rate. Bottom: one dot per trial, with both measurements. The same 40 trials the first tab starts with.</p>
-      </div>
-      <div class="ctl">
-        <div class="ctl-row">
-          <label>histogram bins <span class="v" id="edaBinsV">7</span></label>
-          <input type="range" id="edaBins" min="3" max="20" value="7" step="1">
-        </div>
-        <div class="btnrow">
-          <button class="btn" id="edaLow">7&ndash;15 kHz</button>
-          <button class="btn" id="edaMid">15&ndash;23 kHz</button>
-          <button class="btn primary" id="edaAll">all trials</button>
-        </div>
-        <p class="notecap" id="edaWho"></p>
-        <div class="stats">
-          <div class="stat plain"><span class="k">trials</span><span class="val" id="edaN">&mdash;</span></div>
-          <div class="stat alt"><span class="k">frequency</span><span class="val" id="edaMx">&mdash;</span></div>
-          <div class="stat test"><span class="k">firing rate</span><span class="val" id="edaMy">&mdash;</span></div>
-          <div class="stat model"><span class="k">correlation <span class="m">r</span></span><span class="val" id="edaR">&mdash;</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part1/06-look-before-you-model.html:8">The frequency histogram is flat. That is not a finding about the neuron: we chose the tones, and we spread them evenly.</p>
-    <p data-ed="part1/06-look-before-you-model.html:9">The firing-rate histogram is wide, from 0 to 95 spikes/s. One trial sits at exactly 0, because a firing rate cannot go below it.</p>
-    <p data-ed="part1/06-look-before-you-model.html:10">The scatter shows what neither histogram can: the rate falls from 7 to 15 kHz, then rises again towards 23 kHz.
-      <br>Over all 40 trials the correlation is <span class="m">r</span> = &minus;0.60.
-      <br><span class="m">r</span> runs from &minus;1 to 1. Its sign says which way the cloud slopes, and its size says how tightly the dots hug a straight line.</p>
-    <p data-ed="part1/06-look-before-you-model.html:11">Now pick out 7&ndash;15 kHz, and then 15&ndash;23 kHz. The correlation is &minus;0.76 in one and +0.71 in the other.
-      <br>A single <span class="m">r</span> says this neuron prefers low tones. The scatter says the story is more complicated.</p>
-  </div>
-
-  <div class="prose">
-    <h3 data-ed="part1/06-look-before-you-model.html:12">Never trust a summary statistic on its own</h3>
-    <p data-ed="part1/06-look-before-you-model.html:13">These four datasets share the same mean <span class="m">x</span>, the same mean <span class="m">y</span>, the same variances, the same correlation, and the same fitted line, to two decimal places.
-      <br>Anscombe built them in 1973 to make exactly this point, and it has not aged a day.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part1/06-look-before-you-model.html:14">Anscombe&rsquo;s quartet</div>
-      <div class="hint" data-ed="part1/06-look-before-you-model.html:15">identical statistics, four different stories</div>
-    </div>
-    <div class="panel-body">
-      <div class="panel-quad">
-        <div><canvas id="cvAns0" class="cv" height="215"></canvas></div>
-        <div><canvas id="cvAns1" class="cv" height="215"></canvas></div>
-        <div><canvas id="cvAns2" class="cv" height="215"></canvas></div>
-        <div><canvas id="cvAns3" class="cv" height="215"></canvas></div>
-      </div>
-      <div id="ansLayers"></div>
-      <div class="tblwrap" style="margin-top:1rem">
-        <table class="tbl" id="ansTbl"></table>
-      </div>
-      <p class="notecap" data-ed="part1/06-look-before-you-model.html:16">I: a real linear relationship. II: a curve, badly served by a line. III: a perfect line plus one outlier that tilts it. IV: no relationship at all, plus one point with total leverage.</p>
-    </div>
-  </div>
-
-  <div class="key">
-    <div class="lbl" data-ed="part1/06-look-before-you-model.html:17">Key idea</div>
-    <p data-ed="part1/06-look-before-you-model.html:18">Plot the data. Then plot the residuals. Two summary numbers and a <span class="m">p</span>-value cannot tell any of these four apart.</p>
-  </div>
-  <div class="crosslink">
-    <div>
-      <div class="cl-t" data-ed="part1/06-look-before-you-model.html:19">Part 2: Linear regression</div>
-      <p class="cl-d" data-ed="part1/06-look-before-you-model.html:20">The linear model, least squares, the OLS derivation, R&sup2;, and what small samples do to all of it.</p>
-    </div>
-    <a href="https://claude.ai/code/artifact/26a2f573-b6e2-40b6-ad0f-83d17b0c0305" data-local="class1_part2_linear_regression.html">Continue &rarr;</a>
   </div>
 </section>
 
@@ -1676,10 +1579,8 @@ var TABS = (function(){
 /* ============================================================
    01 — the unknown function
    ============================================================ */
-/* The auditory neuron of this tab, shared with "Look before you model",
-   which shows the sample this tab starts with (40 trials, sigma 14, seed 7).
-   The hidden rule is a fifth-degree polynomial in t = (x-18)/14, deliberately
-   not a textbook bell: best frequency ~7 kHz at 83 spikes/s, a suppressed
+/* The auditory neuron of this tab. The hidden rule is a fifth-degree
+   polynomial in t = (x-18)/14, deliberately not a textbook bell: best frequency ~7 kHz at 83 spikes/s, a suppressed
    band around 15 kHz, a second response region near 23 kHz, and the start of
    a third at the top of the range. Stays between 7 and 83 spikes/s. */
 var TONE_X0 = 4, TONE_X1 = 32;              /* pure-tone frequency, kHz */
@@ -2462,170 +2363,6 @@ function toneTrials(n, sg, seed){
   S.forEach(function(s){ s.vis = inCohort(s, pct()) ? 1 : 0; });
   reg(render);
 })();
-
-/* ============================================================
-   06a — look at each variable, then at the pair: the 40 trials the
-   first tab starts with, as two histograms and a scatter. Dragging
-   across either histogram picks out a group, and all three plots show
-   where it sits.
-   ============================================================ */
-(function(){
-  var hx = mkPlot("cvEdaX", {xd:[TONE_X0, TONE_X1], yd:[0,1], padL:40, padB:36});
-  var hy = mkPlot("cvEdaY", {xd:[0,100], yd:[0,1], padL:40, padB:36});
-  var sc = mkPlot("cvEdaS", {xd:[TONE_X0, TONE_X1], yd:[0,100], padB:38});
-  if (!hx || !hy || !sc) return;
-  function $(id){ return document.getElementById(id); }
-  var D = toneTrials(40, 14, 7), X = D.X, Y = D.Y, N = X.length;
-  var bEl = $("edaBins"), bLb = $("edaBinsV");
-  /* the picked group: a range on one of the two variables, or nothing */
-  var pick = null;
-  var V = { x:{ data:X, plot:hx, lo:TONE_X0, hi:TONE_X1 }, y:{ data:Y, plot:hy, lo:0, hi:100 } };
-
-  function picked(i){
-    if (!pick) return true;
-    var v = V[pick.v].data[i];
-    return v >= pick.a && v <= pick.b;
-  }
-  function stat(a){
-    return a.length ? fmt(mean(a), 1) + " ± " + fmt(sd(a), 1) : "—";
-  }
-
-  function hist(key){
-    var o = V[key], p = o.plot, nb = +bEl.value;
-    var w = (o.hi - o.lo)/nb, all = [], sub = [], i, k, top = 0;
-    for (k=0;k<nb;k++){ all.push(0); sub.push(0); }
-    for (i=0;i<N;i++){
-      k = Math.min(nb - 1, Math.max(0, Math.floor((o.data[i] - o.lo)/w)));
-      all[k]++; if (picked(i)) sub[k]++;
-    }
-    all.forEach(function(c){ top = Math.max(top, c); });
-    var ymax = Math.max(4, Math.ceil(top*1.1/2)*2);
-    p.dom(null, [0, ymax]);
-    p.sync(); p.frame();
-    var yt = ticks(0, ymax, 4), xt = key === "x" ? [4,8,12,16,20,24,28,32] : [0,20,40,60,80,100];
-    p.grid(null, yt);
-    var ctx = p.ctx, c = col(key === "x" ? "--c-alt" : "--c-test");
-    /* 1px of surface between bars; everyone faint, the picked group solid */
-    for (k=0;k<nb;k++){
-      var x0 = p.x(o.lo + k*w) + 1, x1 = p.x(o.lo + (k+1)*w) - 1;
-      if (all[k]){ ctx.fillStyle = alpha(c, pick ? .2 : .85); ctx.fillRect(x0, p.y(all[k]), x1 - x0, p.B - p.y(all[k])); }
-      if (pick && sub[k]){ ctx.fillStyle = alpha(c, .9); ctx.fillRect(x0, p.y(sub[k]), x1 - x0, p.B - p.y(sub[k])); }
-    }
-    if (pick && pick.v === key){
-      var a = p.x(pick.a), b = p.x(pick.b);
-      ctx.save(); ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.3; ctx.setLineDash([4,3]);
-      ctx.strokeRect(a, p.T + 1, b - a, p.B - p.T - 2); ctx.restore();
-    }
-    p.axes({ xt:xt, yt:yt, ylabel:"trials",
-             xlabel: key === "x" ? "tone frequency (kHz)" : "firing rate (spikes/s)",
-             fmt:function(v){ return v.toFixed(0); } });
-  }
-
-  function scatter(){
-    sc.sync(); sc.frame();
-    var xt = [4,8,12,16,20,24,28,32], yt = [0,20,40,60,80,100];
-    sc.grid(xt, yt);
-    var out = [], inn = [], i;
-    for (i=0;i<N;i++) (picked(i) ? inn : out).push([X[i], Y[i]]);
-    sc.dots(out, {r:4.4, color: alpha(col("--c-data"), .18)});
-    sc.dots(inn, {r:4.6, color: alpha(col("--c-data"), .85), ring: pick ? col("--surface") : null});
-    sc.axes({ xt:xt, yt:yt, xlabel:"x: tone frequency (kHz)", ylabel:"y: firing rate (spikes/s)",
-              fmt:function(v){ return v.toFixed(0); } });
-  }
-
-  function stats(){
-    var gx = [], gy = [], i;
-    for (i=0;i<N;i++) if (picked(i)){ gx.push(X[i]); gy.push(Y[i]); }
-    $("edaN").textContent  = gx.length + (pick ? " of " + N : "");
-    $("edaMx").textContent = stat(gx);
-    $("edaMy").textContent = stat(gy);
-    $("edaR").textContent  = gx.length > 2 ? fmt(corr(gx, gy), 2) : "—";
-    $("edaWho").innerHTML = (!pick ? "All 40 trials."
-      : (pick.v === "x" ? "Trials with tones from " + pick.a.toFixed(1) + " to " + pick.b.toFixed(1) + " kHz."
-                        : "Trials with firing rates from " + pick.a.toFixed(0) + " to " + pick.b.toFixed(0) + " spikes/s."))
-      + " Mean &plusmn; sd below.";
-  }
-
-  function draw(){
-    bLb.textContent = bEl.value;
-    hist("x"); hist("y"); scatter(); stats();
-  }
-
-  /* drag across a histogram to pick a range; a click without a drag clears it */
-  function brush(key){
-    var p = V[key].plot, start = null, tiny = (V[key].hi - V[key].lo)/200;
-    function val(e){
-      var r = p.el.getBoundingClientRect();
-      return Math.max(V[key].lo, Math.min(V[key].hi, p.ix(e.clientX - r.left)));
-    }
-    p.el.style.cursor = "crosshair";
-    p.el.style.touchAction = "none";
-    p.el.addEventListener("pointerdown", function(e){
-      start = val(e); p.el.setPointerCapture(e.pointerId);
-    });
-    p.el.addEventListener("pointermove", function(e){
-      if (start === null) return;
-      var v = val(e);
-      if (Math.abs(v - start) < tiny) return;
-      pick = { v:key, a:Math.min(start, v), b:Math.max(start, v) }; draw();
-    });
-    p.el.addEventListener("pointerup", function(e){
-      if (start !== null && Math.abs(val(e) - start) < tiny){ pick = null; draw(); }
-      start = null;
-    });
-  }
-  brush("x"); brush("y");
-
-  bEl.addEventListener("input", draw);
-  function preset(v, a, b){ return function(){ pick = { v:v, a:a, b:b }; draw(); }; }
-  $("edaLow").addEventListener("click", preset("x", 7, 15));
-  $("edaMid").addEventListener("click", preset("x", 15, 23));
-  $("edaAll").addEventListener("click", function(){ pick = null; draw(); });
-  reg(draw);
-})();
-
-/* ============================================================
-   06b — Anscombe's quartet
-   ============================================================ */
-(function(){
-  var AX = [10,8,13,9,11,14,6,4,12,7,5];
-  var Q = [
-    { name:"I",   x:AX, y:[8.04,6.95,7.58,8.81,8.33,9.96,7.24,4.26,10.84,4.82,5.68] },
-    { name:"II",  x:AX, y:[9.14,8.14,8.74,8.77,9.26,8.10,6.13,3.10,9.13,7.26,4.74] },
-    { name:"III", x:AX, y:[7.46,6.77,12.74,7.11,7.81,8.84,6.08,5.39,8.15,6.42,5.73] },
-    { name:"IV",  x:[8,8,8,8,8,8,8,19,8,8,8], y:[6.58,5.76,7.71,8.84,8.47,7.04,5.25,12.50,5.56,7.91,6.89] }
-  ];
-  var plots = Q.map(function(q, i){ return mkPlot("cvAns"+i, {xd:[2,20], yd:[2,14], padL:32, padB:30, padT:22}); });
-  if (!plots[0]) return;
-  var L = layerToggles("ansLayers", [
-    {k:"fit", label:"fitted line (identical in all four)", kind:"ln", col:"--c-model"}
-  ], function(){ draw(); });
-
-  function draw(){
-    plots.forEach(function(p, i){
-      if (!p) return;
-      var q = Q[i], f = ols(q.x, q.y);
-      p.sync(); p.frame();
-      var xt = [5,10,15,20], yt = [4,6,8,10,12,14];
-      p.grid(xt, yt);
-      if (L.on("fit")) p.fnline(function(x){ return f.b0 + f.b1*x; }, {w:2.2});
-      p.dots(q.x.map(function(v,k){ return [v, q.y[k]]; }), {r:4.4, color: col("--c-data")});
-      p.axes({xt:xt, yt:yt, fmt:function(v){return v.toFixed(0);}});
-      p.txt("dataset " + q.name, p.L + 4, p.T - 7, {color: col("--c-model"), font:'600 10.5px "IBM Plex Mono", monospace'});
-    });
-    var t = document.getElementById("ansTbl");
-    var rowsHTML = "<tr><th>dataset</th><th>mean x</th><th>mean y</th><th>sd x</th><th>sd y</th><th>corr r</th><th>fitted line</th></tr>";
-    Q.forEach(function(q){
-      var f = ols(q.x, q.y);
-      rowsHTML += "<tr><td>" + q.name + "</td><td>" + fmt(mean(q.x),2) + "</td><td>" + fmt(mean(q.y),2) +
-        "</td><td>" + fmt(sd(q.x),2) + "</td><td>" + fmt(sd(q.y),2) + "</td><td>" + fmt(corr(q.x,q.y),3) +
-        "</td><td class='hi'>y = " + fmt(f.b0,2) + " + " + fmt(f.b1,2) + "x</td></tr>";
-    });
-    t.innerHTML = rowsHTML;
-  }
-  reg(draw);
-})();
-
 
 /* first paint after fonts settle */
 window.addEventListener("load", function(){ requestAnimationFrame(redrawAll); });
