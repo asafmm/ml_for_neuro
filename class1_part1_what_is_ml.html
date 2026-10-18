@@ -601,7 +601,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <div>
       <div class="kicker">Class 1 &middot; Part 1 of 2</div>
       <h1>Estimating <em>f</em></h1>
-      <p class="lede">Every model in this course is an attempt to guess a function you will never actually see. Six ideas that decide what kind of guess you are making.</p>
+      <p class="lede">Every model in this course is an attempt to guess a function you will never actually see. Four ideas that decide what kind of guess you are making.</p>
       <p class="credits">
         Asaf Madar, PhD &middot; lecturer
       </p>
@@ -618,7 +618,7 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s1">
   <div class="shead"><div class="num">01</div><h2 data-ed="part1/01-what-is-machine-learning.html:0">What is machine learning?</h2></div>
   <div class="prose">
-    <p data-ed="part1/01-what-is-machine-learning.html:1">In Machine Learning, we are interested in estimating the function that maps between inputs <span class="m">X</span> and an output <span class="m">y</span>. 
+    <p data-ed="part1/01-what-is-machine-learning.html:1">In Machine Learning, we are interested in estimating the function that maps between inputs <span class="m">X</span> and a target&nbsp;<span class="m">y</span>. 
       <br><span class="m">X</span> could be cortical thickness, and <span class="m">y</span> could be age. Firing rate to stimulus contrast. Voxel patterns to what a person is looking at. 
       <br>We call this connecting function <span class="m">f</span>:</p>
   </div>
@@ -631,7 +631,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <br><span class="m">&epsilon;</span> is everything that we cannot, or did not measure and control for: measurement noise, biological variability, the variables we did not record. 
       <br><span class="m">&epsilon;</span> is why two subjects with identical <span class="m">x</span> still give you different <span class="m">y</span>, and why two measurements from the same subject still give you different <span class="m">y</span>.</p>
     <p data-ed="part1/01-what-is-machine-learning.html:3">Importantly, we never get to see <span class="m">f</span>.
-      <br>We only see a list of noisy <span class="m">(x, y)</span> pairs. Machine learning is the process of using that list to build an estimation of <span class="m">f</span>, called <span class="m"><span class="hat f">f</span></span> (f-hat), that is good enough to be useful.
+      <br>We only see a list of noisy <span class="m">(x, y)</span> pairs. Machine learning is the process of using that list to build an estimation of <span class="m">f</span>, called <span class="m"><span class="hat f">f</span></span> (f-hat), that is good enough for prediction.
       <br>Once we have <span class="m"><span class="hat f">f</span></span>, we can give it any <span class="m">x</span> and get back a prediction of <span class="m">y</span>, called <span class="m"><span class="hat">y</span></span> (y-hat):</p>
   </div>
 
@@ -659,7 +659,7 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <p data-ed="part1/01-what-is-machine-learning.html:8">Plotted, those rows become a scatter.
-      <br><strong>Drag across the plot to draw our own guess first</strong>, then switch on the estimate, and only then reveal the truth.</p>
+      <br><strong>Drag across the plot to draw our own guess first</strong>, then switch on the estimate, or reveal the true underlying function.</p>
   </div>
 
   <div class="panel">
@@ -687,14 +687,14 @@ section.tabpanel{padding:2.6rem 0 0}
           <div class="stat model"><span class="k">how far <span class="hat f">f</span> is from f</span><span class="val" id="truthGap">&mdash;</span></div>
           <div class="stat alt"><span class="k">how far my guess is from f</span><span class="val" id="truthMine">&mdash;</span></div>
         </div>
-        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:12">Root-mean-square gap from the true curve. Our guess is scored only where we drew, and only once true f is switched on. More trials, or less noise, pulls it down. It never reaches zero: a smooth estimate can only chase so many bends.</p>
+        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:12"></p>
       </div>
     </div>
   </div>
 
   <div class="key">
     <div class="lbl" data-ed="part1/01-what-is-machine-learning.html:13">Key idea</div>
-    <p data-ed="part1/01-what-is-machine-learning.html:14">Many different curves are compatible with our data. Adding data does not change the underlying <span class="m">f</span>, but it narrows down which <span class="m"><span class="hat f">f</span></span> can be estimated.</p>
+    <p data-ed="part1/01-what-is-machine-learning.html:14">Many different curves are compatible with our data. We have two challenges here: (1) we don't have an assumption about the structure of the function f, (2) we only see the fit of our estimated f predict on one dataset, but does it predict well on unseen data?</p>
   </div>
 </section>
 
@@ -704,10 +704,10 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="prose">
     <p data-ed="part1/03-fitting-vs-predicting.html:1">In <strong>fitting</strong>, we have all our data, we fit a model to it, and we interpret the coefficients:
       <br>Does salary rise with years of education, and by how much? Does accuracy drop as memory load increases?
-      <br>The model describes the data in front of us, and the coefficient is the answer. This is what psychology and economics usually ask for.</p>
+      <br>The model simply describes the data in front of us.&nbsp;</p>
     <p data-ed="part1/03-fitting-vs-predicting.html:2">In <strong>predicting</strong>, we fit on one part of the data, called the <strong>training set</strong>, then ask the model for <span class="m">y</span> on points it has never seen, called the <strong>test set</strong>.
-      <br>Here it does not matter how well the model described the training data. What matters is whether it works on the next subject.</p>
-    <p data-ed="part1/03-fitting-vs-predicting.html:3">The two come apart quickly. A flexible enough model can pass through every training point exactly, so its training error goes to zero. It has learned the noise.</p>
+      <br>Here the objective is to predict well on the next subject, the next minute, etc.</p>
+    <p data-ed="part1/03-fitting-vs-predicting.html:3">Let's understand why the train/test split is important.&nbsp;<br>First, fit the training data with an increasingly complex model, and try to fit it as best as you can. The lower error, the better!<br>Then, add the test data points and see what happens to the test error.</p>
   </div>
 
   <div class="panel">
@@ -741,12 +741,11 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="key">
     <div class="lbl" data-ed="part1/03-fitting-vs-predicting.html:7">Key idea</div>
-    <p data-ed="part1/03-fitting-vs-predicting.html:8">Training error always improves as we add flexibility. Test error goes down, bottoms out, then climbs back up. That U-shape is the <strong>bias-variance tradeoff</strong>, and finding its bottom is most of applied ML.</p>
+    <p data-ed="part1/03-fitting-vs-predicting.html:8">If we only fit the training data, the error always improves as we add flexibility. However, we can see the test error first goes down, but then climbs back up. When we try to find estimations which work well both on train AND test data, we can find more robust estimations.</p>
   </div>
 
   <div class="prose">
-    <p data-ed="part1/03-fitting-vs-predicting.html:9">Often we want both: estimate <span class="m"><span class="hat f">f</span></span> on a training set, check on a test set that it really predicts, then interpret the coefficients to see which features carried the signal.
-      <br>The third step is only honest if the second one passed.</p>
+    <p data-ed="part1/03-fitting-vs-predicting.html:9">Often we use methods from both fitting and predicting: we estimate <span class="m"><span class="hat f">f</span></span> on a training set, check on a test set that it really predicts well, then <b>interpret the coefficients </b>to see which features carried the signal.</p>
   </div>
 </section>
 
@@ -754,9 +753,7 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s5">
   <div class="shead"><div class="num">03</div><h2 data-ed="part1/04-regression-vs-classification.html:0">Regression vs. classification</h2></div>
   <div class="prose">
-    <p data-ed="part1/04-regression-vs-classification.html:1">The first split is about the type of <span class="m">y</span>, the thing we want to predict:
-      <br>Continuous <span class="m">y</span> gives us <strong>regression</strong>. Categorical <span class="m">y</span> gives us <strong>classification</strong>.
-      <br>That choice decides which model we reach for, and which number we report.</p>
+    <p data-ed="part1/04-regression-vs-classification.html:1">In machine learning we generally have two types of problems, which depend of the type of <span class="m">y.</span><br>When <span class="m">y</span>&nbsp;is continuous (RT, firing rate, etc.), the problem is called a&nbsp;<strong>regression </strong>problem.&nbsp;When <span class="m">y</span>&nbsp;is categorical (male/female, patient/healthy, etc.), it is called a&nbsp;<strong>classification </strong>problem.</p>
   </div>
 
   <div class="panel">
@@ -785,7 +782,7 @@ section.tabpanel{padding:2.6rem 0 0}
             <span class="sum"><span class="lim">n</span><span class="sig">&Sigma;</span><span class="lim">i=1</span></span>
             (<span class="m">y<sub>i</sub></span> &minus; <span class="m"><span class="hat">y</span><sub>i</sub></span>)<sup>2</sup>
           </div>
-          <p class="notecap" data-ed="part1/04-regression-vs-classification.html:4">The average squared miss. Squaring means one wild error costs far more than several small ones. It also means the units are <span class="m">y</span> squared, which is why we often report the square root instead.</p>
+          <p class="notecap" data-ed="part1/04-regression-vs-classification.html:4">The average squared error. We square the errors so that the sum of positive and negative errors do not cancel each other. Squaring also means the units are <span class="m">y</span> squared, which is why we often report the square root MSE instead.</p>
         </div>
         <div id="rcClsBox" style="display:none">
           <div class="eq tight" style="margin-top:0">
@@ -858,9 +855,8 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s4">
   <div class="shead"><div class="num">04</div><h2 data-ed="part1/05-supervised-vs-unsupervised.html:0">Supervised vs. unsupervised</h2></div>
   <div class="prose">
-    <p data-ed="part1/05-supervised-vs-unsupervised.html:1">The dividing question is simple: <strong>do we have <span class="m">y</span>?</strong></p>
-    <p data-ed="part1/05-supervised-vs-unsupervised.html:2">If every observation arrives with a label (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
-      <br>Someone already decided what the right answer is, so we can measure how often we get it wrong, and then minimise that.
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:1">Another common split in machine learning problems is defined by whether we even&nbsp;have a target (<span class="m" style="">y<span style="font-style: normal;">)</span>.</span></p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:2">If every observation arrives with a target (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
       <br>Regression and classification, from the last tab, are both supervised: in both, every subject comes with its <span class="m">y</span>.</p>
   </div>
 
@@ -872,23 +868,22 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-duo">
       <div>
         <canvas id="cvSupA" class="cv" height="290"></canvas>
-        <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:5"><b>What we have.</b> Colour is the diagnosis, and it was given to us. No algorithm worked it out.</p>
+        <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:5"><b>What we have.</b> Colour is the diagnosis, based on the label from a dataset.&nbsp;</p>
       </div>
       <div>
         <canvas id="cvSupB" class="cv" height="290"></canvas>
         <div id="supLayers"></div>
-        <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:6"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, every mistake can be counted.</p>
+        <p class="notecap" data-ed="part1/05-supervised-vs-unsupervised.html:6"><b>What the method produces.</b> A boundary. Any new subject falls on one side and gets that label, and because we know the truth, we can measure our errors.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part1/05-supervised-vs-unsupervised.html:7">If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">x</span>.
-      <br>Which brain regions behave alike? How many cell types are in this recording?
-      <br>Nothing here is right or wrong, so there is no error to minimise.</p>
-    <p data-ed="part1/05-supervised-vs-unsupervised.html:8"><strong>Clustering</strong> is the usual first step. We hand over the points and one number, <span class="m">k</span>, the number of groups to look for, and the algorithm splits the data so that points in a group sit close together.
-      <br>It repeats two steps until nothing moves: assign every point to its nearest centre, then recompute each centre from the points assigned to it.</p>
-    <p data-ed="part1/05-supervised-vs-unsupervised.html:9">The data below really has three groups, but the algorithm is never told that. Ask it for the wrong number and see what happens:</p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:7">If there is no <span class="m">y</span>, we are doing <strong>unsupervised</strong> learning: looking for structure that is already in <span class="m">X</span>.
+      <br>Which brain regions behave alike? How many cell types/categories are in this recording?
+      <br>We are trying to extract meaningful patterns, or groupings, from the data, without any labels.</p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:8"><strong>Clustering</strong> is a common example for unsupervised learning.<br>We get points with features and the number of groups to look for, and run an algorithm that splits the data so that points in a group sit close together.</p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:9">The data below shows a dataset with no labels. How many groups do you think are hiding there?</p>
   </div>
 
   <div class="panel">
@@ -919,9 +914,7 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
-  <div class="warn" data-ed="part1/05-supervised-vs-unsupervised.html:13">
-    <b>It always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Both times it hands back tidy clusters and crisp centres, with no hint that anything went wrong. Deciding whether the structure is real, and whether <span class="m">k</span> was right, is on us, not the algorithm.
-  </div>
+  <div class="warn" data-ed="part1/05-supervised-vs-unsupervised.html:13"><b>Clustering always returns an answer.</b> At <span class="m">k</span> = 2 it merges two real groups into one. At <span class="m">k</span> = 5 it cuts a real group in half. Estimating whether a cluster is "correct" is sometimes a difficult task.</div>
 </section>
 
 </div><!-- /wrap -->
