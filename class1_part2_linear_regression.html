@@ -936,29 +936,9 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part2/03-solving-with-calculus.html:3">The formula, on actual numbers</div>
-      <div class="hint" data-ed="part2/03-solving-with-calculus.html:4">drag a point, every column updates</div>
-    </div>
-    <div class="panel-body panel-split wide-ctl">
-      <div>
-        <canvas id="cvOrigin" class="cv drag" height="290"></canvas>
-        <div id="originLayers"></div>
-        <p class="notecap" data-ed="part2/03-solving-with-calculus.html:5">Six points, one parameter. Drag any of them vertically and watch the two sums, and <span class="m"><span class="hat b">&beta;</span></span>, recompute.</p>
-      </div>
-      <div>
-        <div class="tblwrap" style="margin-top:0">
-          <table class="tbl" id="oTbl"></table>
-        </div>
-        <div class="eq tight" id="oResult" style="margin-top:.9rem"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="prose">
-    <h3 data-ed="part2/03-solving-with-calculus.html:6">Putting the intercept back</h3>
-    <p data-ed="part2/03-solving-with-calculus.html:7">Doing the same with two variables (take the partial derivative with respect to <span class="m">β<sub>0</sub></span> and to <span class="m">β<sub>1</sub></span>, set both to zero, solve the pair) gives the formulas we actually use:</p>
+    <h3 data-ed="part2/03-solving-with-calculus.html:3">Putting the intercept back</h3>
+    <p data-ed="part2/03-solving-with-calculus.html:4">Doing the same with two variables (take the partial derivative with respect to <span class="m">β<sub>0</sub></span> and to <span class="m">β<sub>1</sub></span>, set both to zero, solve the pair) gives the formulas we actually use:</p>
   </div>
 
   <div class="eq">
@@ -972,8 +952,8 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part2/03-solving-with-calculus.html:8">It's the same structure as the previous solution, but now we subtract the mean from each variable.&nbsp;</p>
-    <p data-ed="part2/03-solving-with-calculus.html:9">We can also see that&nbsp;<span class="m"><span class="hat b">β</span><sub>0</sub></span> = <span class="m"><span class="bar">y</span></span> − <span class="m"><span class="hat b">β</span><sub>1</sub></span><span class="m"><span class="bar">x</span></span>&nbsp;meaning the fitted line always passes exactly through the point (<span class="m"><span class="bar">x</span></span>, <span class="m"><span class="bar">y</span></span>).
+    <p data-ed="part2/03-solving-with-calculus.html:5">It's the same structure as the previous solution, but now we subtract the mean from each variable.&nbsp;</p>
+    <p data-ed="part2/03-solving-with-calculus.html:6">We can also see that&nbsp;<span class="m"><span class="hat b">β</span><sub>0</sub></span> = <span class="m"><span class="bar">y</span></span> − <span class="m"><span class="hat b">β</span><sub>1</sub></span><span class="m"><span class="bar">x</span></span>&nbsp;meaning the fitted line always passes exactly through the point (<span class="m"><span class="bar">x</span></span>, <span class="m"><span class="bar">y</span></span>).
       <br>Second, for <span class="m">&beta;<sub>1</sub></span>, the numerator is the covariance of <span class="m">x</span> and <span class="m">y</span> and the denominator is the variance of <span class="m">x</span>, which means it can also be written as:</p>
   </div>
 
@@ -982,8 +962,8 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part2/03-solving-with-calculus.html:10">Key idea</div>
-    <p data-ed="part2/03-solving-with-calculus.html:11">The regression slope is the correlation, rescaled by the spread of the two variables. Correlation and simple regression (with one predictor) are doing the same thing.</p>
+    <div class="lbl" data-ed="part2/03-solving-with-calculus.html:7">Key idea</div>
+    <p data-ed="part2/03-solving-with-calculus.html:8">The regression slope is the correlation, rescaled by the spread of the two variables. Correlation and simple regression (with one predictor) are doing the same thing.</p>
   </div>
 </section>
 
@@ -1167,17 +1147,17 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:20">TSS</div><div class="gd" data-ed="part2/08-glossary.html:21">Sum of squared deviations from <span class="m"><span class="bar">y</span></span>. The error of the null model.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:22">MSE</div><div class="gd" data-ed="part2/08-glossary.html:23">RSS divided by <span class="m">n</span>. The standard regression loss.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:24"><span class="m">R</span><sup>2</sup></div><div class="gd" data-ed="part2/08-glossary.html:25">1 &minus; RSS/TSS. Our errors compared with always predicting the mean: 1 is perfect, 0 is no better than the mean. On test data it can be negative.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">r</span></div><div class="gd" data-ed="part2/08-glossary.html:27">Correlation between real values and predictions. Says whether they move together, not whether they are right: shifted or stretched predictions keep the same <span class="m">r</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:26"><span class="m">r</span></div><div class="gd" data-ed="part2/08-glossary.html:27">Pearson correlation. We <i>r</i> between real values and predictions, it says whether they move together, not whether they are right: shifted or stretched predictions keep the same <span class="m">r</span>.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:28"><span class="m">&beta;<sub>0</sub></span>, <span class="m">&beta;<sub>1</sub></span></div><div class="gd" data-ed="part2/08-glossary.html:29">Intercept and slope. The weights the model learns.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:30">centring</div><div class="gd" data-ed="part2/08-glossary.html:31">Measuring a predictor from its own mean, which makes <span class="m">&beta;<sub>0</sub></span> the prediction for an average subject instead of for an impossible one.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">OLS</div><div class="gd" data-ed="part2/08-glossary.html:33">Ordinary least squares. The recipe for finding those weights.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:32">OLS</div><div class="gd" data-ed="part2/08-glossary.html:33">Ordinary least squares. The method for finding those weights.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:34">training set</div><div class="gd" data-ed="part2/08-glossary.html:35">The data used to choose the weights.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:36">test set</div><div class="gd" data-ed="part2/08-glossary.html:37">Data held back and touched exactly once, to estimate real performance.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:38">overfitting</div><div class="gd" data-ed="part2/08-glossary.html:39">Fitting the noise. Train error falls, test error rises.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:40">supervised</div><div class="gd" data-ed="part2/08-glossary.html:41">Learning with labelled <span class="m">y</span>. Regression or classification.</div></div>
     <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:42">unsupervised</div><div class="gd" data-ed="part2/08-glossary.html:43">Structure-finding with no <span class="m">y</span>. Clustering, dimensionality reduction.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:45">Proportion of correct classifications. Misleading when classes are imbalanced.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46">recall</div><div class="gd" data-ed="part2/08-glossary.html:47">Of the true positives, the fraction the model found.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:44">accuracy</div><div class="gd" data-ed="part2/08-glossary.html:45">Proportion of correct classifications.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part2/08-glossary.html:46"></div><div class="gd" data-ed="part2/08-glossary.html:47"></div></div>
   </div>
 
 
@@ -2564,69 +2544,6 @@ function lsMarker(ctx, x, y, kind, color){
   document.getElementById("dAll").addEventListener("click", function(){ shown = steps.length; render(); });
   document.getElementById("dReset").addEventListener("click", function(){ shown = 1; render(); });
   render();
-})();
-
-/* ---- 09b: the formula on real numbers ---- */
-(function(){
-  var p = mkPlot("cvOrigin", {xd:[0,6.8], yd:[0,12], padL:38, padB:36});
-  if (!p) return;
-  var X = [1,2,3,4,5,6];
-  var Y = [1.8, 3.1, 5.2, 6.3, 8.4, 9.4];
-  var drag = -1;
-  var L = layerToggles("originLayers", [
-    {k:"resid", label:"residuals",               kind:"ln", col:"--c-error"},
-    {k:"line",  label:"line through the origin", kind:"ln", col:"--c-model"}
-  ], function(){ draw(); });
-
-  function beta(){
-    var num = 0, den = 0;
-    for (var i=0;i<X.length;i++){ num += X[i]*Y[i]; den += X[i]*X[i]; }
-    return {num:num, den:den, b: den ? num/den : 0};
-  }
-  function pos(e){ var r = p.el.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
-  p.el.addEventListener("pointerdown", function(e){
-    var q = pos(e), best = -1, bd = 16;
-    X.forEach(function(v,i){ var d = Math.hypot(p.x(v)-q[0], p.y(Y[i])-q[1]); if (d < bd){ bd = d; best = i; } });
-    if (best >= 0){ drag = best; p.el.setPointerCapture(e.pointerId); }
-  });
-  p.el.addEventListener("pointermove", function(e){
-    if (drag < 0) return;
-    var q = pos(e);
-    Y[drag] = Math.round(Math.max(0.2, Math.min(11.6, p.iy(q[1]))) * 10)/10;
-    draw();
-  });
-  window.addEventListener("pointerup", function(){ drag = -1; });
-
-  function draw(){
-    var B = beta();
-    p.sync(); p.frame();
-    var xt = [0,1,2,3,4,5,6], yt = [0,2,4,6,8,10,12];
-    p.grid(xt, yt);
-    var ctx = p.ctx;
-    if (L.on("resid")){
-      ctx.save(); ctx.strokeStyle = alpha(col("--c-error"), .6); ctx.lineWidth = 1.4;
-      for (var i=0;i<X.length;i++){
-        ctx.beginPath(); ctx.moveTo(p.x(X[i]), p.y(Y[i])); ctx.lineTo(p.x(X[i]), p.y(B.b*X[i])); ctx.stroke();
-      }
-      ctx.restore();
-    }
-    if (L.on("line")) p.fnline(function(x){ return B.b*x; }, {w:2.8});
-    p.dots(X.map(function(v,k){ return [v, Y[k]]; }), {r:5, color: col("--c-data"), ring: col("--surface")});
-    p.axes({xt:xt, yt:yt, xlabel:"x", ylabel:"y", fmt:function(v){return v.toFixed(0);}});
-    p.txt("line forced through (0, 0)", p.L+6, p.T+13, {color: col("--ink-faint")});
-
-    var html = "<tr><th>i</th><th>x<sub>i</sub></th><th>y<sub>i</sub></th><th>x<sub>i</sub> y<sub>i</sub></th><th>x<sub>i</sub><sup>2</sup></th></tr>";
-    for (var k=0;k<X.length;k++){
-      html += "<tr><td>" + (k+1) + "</td><td>" + X[k].toFixed(1) + "</td><td>" + Y[k].toFixed(1) +
-              "</td><td class='hi'>" + (X[k]*Y[k]).toFixed(1) + "</td><td class='hi'>" + (X[k]*X[k]).toFixed(1) + "</td></tr>";
-    }
-    html += "<tr class='tot'><td>Σ</td><td></td><td></td><td>" + B.num.toFixed(1) + "</td><td>" + B.den.toFixed(1) + "</td></tr>";
-    document.getElementById("oTbl").innerHTML = html;
-    document.getElementById("oResult").innerHTML =
-      '<span class="m"><span class="hat b">&beta;</span></span> = <span class="frac"><span>' + B.num.toFixed(1) +
-      '</span><span>' + B.den.toFixed(1) + '</span></span> = <b style="color:var(--c-model)">' + B.b.toFixed(3) + '</b>';
-  }
-  reg(draw);
 })();
 
 /* ============================================================
