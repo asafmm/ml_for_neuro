@@ -627,7 +627,7 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <p data-ed="part1/01-what-is-machine-learning.html:2"><span class="m">x</span> here is list of measurements of one feature (or "predictor"). 
-      <br><span class="m">y</span> is another list of meausrements, or labels, which represent the outcome (or "target"). 
+      <br><span class="m">y</span> is another list of measurements, or labels, which represent the outcome (or "target"). 
       <br><span class="m">&epsilon;</span> is everything that we cannot, or did not measure and control for: measurement noise, biological variability, the variables we did not record. 
       <br><span class="m">&epsilon;</span> is why two subjects with identical <span class="m">x</span> still give you different <span class="m">y</span>, and why two measurements from the same subject still give you different <span class="m">y</span>.</p>
     <p data-ed="part1/01-what-is-machine-learning.html:3">Importantly, we never get to see <span class="m">f</span>.
@@ -641,7 +641,7 @@ section.tabpanel{padding:2.6rem 0 0}
     <p data-ed="part1/01-what-is-machine-learning.html:4">Our goal is to estimate <span class="m"><span class="hat f">f</span></span> in the best way to predict <span class="m">y</span>.
       <br>Notice there is no <span class="m">&epsilon;</span> here. <span class="m"><span class="hat f">f</span></span> can only learn the part of <span class="m">y</span> that <span class="m">x</span> explains.
       <br>So even a perfect <span class="m"><span class="hat f">f</span></span> gives <span class="m"><span class="hat">y</span></span> &asymp; <span class="m">y</span>, never <span class="m"><span class="hat">y</span></span> = <span class="m">y</span>.</p>
-    <p data-ed="part1/01-what-is-machine-learning.html:5">For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function f that maps the two is a fifth-degree polynomial. 
+    <p data-ed="part1/01-what-is-machine-learning.html:5">For example, let's imagine a neuron in auditory cortex that fires to the sounds of pure tones, and the function <span class="m">f</span> that maps the two is a fifth-degree polynomial. 
       <br>The simulation knows that polynomial, but we just get a table of observations:</p>
   </div>
 
@@ -684,17 +684,16 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="btnrow"><button class="btn" id="truthNew">new sample</button><button class="btn" id="truthClear">clear my guess</button></div>
         <div class="stats">
-          <div class="stat model"><span class="k">how far <span class="hat f">f</span> is from f</span><span class="val" id="truthGap">&mdash;</span></div>
-          <div class="stat alt"><span class="k">how far my guess is from f</span><span class="val" id="truthMine">&mdash;</span></div>
+          <div class="stat model"><span class="k">how far <span class="m"><span class="hat f">f</span></span> is from <span class="m">f</span></span><span class="val" id="truthGap">&mdash;</span></div>
+          <div class="stat alt"><span class="k">how far my guess is from <span class="m">f</span></span><span class="val" id="truthMine">&mdash;</span></div>
         </div>
-        <p class="notecap" data-ed="part1/01-what-is-machine-learning.html:12"></p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part1/01-what-is-machine-learning.html:13">Key idea</div>
-    <p data-ed="part1/01-what-is-machine-learning.html:14">Many different curves are compatible with our data. We have two challenges here: (1) we don't have an assumption about the structure of the function f, (2) we only see the fit of our estimated f predict on one dataset, but does it predict well on unseen data?</p>
+    <div class="lbl" data-ed="part1/01-what-is-machine-learning.html:12">Key idea</div>
+    <p data-ed="part1/01-what-is-machine-learning.html:13">Many different curves are compatible with our data. We have two challenges here: (1) we don't have an assumption about the structure of the function <span class="m">f</span>, (2) we only see the fit of our estimated <span class="m">f</span> predict on one dataset, but does it predict well on unseen data?</p>
   </div>
 </section>
 
@@ -753,7 +752,7 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s5">
   <div class="shead"><div class="num">03</div><h2 data-ed="part1/04-regression-vs-classification.html:0">Regression vs. classification</h2></div>
   <div class="prose">
-    <p data-ed="part1/04-regression-vs-classification.html:1">In machine learning we generally have two types of problems, which depend of the type of <span class="m">y.</span><br>When <span class="m">y</span>&nbsp;is continuous (RT, firing rate, etc.), the problem is called a&nbsp;<strong>regression </strong>problem.&nbsp;When <span class="m">y</span>&nbsp;is categorical (male/female, patient/healthy, etc.), it is called a&nbsp;<strong>classification </strong>problem.</p>
+    <p data-ed="part1/04-regression-vs-classification.html:1">In machine learning we generally have two types of problems, which depend on the type of <span class="m">y</span>.<br>When <span class="m">y</span>&nbsp;is continuous (RT, firing rate, etc.), the problem is called a&nbsp;<strong>regression </strong>problem.&nbsp;When <span class="m">y</span>&nbsp;is categorical (male/female, patient/healthy, etc.), it is called a&nbsp;<strong>classification </strong>problem.</p>
   </div>
 
   <div class="panel">
@@ -797,65 +796,13 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
     </div>
   </div>
-
-  <div class="warn" data-ed="part1/04-regression-vs-classification.html:6">
-    <b>Accuracy lies when classes are unbalanced.</b> If 5&#37; of our cohort has the disease, a model that answers &ldquo;healthy&rdquo; every time scores 95&#37; accuracy and has learned nothing.
-  </div>
-
-  <div class="prose">
-    <p data-ed="part1/04-regression-vs-classification.html:7">Below are 200 subjects, each with one biomarker measurement. Patients tend to have higher values than healthy subjects, but the two groups overlap.
-      <br>We compare two models. One ignores the biomarker and says <em>healthy</em> for everyone. The other says <em>patient</em> whenever the biomarker is high.
-      <br>Make the patients rarer, or press play, and watch which model accuracy prefers.</p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part1/04-regression-vs-classification.html:8">The always-healthy classifier</div>
-      <div class="hint" data-ed="part1/04-regression-vs-classification.html:9">make patients rare, or press play</div>
-    </div>
-    <div class="panel-body panel-split">
-      <div>
-        <div class="btnrow" style="margin-bottom:.85rem">
-          <div class="seg" id="balSeg">
-            <button class="on" data-v="none">always healthy</button>
-            <button data-v="cut">uses the biomarker</button>
-          </div>
-        </div>
-        <canvas id="cvBal" class="cv" height="360"></canvas>
-        <div id="balLayers"></div>
-        <p class="notecap" data-ed="part1/04-regression-vs-classification.html:10">Each dot is one subject, placed by their biomarker: healthy above the line, patients below. The shading is what the model says, and rings mark its mistakes.</p>
-        <canvas id="cvBalAcc" class="cv" height="190"></canvas>
-        <p class="notecap" data-ed="part1/04-regression-vs-classification.html:11">Accuracy of both models at every prevalence. Click or drag on it to change the prevalence.</p>
-      </div>
-      <div class="ctl">
-        <div class="ctl-row">
-          <label>prevalence of disease <span class="v" id="balPv">50&#37;</span></label>
-          <input type="range" id="balP" min="1" max="50" value="50" step="1">
-        </div>
-        <div class="btnrow">
-          <button class="btn primary" id="balPlay">play: patients become rare</button>
-        </div>
-        <div class="stats">
-          <div class="stat model"><span class="k">accuracy</span><span class="val" id="balAcc">&mdash;</span></div>
-          <div class="stat error"><span class="k">patients found</span><span class="val" id="balRec">&mdash;</span></div>
-          <div class="stat plain"><span class="k">healthy cleared</span><span class="val" id="balSpec">&mdash;</span></div>
-        </div>
-        <p class="notecap" id="balNote"></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="prose">
-    <p data-ed="part1/04-regression-vs-classification.html:12">When patients are rare, the model that learned nothing gets the higher accuracy, and the model that uses the biomarker is the only one that finds anyone.
-      <br>Accuracy alone cannot tell them apart. We also need to know how many of the patients a model found.</p>
-  </div>
 </section>
 
 <!-- ==================== 04 ==================== -->
 <section id="s4">
   <div class="shead"><div class="num">04</div><h2 data-ed="part1/05-supervised-vs-unsupervised.html:0">Supervised vs. unsupervised</h2></div>
   <div class="prose">
-    <p data-ed="part1/05-supervised-vs-unsupervised.html:1">Another common split in machine learning problems is defined by whether we even&nbsp;have a target (<span class="m" style="">y<span style="font-style: normal;">)</span>.</span></p>
+    <p data-ed="part1/05-supervised-vs-unsupervised.html:1">Another common split in machine learning problems is defined by whether we even&nbsp;have a target (<span class="m">y</span>).</p>
     <p data-ed="part1/05-supervised-vs-unsupervised.html:2">If every observation arrives with a target (this scan is from a patient, this trial was a face, this subject is 34 years old), we are doing <strong>supervised</strong> learning.
       <br>Regression and classification, from the last tab, are both supervised: in both, every subject comes with its <span class="m">y</span>.</p>
   </div>
@@ -2149,212 +2096,6 @@ function toneTrials(n, sg, seed){
     mode = b.dataset.v; draw();
   });
   reg(draw);
-})();
-
-/* ============================================================
-   05b — the always-healthy classifier. 200 subjects with one biomarker,
-   against two models: one that ignores it, one that cuts on it. The
-   always-healthy model is the same rule with the cut pushed past everyone.
-   ============================================================ */
-(function(){
-  var p = mkPlot("cvBal",    {xd:[-3,5.4], yd:[0,1], padL:14, padB:34});
-  var q = mkPlot("cvBalAcc", {xd:[0,50], yd:[40,100], padB:36});
-  if (!p || !q) return;
-  function $(id){ return document.getElementById(id); }
-  var el = $("balP"), lb = $("balPv"), playBtn = $("balPlay");
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  /* Two pools. A cohort at prevalence p% is the first 2p patients and the
-     first 200 - 2p healthy subjects, so moving the slider only adds or
-     removes people; nobody already on screen moves. */
-  var COHORT = 200, CUT = 1.1, BW = 0.2, X0 = -3, XMAX = 5.4;
-  var r = rng(555), S = [], i;
-  function clampX(x){ return Math.max(X0 + 0.05, Math.min(XMAX - 0.05, x)); }
-  function add(sick, x, k){ S.push({ sick:sick, x:x, k:k, vis:0 }); }
-  for (i=0;i<COHORT-2;i++) add(false, clampX(gauss(r)), i);
-  for (i=0;i<COHORT/2;i++) add(true,  clampX(2.2 + gauss(r)), i);
-  /* a dot's height in its stack: how many earlier pool members share its bin */
-  var seen = {}, maxH = 0, maxP = 0;
-  S.forEach(function(s){
-    var b = Math.floor((s.x - X0)/BW), key = (s.sick ? "p" : "h") + b;
-    s.slot = seen[key] = (seen[key] === undefined ? 0 : seen[key] + 1);
-    s.bx = X0 + (b + 0.5)*BW;
-    if (s.sick) maxP = Math.max(maxP, s.slot); else maxH = Math.max(maxH, s.slot);
-  });
-  /* rows above the line for healthy, below for patients, with headroom for the labels */
-  p.dom(null, [-(maxP + 1.5), maxH + 4]);
-
-  function inCohort(s, pct){ return s.sick ? s.k < 2*pct : s.k < COHORT - 2*pct; }
-  function score(pct, cut){
-    var hit = 0, sick = 0, clear = 0, well = 0;
-    S.forEach(function(s){
-      if (!inCohort(s, pct)) return;
-      var saysSick = s.x >= cut;
-      if (s.sick){ sick++; if (saysSick) hit++; } else { well++; if (!saysSick) clear++; }
-    });
-    return { acc:(hit + clear)/(sick + well), hit:hit, sick:sick, clear:clear, well:well };
-  }
-  /* accuracy of both models at every prevalence, for the lower chart, and
-     the highest prevalence at which ignoring the biomarker still wins */
-  var CURVE = { none:[], cut:[] }, cross = 0;
-  for (i=1;i<=50;i++){
-    CURVE.none.push([i, 100*score(i, Infinity).acc]);
-    CURVE.cut.push([i, 100*score(i, CUT).acc]);
-    if (CURVE.none[i-1][1] > CURVE.cut[i-1][1]) cross = i;
-  }
-
-  var model = "none";
-  function cutAt(m){ return m === "cut" ? CUT : XMAX + 0.4; }
-  var cutCur = cutAt(model);
-  var L = layerToggles("balLayers", [
-    {k:"well",  label:"healthy subject", kind:"dot",  col:"--c-test"},
-    {k:"sick",  label:"patient",         kind:"dot",  col:"--c-error"},
-    {k:"wrong", label:"model's mistake", kind:"ring", col:"--ink"}
-  ], function(){ render(); });
-
-  function pct(){ return +el.value; }
-
-  function drawCohort(){
-    p.sync(); p.frame();
-    var ctx = p.ctx, cx = Math.min(p.R, p.x(cutCur));
-    /* what the model says: one tint each side of its cut */
-    ctx.save();
-    ctx.fillStyle = alpha(col("--c-test"), .09); ctx.fillRect(p.L, p.T, cx - p.L, p.B - p.T);
-    if (cx < p.R){ ctx.fillStyle = alpha(col("--c-error"), .09); ctx.fillRect(cx, p.T, p.R - cx, p.B - p.T); }
-    ctx.restore();
-    p.grid([-2,0,2,4], null);
-    p.seg(X0, 0, XMAX, 0, {color: col("--c-axis"), w:1.2});
-    if (cx < p.R - 1){
-      ctx.save(); ctx.strokeStyle = col("--ink-soft"); ctx.lineWidth = 1.8; ctx.setLineDash([5,4]);
-      ctx.beginPath(); ctx.moveTo(cx, p.T); ctx.lineTo(cx, p.B); ctx.stroke(); ctx.restore();
-    }
-    var f = '600 10.5px "IBM Plex Mono", monospace';
-    if (cx >= p.R - 1){
-      p.txt("the model says healthy for everyone", (p.L + p.R)/2, p.T + 14, {align:"center", color: col("--c-test"), font:f});
-    } else {
-      p.txt("says healthy", cx - 8, p.T + 14, {align:"right", color: col("--c-test"),  font:f});
-      p.txt("says patient", cx + 8, p.T + 14, {align:"left",  color: col("--c-error"), font:f});
-    }
-    /* drawn over the dots, so give them a halo in the panel colour */
-    function halo(str, y){
-      ctx.save(); ctx.font = '10.5px "IBM Plex Mono", monospace'; ctx.textBaseline = "alphabetic";
-      ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.strokeStyle = col("--surface-2");
-      ctx.strokeText(str, p.L + 6, y); ctx.fillStyle = col("--ink-soft"); ctx.fillText(str, p.L + 6, y);
-      ctx.restore();
-    }
-
-    var rowPx = Math.abs(p.y(1) - p.y(0)), binPx = Math.abs(p.x(BW) - p.x(0));
-    var R0 = Math.max(1.6, Math.min(rowPx, binPx)/2 - 0.7);
-    S.forEach(function(s){
-      if (s.vis < 0.02 || !L.on(s.sick ? "sick" : "well")) return;
-      var y = s.sick ? -(s.slot + 0.5) : s.slot + 0.5;
-      /* new subjects drop in from a little way off */
-      var dy = (1 - s.vis)*3*(s.sick ? -1 : 1);
-      var pt = [[s.bx, y + dy]], c = col(s.sick ? "--c-error" : "--c-test");
-      p.dots(pt, {r: R0*s.vis, color: alpha(c, .9*s.vis), shape: s.sick ? "triangle" : "circle"});
-      var wrong = s.sick ? s.x < cutCur : s.x >= cutCur;
-      if (wrong && L.on("wrong") && s.vis > 0.5)
-        p.dots(pt, {hollow:true, r: R0 + 1.8, lw:1.2, color: alpha(col("--ink"), .65)});
-    });
-    halo("healthy", p.y(0) - 6);
-    halo("patients", p.y(0) + 14);
-    p.axes({xt:[-2,0,2,4], xlabel:"biomarker level", fmt:function(v){ return v.toFixed(0); }});
-  }
-
-  function line(pts, c, w, a){
-    var ctx = q.ctx;
-    ctx.save(); ctx.strokeStyle = alpha(c, a); ctx.lineWidth = w; ctx.lineJoin = "round";
-    ctx.beginPath();
-    pts.forEach(function(v, k){ if (k) ctx.lineTo(q.x(v[0]), q.y(v[1])); else ctx.moveTo(q.x(v[0]), q.y(v[1])); });
-    ctx.stroke(); ctx.restore();
-  }
-  function drawCurves(){
-    var P = pct(), xt = [0,10,20,30,40,50], yt = [40,60,80,100];
-    q.sync(); q.frame(); q.grid(xt, yt);
-    var cN = col("--c-model"), cC = col("--c-alt");
-    line(CURVE.none, cN, model === "none" ? 2.6 : 1.6, model === "none" ? 1 : .55);
-    line(CURVE.cut,  cC, model === "cut"  ? 2.6 : 1.6, model === "cut"  ? 1 : .55);
-    q.seg(P, 40, P, 100, {color: col("--ink-soft"), w:1.2, dash:[4,4]});
-    q.dots([CURVE.none[P-1]], {r:5, color:cN, ring: col("--surface")});
-    q.dots([CURVE.cut[P-1]],  {r:5, color:cC, ring: col("--surface")});
-    var f = '600 10.5px "IBM Plex Mono", monospace';
-    q.txt("uses the biomarker", q.x(49), q.y(CURVE.cut[49][1]) - 8,  {align:"right", color: cC, font:f});
-    q.txt("always healthy",     q.x(49), q.y(CURVE.none[49][1]) + 16, {align:"right", color: cN, font:f});
-    q.axes({xt:xt, yt:yt, xlabel:"prevalence of disease", ylabel:"accuracy",
-            fmt:function(v){ return v.toFixed(0) + "%"; }});
-  }
-
-  function stats(){
-    var P = pct(), s = score(P, model === "cut" ? CUT : Infinity);
-    lb.textContent = P + "%";
-    $("balAcc").textContent  = (100*s.acc).toFixed(1) + "%";
-    $("balRec").textContent  = s.hit + " of " + s.sick;
-    $("balSpec").textContent = s.clear + " of " + s.well;
-    $("balNote").innerHTML = model === "none"
-      ? "This model never looks at the biomarker. Its accuracy is just the share of healthy subjects, " +
-        (100 - P) + "&#37;, and it finds none of the patients."
-      : "This model says <em>patient</em> above a biomarker level of " + CUT.toFixed(1) +
-        ". Its accuracy barely moves with prevalence, and it finds most of the patients. " +
-        "At " + cross + "&#37; prevalence or less, the always-healthy model beats it on accuracy.";
-  }
-
-  function render(){ drawCohort(); drawCurves(); stats(); }
-
-  /* one animation loop for everything: dots fading in and out, the cut
-     sliding to its new place, and the prevalence stepping down during play */
-  var running = false, playing = false, lastStep = 0;
-  function settle(){
-    var P = pct(), busy = false, t = cutAt(model);
-    S.forEach(function(s){
-      var goal = inCohort(s, P) ? 1 : 0;
-      if (reduced) s.vis = goal;
-      else { s.vis += (goal - s.vis)*0.22; if (Math.abs(goal - s.vis) < 0.01) s.vis = goal; }
-      if (s.vis !== goal) busy = true;
-    });
-    if (reduced) cutCur = t;
-    else { cutCur += (t - cutCur)*0.16; if (Math.abs(t - cutCur) < 0.005) cutCur = t; }
-    return busy || cutCur !== t;
-  }
-  function tick(now){
-    if (playing && now - lastStep > (reduced ? 160 : 90)){
-      lastStep = now;
-      if (pct() > 1) el.value = pct() - 1; else stopPlay();
-    }
-    var busy = settle();
-    render();
-    if (busy || playing) requestAnimationFrame(tick); else running = false;
-  }
-  function kick(){ if (!running){ running = true; requestAnimationFrame(tick); } }
-  function stopPlay(){ playing = false; playBtn.textContent = "play: patients become rare"; }
-
-  el.addEventListener("input", function(){ stopPlay(); kick(); });
-  playBtn.addEventListener("click", function(){
-    if (playing){ stopPlay(); return; }
-    if (pct() <= 1) el.value = 50;
-    playing = true; lastStep = 0; playBtn.textContent = "stop";
-    kick();
-  });
-  var seg = $("balSeg");
-  seg.addEventListener("click", function(e){
-    var b = e.target.closest("button"); if (!b) return;
-    Array.prototype.forEach.call(seg.children, function(c){ c.classList.toggle("on", c === b); });
-    model = b.dataset.v; kick();
-  });
-  /* the lower chart doubles as a slider */
-  var drag = false;
-  function fromPointer(e){
-    var rect = q.el.getBoundingClientRect();
-    var v = Math.round(q.ix(e.clientX - rect.left));
-    el.value = Math.max(1, Math.min(50, v)); stopPlay(); kick();
-  }
-  q.el.style.cursor = "pointer";
-  q.el.style.touchAction = "none";
-  q.el.addEventListener("pointerdown", function(e){ drag = true; q.el.setPointerCapture(e.pointerId); fromPointer(e); });
-  q.el.addEventListener("pointermove", function(e){ if (drag) fromPointer(e); });
-  q.el.addEventListener("pointerup", function(){ drag = false; });
-
-  S.forEach(function(s){ s.vis = inCohort(s, pct()) ? 1 : 0; });
-  reg(render);
 })();
 
 /* first paint after fonts settle */
