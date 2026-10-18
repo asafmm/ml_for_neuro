@@ -727,8 +727,8 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="overD" min="1" max="12" value="1" step="1">
         </div>
         <div class="stats">
-          <div class="stat plain"><span class="k">train MSE<br><span style="color:var(--ink-faint)">how well it fits</span></span><span class="val" id="overTr">&mdash;</span></div>
-          <div class="stat error"><span class="k">test MSE<br><span style="color:var(--ink-faint)">how well it predicts</span></span><span class="val" id="overTe">&mdash;</span></div>
+          <div class="stat plain"><span class="k">train error<br><span style="color:var(--ink-faint)">how well it fits</span></span><span class="val" id="overTr">&mdash;</span></div>
+          <div class="stat error"><span class="k">test error<br><span style="color:var(--ink-faint)">how well it predicts</span></span><span class="val" id="overTe">&mdash;</span></div>
         </div>
         <div class="btnrow">
           <button class="btn" id="overBest">jump to the sweet spot</button>
@@ -1803,8 +1803,8 @@ function toneTrials(n, sg, seed){
     pu.dots([[d, Math.log10(Math.max(1e-6,c.te[d-1]))]], {r:4.5, color: col("--c-error")});
     pu.dots([[d, Math.log10(Math.max(1e-6,c.tr[d-1]))]], {r:4.5, color: col("--ink-faint")});
     pu.axes({xt:[1,2,3,4,5,6,7,8,9,10,11,12], yt:[], xlabel:"polynomial degree", fmt:function(v){return v.toFixed(0);}});
-    pu.txt("test MSE", pu.R-6, pu.T+11, {align:"right", color: col("--c-error"), font:'10px "IBM Plex Mono", monospace'});
-    pu.txt("train MSE", pu.R-6, pu.T+24, {align:"right", color: col("--ink-faint"), font:'10px "IBM Plex Mono", monospace'});
+    pu.txt("test error", pu.R-6, pu.T+11, {align:"right", color: col("--c-error"), font:'10px "IBM Plex Mono", monospace'});
+    pu.txt("train error", pu.R-6, pu.T+24, {align:"right", color: col("--ink-faint"), font:'10px "IBM Plex Mono", monospace'});
     pu.txt("log scale", pu.L+6, pu.T+11, {color: col("--ink-faint"), font:'9.5px "IBM Plex Mono", monospace'});
   }
 

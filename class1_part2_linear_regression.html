@@ -831,8 +831,8 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part2/02-least-squares.html:13">Every residual, and their total</div>
-      <div class="hint" data-ed="part2/02-least-squares.html:14">move the line and watch the dot below</div>
+      <div class="t" data-ed="part2/02-least-squares.html:13">Every residual, and the RSS of every line</div>
+      <div class="hint" data-ed="part2/02-least-squares.html:14">move the line, turn the bowl, or click the map</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -856,34 +856,27 @@ section.tabpanel{padding:2.6rem 0 0}
         <p class="notecap" data-ed="part2/02-least-squares.html:15">The same 20 subjects and the same line as the first tab.</p>
       </div>
     </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-bar">
-      <div class="t" data-ed="part2/02-least-squares.html:16">RSS over every possible line</div>
-      <div class="hint" data-ed="part2/02-least-squares.html:17">turn the bowl, or click the map to move the line</div>
-    </div>
-    <div class="panel-body">
+    <div class="panel-body" style="padding-top:0">
       <div class="panel-duo">
         <div>
           <canvas id="cvSurf" class="cv drag" height="360"></canvas>
-          <p class="notecap" data-ed="part2/02-least-squares.html:18"><b>From the side.</b> Height is RSS. Drag to turn it.</p>
+          <p class="notecap" data-ed="part2/02-least-squares.html:16"><b>From the side.</b> Height is RSS. Drag to turn it.</p>
         </div>
         <div>
           <canvas id="cvMap" class="cv drag" height="360"></canvas>
-          <p class="notecap" data-ed="part2/02-least-squares.html:19"><b>From above.</b> The same bowl as a contour map. Click anywhere to move the line there.</p>
+          <p class="notecap" data-ed="part2/02-least-squares.html:17"><b>From above.</b> The same bowl as a contour map. Click anywhere to move the line there.</p>
         </div>
       </div>
       <div id="surfLayers"></div>
-      <p class="notecap" data-ed="part2/02-least-squares.html:20">Colour bands are evenly spaced in the square root of RSS. Even spacing in RSS itself would put the whole floor of the bowl inside one band, because a paraboloid climbs so steeply.</p>
+      <p class="notecap" data-ed="part2/02-least-squares.html:18">Colour bands are evenly spaced in the square root of RSS. Even spacing in RSS itself would put the whole floor of the bowl inside one band, because a paraboloid climbs so steeply.</p>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part2/02-least-squares.html:21">The dot is our current line and the cross is the least-squares solution, on both views.</p>
-    <p data-ed="part2/02-least-squares.html:22">The surface is a bowl, a paraboloid: the U from before, now in two directions. One bottom, no local minima to get trapped in, no flat plateaus.
+    <p data-ed="part2/02-least-squares.html:19">The dot is our current line and the cross is the least-squares solution, on both views.</p>
+    <p data-ed="part2/02-least-squares.html:20">The surface is a bowl, a paraboloid: the U from before, now in two directions. One bottom, no local minima to get trapped in, no flat plateaus.
       <br>That is a rare luxury, and it is why linear regression has an exact formula while most models in this course have to be searched for numerically.</p>
-    <p data-ed="part2/02-least-squares.html:23">The bowl also sits upright rather than leaning, because <span class="m">x</span> is measured from its own mean. That is the same fact as the pivot in the first tab: with a centred predictor, the best slope does not depend on the intercept.</p>
+    <p data-ed="part2/02-least-squares.html:21">The bowl also sits upright rather than leaning, because <span class="m">x</span> is measured from its own mean. That is the same fact as the pivot in the first tab: with a centred predictor, the best slope does not depend on the intercept.</p>
   </div>
 
 </section>
@@ -1065,7 +1058,6 @@ section.tabpanel{padding:2.6rem 0 0}
         <div class="stats">
           <div class="stat error"><span class="k">RSS, total squared error</span><span class="val" id="mrRSS">&mdash;</span></div>
           <div class="stat model"><span class="k">best possible RSS</span><span class="val" id="mrBest">&mdash;</span></div>
-          <div class="stat test"><span class="k"><span class="m">R</span><sup>2</sup></span><span class="val" id="mrR2">&mdash;</span></div>
         </div>
         <div class="btnrow">
           <button class="btn primary" id="mrFit">fit least squares</button>
@@ -1083,7 +1075,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="warn" data-ed="part2/06-multiple-regression.html:10">
-    <b>Adding a feature can only lower RSS.</b> Even a column of random noise gives the model somewhere to put a little error, so R<sup>2</sup> creeps up every single time. In neuroscience, where <span class="m">p</span> is often larger than <span class="m">n</span>, this stops being a nuisance and becomes the central problem. Next class: what to do about it.
+    <b>Adding a feature can only lower RSS.</b> Even a column of random noise gives the model somewhere to put a little error, so the fit looks a little better every single time. In neuroscience, where <span class="m">p</span> is often larger than <span class="m">n</span>, this stops being a nuisance and becomes the central problem. Next class: what to do about it.
   </div>
 </section>
 
@@ -2805,7 +2797,6 @@ function lsMarker(ctx, x, y, kind, color){
   var l0 = document.getElementById("mrB0v"), l1 = document.getElementById("mrB1v"),
       l2 = document.getElementById("mrB2v");
   var rssEl  = document.getElementById("mrRSS"),  bestEl = document.getElementById("mrBest");
-  var r2El   = document.getElementById("mrR2");
 
   /* the plane the reader controls */
   var B = { b0: 9.0, b1: 1.2, b2: 0.10 };
@@ -2949,7 +2940,6 @@ function lsMarker(ctx, x, y, kind, color){
     var rss = rssWith(B), best = rssWith(BEST);
     rssEl.textContent  = fmt(rss, 1);
     bestEl.textContent = fmt(best, 1);
-    r2El.textContent   = fmt(r2Of(Y, pred), 3);
 
     if (!cvs.style.height) cvs.style.height = "440px";
     var rect = cvs.getBoundingClientRect();
