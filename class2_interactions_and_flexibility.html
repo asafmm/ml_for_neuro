@@ -845,8 +845,7 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s21">
   <div class="shead"><div class="num">03</div><h2 data-ed="part3/03-interaction-with-a-group.html:0">Interaction with a group</h2></div>
   <div class="prose">
-    <p data-ed="part3/03-interaction-with-a-group.html:1">In the previous tab we put the dummy next to age, and got two parallel lines.
-    <br>To let the lines tilt, we add one more column: the product of <span class="m">age</span> and <span class="m">sex</span>.</p>
+    <p data-ed="part3/03-interaction-with-a-group.html:1">In the previous tab we put the dummy next to age, and got two parallel lines, modelling a constant memory gap between the sexes at every age.<br>But, in some cases we may think sex affects memory differently in different ages. In other words, sex may alter the way age affects memory, i.e., changes the <b>slope</b>.<br>&nbsp;To model this, we add one more column: the product of <span class="m">age</span> and <span class="m">sex:</span></p>
   </div>
 
   <div class="eq">
@@ -855,19 +854,19 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part3/03-interaction-with-a-group.html:2">Read model 2 by substituting the two values of <span class="m">sex</span>:</p>
+    <p data-ed="part3/03-interaction-with-a-group.html:2">Model 2 creates two lines, based on the values of <span class="m">sex</span>:</p>
     <ul>
       <li data-ed="part3/03-interaction-with-a-group.html:3">Male, <span class="m">sex</span> = 0: &nbsp;<span class="m">y</span> = <span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>1</sub></span><span class="m">age</span></li>
       <li data-ed="part3/03-interaction-with-a-group.html:4">Female, <span class="m">sex</span> = 1: &nbsp;<span class="m">y</span> = (<span class="m">&beta;<sub>0</sub></span> + <span class="m">&beta;<sub>2</sub></span>) + (<span class="m">&beta;<sub>1</sub></span> + <span class="m">&beta;<sub>3</sub></span>)<span class="m">age</span></li>
     </ul>
-    <p data-ed="part3/03-interaction-with-a-group.html:5"><span class="m">&beta;<sub>2</sub></span> shifts one up or down, and <span class="m">&beta;<sub>3</sub></span> tilts it. 
+    <p data-ed="part3/03-interaction-with-a-group.html:5"><span class="m">β<sub>2</sub></span> shifts one up or down, and <span class="m">β<sub>3</sub></span> tilts the slope of age. 
       <br>That tilt is the <strong>interaction</strong>: the effect of age on memory is not the same in the two groups.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
       <div class="t" data-ed="part3/03-interaction-with-a-group.html:6">Two parallel lines, or two free lines</div>
-      <div class="hint" data-ed="part3/03-interaction-with-a-group.html:7">try your own <span class="m">&beta;<sub>2</sub></span> and <span class="m">&beta;<sub>3</sub></span></div>
+      <div class="hint" data-ed="part3/03-interaction-with-a-group.html:7"></div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -892,8 +891,7 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="ixStats"></div>
         <div class="btnrow"><button class="btn primary" id="ixLs">least squares</button><button class="btn" id="ixNew">new cohort</button></div>
-        <p class="notecap" data-ed="part3/03-interaction-with-a-group.html:8">The truth is fixed: female subjects score 2 points higher at the mean age, and lose 0.30 points a year more than male subjects.
-          <br>Drag <span class="m">&beta;<sub>3</sub></span> to 0 and the lines are forced parallel again. The MSE rises, because the true slopes really do differ.</p>
+        <p class="notecap" data-ed="part3/03-interaction-with-a-group.html:8">The truth is fixed: female subjects score 2 points higher at the mean age, and lose 0.30 points a year more than male subjects.</p>
       </div>
     </div>
   </div>
@@ -913,7 +911,7 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s22">
   <div class="shead"><div class="num">04</div><h2 data-ed="part3/04-two-continuous.html:0">Two continuous predictors</h2></div>
   <div class="prose">
-    <p data-ed="part3/04-two-continuous.html:1">Not only categorical variables can interact. Multiply two continuous predictors together and the same thing happens, only now the moderator varies smoothly instead of switching between two values.</p>
+    <p data-ed="part3/04-two-continuous.html:1">Not only categorical variables can interact.&nbsp;<br>If we believe two continuous predictors affect each other's effects, we can create an interaction term between them.<br>Multiply two continuous predictors, and now the moderator varies smoothly/continuously instead of switching between two values.</p>
   </div>
 
   <div class="eq">
@@ -924,7 +922,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part3/04-two-continuous.html:2">The trick from the previous tab still works. Collect the <span class="m">sleep</span> terms together:</p>
+    <p data-ed="part3/04-two-continuous.html:2">The idea from the previous tab still works: collect the <span class="m">sleep</span> terms together:</p>
   </div>
 
   <div class="eq">
@@ -933,8 +931,8 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part3/04-two-continuous.html:3">Read it as a line in <span class="m">sleep</span> whose slope is itself a straight-line function of <span class="m">age</span>.
-      <br>Every value of <span class="m">age</span> gives a different line, so instead of two lines we get a whole family of them. With <span class="m">&beta;<sub>3</sub></span> = 0 the family is parallel. Turn <span class="m">&beta;<sub>3</sub></span> up and it fans out.</p>
+    <p data-ed="part3/04-two-continuous.html:3">You can read this as: memory is a line dependent on&nbsp;<span class="m">sleep,&nbsp;</span>and the line's slope is itself a function of <span class="m">age <span style="font-style: normal;">(but still a straight-line)</span></span>.
+      <br>In other words, every value of <span class="m">age</span> gives a different line (different intercept and different slope), so instead of two lines we get a whole family of them. With <span class="m">β<sub>3</sub></span> = 0 the family is parallel. If we change <span class="m">β<sub>3</sub></span>&nbsp;it fans in/out.</p>
     <p data-ed="part3/04-two-continuous.html:4">Below, sleep predicts a memory score, and age is the moderator: an interaction means a night of sleep is worth more to some ages than to others.</p>
   </div>
 
@@ -974,7 +972,7 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s26">
   <div class="shead"><div class="num">05</div><h2 data-ed="part3/05-nonlinear.html:0">Complex relationships in linear models</h2></div>
   <div class="prose">
-    <p data-ed="part3/05-nonlinear.html:1">Despite what their name suggests, linear models also allow us capture non-linear relationships.</p>
+    <p data-ed="part3/05-nonlinear.html:1">Linear models are linear in respect to their predictors. But this doesn't mean they cannot capture the relationship between y and x^2, for example.</p>
     <p data-ed="part3/05-nonlinear.html:2">For example, we can square a predictor and use it as a column of its own:</p>
   </div>
 
@@ -1011,12 +1009,11 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
-  <div class="key">
-    <div class="lbl" data-ed="part3/05-nonlinear.html:8">Key idea</div>
-    <p data-ed="part3/05-nonlinear.html:9">Going from a line to a parabola more than doubles R<sup>2</sup> here, and it is the only jump that matters: degrees 3, 4 and 5 barely move it. One well-chosen column bought the whole improvement.</p>
+  <div class="prose">
+    <p data-ed="part3/05-nonlinear.html:8">Going from a line to a parabola more than doubles <span class="m">R</span><sup>2</sup> here, and it is the only jump that really matters: degrees 3, 4 and 5 barely move it.</p>
   </div>
 
-  <div class="warn" data-ed="part3/05-nonlinear.html:10">
+  <div class="warn" data-ed="part3/05-nonlinear.html:9">
     <b>Read the coefficients with care.</b> With <span class="m">x</span> and <span class="m">x</span><sup>2</sup> both in the model, <span class="m">&beta;<sub>1</sub></span> is no longer &ldquo;the effect of age&rdquo;. The effect of one more year is <span class="m">&beta;<sub>1</sub></span> + 2<span class="m">&beta;<sub>2</sub></span><span class="m">x</span> (the derivative w.r.t <span class="m">x</span>), so it depends on how old you already are. That is the same thing an interaction does, with <span class="m">x</span> moderating itself.
   </div>
 </section>
@@ -1076,14 +1073,14 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="key">
     <div class="lbl" data-ed="part3/06-knn-regression.html:8">Key idea</div>
-    <p data-ed="part3/06-knn-regression.html:9">When the truth really is a line, linear regression is better and no value of <span class="m">K</span> catches it. When the truth is a curve, the linear assumption doesn't hold and KNN performs better.</p>
+    <p data-ed="part3/06-knn-regression.html:9">When the truth really is a line, linear regression is better and no value of <span class="m">K</span> compares to it. When the truth is a curve, the linear assumption doesn't hold and KNN performs better.</p>
   </div>
 
 
   <div class="prose">
     <h3 data-ed="part3/06-knn-regression.html:10">What a neighbourhood actually looks like</h3>
-    <p data-ed="part3/06-knn-regression.html:11">With one predictor the neighbours are just the points to the left and right, but usually we have more than one predictor. 
-    <br>With two predictors, a neighbourhood is a circle/disc, and the prediction is the average <span class="m">y</span> of whatever falls inside it.</p>
+    <p data-ed="part3/06-knn-regression.html:11">With one predictor the neighbours are just the points to the left and right (one dimension), but usually we have more than one predictor. 
+    <br>With two predictors, a neighbourhood is a circle/disc (2D), and the prediction is the average <span class="m">y</span> of whatever falls inside it.</p>
     <p data-ed="part3/06-knn-regression.html:12">Click anywhere in the panel to move the query point.</p>
   </div>
 
@@ -1104,8 +1101,8 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="nbKs" min="1" max="30" value="8" step="1">
         </div>
         <div class="stats" id="nbrStats"></div>
-        <p class="notecap" data-ed="part3/06-knn-regression.html:15">Colour is the outcome <span class="m">y</span>: pale for low, dark for high, on the scale beside the plot. The arrow on that scale is the current prediction.
-          <br>Switch on the prediction surface to see what the model says <em>everywhere</em>, not just where you clicked. At <span class="m">K</span> = 1 it breaks into flat tiles, one per training point, and raising <span class="m">K</span> blurs them together.</p>
+        <p class="notecap" data-ed="part3/06-knn-regression.html:15">Colour is the outcome <span class="m">y</span>: pale for low, dark for high. The arrow on the scale is the current prediction.
+          <br>Switch on the prediction surface to see what the model says <em>everywhere</em>, not just where you clicked. At <span class="m">K</span> = 1 it breaks into defined small tiles, one per training point, and raising <span class="m">K</span> blurs these tiles.</p>
       </div>
     </div>
   </div>
@@ -1140,7 +1137,7 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="key">
     <div class="lbl" data-ed="part3/06-knn-regression.html:20">Key idea</div>
-    <p data-ed="part3/06-knn-regression.html:21">KNN has no equation and no coefficients. Its prediction surface is built entirely out of the training points, which is why it can follow any shape, and why it has nothing to say about a region where no data landed.</p>
+    <p data-ed="part3/06-knn-regression.html:21">KNN has no equation and no coefficients. Its prediction surface is built entirely out of the training points, which is why it can follow any shape, and why it has no way to extrapolate to a region with no data.</p>
   </div>
 
 </section>
@@ -1216,9 +1213,8 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s29">
   <div class="shead"><div class="num">08</div><h2 data-ed="part3/08-under-and-overfitting.html:0">Underfitting and overfitting</h2></div>
   <div class="prose">
-    <p data-ed="part3/08-under-and-overfitting.html:1">Every flexible model so far came with a knob: the polynomial degree when we added powers of <span class="m">x</span>, and <span class="m">K</span> in KNN.
-      <br>Turn the knob one way and the model gets stiffer. Turn it the other way and it can bend more.
-      <br>So how much flexibility should we use?</p>
+    <p data-ed="part3/08-under-and-overfitting.html:1">Every model so far came with a flexibility parameter: in linear regression - adding powers of <span class="m">x</span>, and in KNN - decreasing&nbsp;<span class="m">K</span>.
+      <br>If we decrease the model's flexibility, it is rigid, and if we increase it the model can bend more easily.<br>So how much flexibility should we use?<br><br>There are two important terms to introduce here:</p>
     <ul>
       <li data-ed="part3/08-under-and-overfitting.html:2"><strong>Underfitting.</strong> Too little flexibility, and the model cannot follow the shape of the data. It misses on the training set and on the test set alike.</li>
       <li data-ed="part3/08-under-and-overfitting.html:3"><strong>Overfitting.</strong> Too much flexibility, and the model starts following the noise of this particular sample. Train error keeps falling, but test error climbs back up.</li>
@@ -1256,10 +1252,9 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part3/08-under-and-overfitting.html:8">The test MSE traces a <strong>U</strong>.
-      <br>On the left side we underfit: more flexibility helps, and both errors fall together.
-      <br>On the right side we overfit: train error keeps falling, but test error rises.
-      <br>The bottom of the U is the flexibility that predicts best.</p>
+    <p data-ed="part3/08-under-and-overfitting.html:8">The test MSE traces a <strong>U </strong><b>shape</b>.
+      <br>On the left side we underfit: the model is too rigid/stiff, and doesn't learn the relationship shown in the training set. More flexibility helps, and both errors fall together.
+      <br>On the right side we overfit: train error keeps falling, but test error rises. Too much flexibility makes the model learn the noise in the training set, which does not generalize to the test set.<br>The bottom of the U is the flexibility that predicts best.</p>
     <p data-ed="part3/08-under-and-overfitting.html:9">Why does test error turn back up? The next tab splits it into two parts.</p>
   </div>
 
@@ -1274,7 +1269,7 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">09</div><h2 data-ed="part3/09-bias-variance.html:0">Bias and variance</h2></div>
   <div class="prose">
     <p data-ed="part3/09-bias-variance.html:1">As a model gets more flexible, it can fit the data better, but it does not mean it will predict well on new data.</p>
-    <p data-ed="part3/09-bias-variance.html:2">Imagine repeating the whole study many times: the same population, the same design, but a fresh sample each time. Every sample gives a slightly different fitted model. Two separate things can go wrong:</p>
+    <p data-ed="part3/09-bias-variance.html:2">Imagine repeating the whole study many times: the same population, the same design, but a new sample each time. Every sample gives a slightly different fitted model. Two separate things can go wrong:</p>
     <ul>
       <li data-ed="part3/09-bias-variance.html:3"><strong>Bias</strong> is how far the <em>average</em> of those fits sits from the truth. It is the error the model makes by being the wrong shape (i.e., linear when it should be quadratic), and more data will not remove it.</li>
       <li data-ed="part3/09-bias-variance.html:4"><strong>Variance</strong> is how much the fits differ from each other given different samples (i.e., how much the model fit reacts to noise in the data).</li>
@@ -1307,8 +1302,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="bvN" min="25" max="120" value="40" step="1">
         </div>
         <div class="stats" id="bvStats"></div>
-        <p class="notecap" data-ed="part3/09-bias-variance.html:9">Measured at 40 held-out subjects. Train MSE is the error on a sample&rsquo;s own points: the only one of the six you could compute in a real study.
-          <br>The points are one cohort: what a single study actually has to work with.</p>
+        <p class="notecap" data-ed="part3/09-bias-variance.html:9"></p>
       </div>
     </div>
   </div>
@@ -1325,8 +1319,8 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part3/09-bias-variance.html:11">Three terms, and only the first two are ours to trade. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
-    <p data-ed="part3/09-bias-variance.html:12">The two we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
+    <p data-ed="part3/09-bias-variance.html:11">Three terms, but we can only control the first two. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
+    <p data-ed="part3/09-bias-variance.html:12">The two terms we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
   </div>
 
   <div class="panel">
@@ -1342,19 +1336,17 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <p class="notecap" data-ed="part3/09-bias-variance.html:16">More subjects lower variance at every degree, so the sweet spot moves right.
-          <br>Switch on the summed curve: it lands on the measured test MSE, to within Monte Carlo error.</p>
+          <br>Switch on the summed curve: it lands on the measured test MSE.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
     <div class="lbl" data-ed="part3/09-bias-variance.html:17">Key idea</div>
-    <p data-ed="part3/09-bias-variance.html:18">A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost you, and the cost is measured on data the model has not seen.</p>
+    <p data-ed="part3/09-bias-variance.html:18">A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost errors, and the cost is measured on data the model has not seen.</p>
   </div>
 
-  <div class="warn" data-ed="part3/09-bias-variance.html:19">
-    <b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many samples, and in a real study you have neither. You have one sample and the train MSE, which is the blue curve here: it falls forever and would talk you into the most flexible model on offer. A test set is what stands in for the red curve.
-  </div>
+  <div class="warn" data-ed="part3/09-bias-variance.html:19"><b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many samples, and in a real study we do not have this. You have one sample and the train MSE, which is the blue curve here: it falls forever and would talk you into the most flexible model on offer. A test set is what can create the red curve. The bias-variance trade-off is something we need to keep in mind when comparing and choosing between models.</div>
 </section>
 
 <!-- ==================== 25 ==================== -->
@@ -2718,8 +2710,7 @@ var FAN = { b0:50, b1:2.0, b2:-0.25, b3:0 };
   var L = layerToggles("wageLayers", [
     {k:"pts",  label:"3000 workers",       kind:"dot",  col:"--c-data"},
     {k:"fit",  label:"fitted curve",       kind:"ln",   col:"--c-model"},
-    {k:"line", label:"straight line",      kind:"dash", col:"--c-test"},
-    {k:"hi",   label:"earning over 250",   kind:"dot",  col:"--c-error"}
+    {k:"line", label:"straight line",      kind:"dash", col:"--c-test"}
   ], function(){ draw(); });
 
   /* age scaled to -1..1 keeps the powers well conditioned at degree 6 */
@@ -2760,16 +2751,14 @@ var FAN = { b0:50, b1:2.0, b2:-0.25, b3:0 };
     p.grid(xt, yt);
 
     if (L.on("pts")){
-      var lowPts = [], hiPts = [];
+      var pts = [];
       for (var i=0;i<AGE.length;i++){
         /* a little horizontal jitter: ages are whole years, so the raw scatter
            stacks into vertical stripes and hides the density */
         var jx = AGE[i] + ((i*2654435761 % 1000)/1000 - 0.5) * 0.8;
-        (PAY[i] > 250 ? hiPts : lowPts).push([jx, PAY[i]]);
+        pts.push([jx, PAY[i]]);
       }
-      p.dots(lowPts, {r:1.7, color: alpha(col("--c-data"), .40)});
-      if (L.on("hi")) p.dots(hiPts, {r:2.2, color: alpha(col("--c-error"), .7)});
-      else            p.dots(hiPts, {r:1.7, color: alpha(col("--c-data"), .40)});
+      p.dots(pts, {r:1.7, color: alpha(col("--c-data"), .40)});
     }
     if (L.on("line") && d > 1) p.fnline(LIN.f, {color: col("--c-test"), w:1.8, dash:[6,5]});
     if (L.on("fit"))  p.fnline(F.f, {color: col("--c-model"), w:3, n:300});
@@ -3673,7 +3662,7 @@ var KNN2D = (function(){
     {k:"mean",  label:"average fit",          kind:"ln",   col:"--c-error"},
     {k:"truth", label:"true f",               kind:"dash", col:"--ink-faint", on:false},
     {k:"train", label:"one cohort's points",  kind:"dot",  col:"--c-data"},
-    {k:"test",  label:"held-out subjects",    kind:"ring", col:"--c-test",  on:false}
+    {k:"test",  label:"held-out subjects",    kind:"dot",  col:"--c-test",  on:false}
   ], function(){ draw(); });
   var Lc = layerToggles("bvcLayers", [
     {k:"bias",  label:"bias&sup2;",          kind:"ln",   col:"--c-test"},
@@ -3816,7 +3805,7 @@ var KNN2D = (function(){
     }
     if (L.on("test")){
       p.dots(TEST.x.map(function(v,i){ return [v, TEST.y[i]]; }),
-             {hollow:true, r:2.6, color: alpha(col("--c-test"), .45), lw:1.1});
+             {r:4, color: alpha(col("--c-test"), .85), ring: col("--surface")});
     }
     if (L.on("train")){
       var c0 = makeCohorts(n)[0];
