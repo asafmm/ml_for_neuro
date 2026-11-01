@@ -53,7 +53,7 @@ h3.clsx{
 /* the standings */
 .board{
   background:var(--surface);border:1px solid var(--hairline);border-left:3px solid var(--c-model);
-  border-radius:0 9px 9px 0;overflow:hidden;
+  border-radius:0 9px 9px 0;overflow-x:auto;
 }
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 th{
@@ -65,8 +65,9 @@ th .m{font-size:.8rem;letter-spacing:0;text-transform:none}
 td{padding:.75rem .9rem;border-bottom:1px solid var(--hairline);vertical-align:middle}
 tr:last-child td{border-bottom:0}
 th.num,td.num{text-align:right}
+th.r2{text-align:center}        /* a short heading, centred over its numbers */
 td.rk{font-family:var(--mono);font-size:.85rem;color:var(--ink-faint);width:3rem}
-td.tm{font-weight:500}
+td.tm{font-weight:500;white-space:nowrap}
 td.num{font-family:var(--mono);font-size:.92rem}
 td.wk{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);white-space:nowrap}
 
@@ -79,6 +80,7 @@ td .tag{margin-left:.6rem;white-space:nowrap}
   border-radius:4px;padding:0 .35rem;vertical-align:.12em;
 }
 .later{color:var(--ink-faint)}
+.show-sm{display:none}
 
 /* the rules */
 .rules{
@@ -101,9 +103,21 @@ footer{
 }
 footer a{color:var(--c-model);text-decoration:none}
 @media (max-width:640px){
-  .stats{grid-template-columns:1fr}
-  th,td{padding-left:.55rem;padding-right:.55rem}
+  body{padding:2rem 1rem}
+  /* the three numbers become compact rows: label on the left, value on the right */
+  .stats{grid-template-columns:1fr;gap:.5rem;margin-top:1.4rem}
+  .stat{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:1rem;padding:.65rem .95rem}
+  .stat .val{grid-column:2;grid-row:1 / span 2;margin:0;font-size:1.35rem}
+  .stat .sub{grid-column:1}
+  h3.clsx{margin-top:2rem}
+  th,td{padding-left:.45rem;padding-right:.45rem}
+  td.rk{width:auto}
+  td.tm{font-size:.92rem}
+  td.num{font-size:.85rem}
+  td .tag{font-size:.55rem;letter-spacing:.06em;margin-left:.35rem;padding:0 .25rem}
+  th.r2,td.r2{padding-right:.75rem}
   .hide-sm{display:none}
+  .show-sm{display:inline}
 }
 </style>
 
@@ -124,16 +138,16 @@ footer a{color:var(--c-model);text-decoration:none}
   <div class="board">
     <table>
       <tr>
-        <th>Rank</th>
+        <th><span class="hide-sm">Rank</span><span class="show-sm">#</span></th>
         <th>Team</th>
-        <th class="num">Test MSE</th>
+        <th class="num"><span class="hide-sm">Test </span>MSE</th>
         <th class="num hide-sm">RMSE</th>
-        <th class="num"><span class="m">R</span><sup>2</sup></th>
+        <th class="num r2"><span class="m">R</span><sup>2</sup></th>
         <th class="hide-sm">Scored</th>
         <th class="num hide-sm">This week</th>
       </tr>
-      <tr class="first"><td class="rk">1</td><td class="tm">The BOLD Moves<span class="tag">reference</span></td><td class="num">199.14</td><td class="num hide-sm">14.112</td><td class="num">0.098</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
-      <tr><td class="rk">2</td><td class="tm">Training-Mean Girls<span class="tag">reference</span></td><td class="num">229.44</td><td class="num hide-sm">15.147</td><td class="num">-0.039</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
+      <tr class="first"><td class="rk">1</td><td class="tm">The BOLD Moves<span class="tag"><span class="hide-sm">reference</span><span class="show-sm">ref</span></span></td><td class="num">199.14</td><td class="num hide-sm">14.112</td><td class="num r2">0.098</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
+      <tr><td class="rk">2</td><td class="tm">Training-Mean Girls<span class="tag"><span class="hide-sm">reference</span><span class="show-sm">ref</span></span></td><td class="num">229.44</td><td class="num hide-sm">15.147</td><td class="num r2">-0.039</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
     </table>
   </div>
 
