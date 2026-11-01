@@ -104,12 +104,18 @@ footer{
 footer a{color:var(--c-model);text-decoration:none}
 @media (max-width:640px){
   body{padding:2rem 1rem}
-  /* the three numbers become compact rows: label on the left, value on the right */
-  .stats{grid-template-columns:1fr;gap:.5rem;margin-top:1.4rem}
-  .stat{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:1rem;padding:.65rem .95rem}
-  .stat .val{grid-column:2;grid-row:1 / span 2;margin:0;font-size:1.35rem}
-  .stat .sub{grid-column:1}
+  /* the standings come first, then the three numbers as small tiles */
+  .wrap{display:flex;flex-direction:column}
+  .wrap > *{order:3}
+  .kicker,.wrap > h1,.prose:not(.rules){order:0}
+  .standings{order:1}
+  .stats{order:2;gap:.45rem;margin-top:.9rem}
+  .stat{padding:.5rem .6rem .55rem;border-radius:7px;min-width:0}
+  .stat .lbl{font-size:.52rem;letter-spacing:.08em}
+  .stat .val{font-size:.98rem;margin-top:.1rem;white-space:nowrap}
+  .stat .sub{font-size:.66rem;line-height:1.35}
   h3.clsx{margin-top:2rem}
+  .standings h3.clsx{margin-top:1.6rem}
   th,td{padding-left:.45rem;padding-right:.45rem}
   td.rk{width:auto}
   td.tm{font-size:.92rem}
@@ -134,6 +140,7 @@ footer a{color:var(--c-model);text-decoration:none}
     <div class="stat"><div class="lbl">Last scored</div><div class="val">not yet</div><div class="sub">deadline: Saturday, 23:59</div></div>
   </div>
 
+  <div class="standings">
   <h3 class="clsx">Standings &middot; each team's best week</h3>
   <div class="board">
     <table>
@@ -149,6 +156,7 @@ footer a{color:var(--c-model);text-decoration:none}
       <tr class="first"><td class="rk">1</td><td class="tm">The BOLD Moves<span class="tag"><span class="hide-sm">reference</span><span class="show-sm">ref</span></span></td><td class="num">199.14</td><td class="num hide-sm">14.112</td><td class="num r2">0.098</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
       <tr><td class="rk">2</td><td class="tm">Training-Mean Girls<span class="tag"><span class="hide-sm">reference</span><span class="show-sm">ref</span></span></td><td class="num">229.44</td><td class="num hide-sm">15.147</td><td class="num r2">-0.039</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
     </table>
+  </div>
   </div>
 
   <h3 class="clsx">How it is scored</h3>
