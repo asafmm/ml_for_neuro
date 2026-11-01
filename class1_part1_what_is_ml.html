@@ -27,6 +27,12 @@
   --c-error-wash:rgba(184,54,90,.16);
   --c-test:#0E7C7B;
   --c-test-wash:rgba(14,124,123,.14);
+  /* class 4's validation set: a light green fill that never reads as the
+     blue training set, a deeper green for its outlines and lines, and the
+     deepest for its text */
+  --c-val:#72D293;
+  --c-val-line:#2B9A56;
+  --c-val-ink:#1D7A42;
   --c-data:#3A3452;
   --c-alt:#3E63A8;
   --c-seq-lo:#F2CDAC;
@@ -56,6 +62,9 @@
   --c-error-wash:rgba(234,106,130,.18);
   --c-test:#3EB8B2;
   --c-test-wash:rgba(62,184,178,.16);
+  --c-val:#9BE8B4;
+  --c-val-line:#5CCB86;
+  --c-val-ink:#8BE3AA;
   --c-data:#C3BCD8;
   --c-alt:#89A9E8;
   --c-seq-lo:#553318;
@@ -165,6 +174,7 @@ section:first-of-type{padding-top:2.6rem}
 .prose p{margin:0 0 1rem}
 .prose p:last-child{margin-bottom:0}
 .prose ul{margin:0 0 1rem;padding-left:1.15rem}
+.prose ol{margin:0 0 1rem;padding-left:1.4rem}
 .prose li{margin:0 0 .35rem}
 .prose strong{font-weight:600}
 .prose h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin:2rem 0 .55rem;letter-spacing:-.005em}
@@ -239,6 +249,7 @@ input[type=range]::-moz-range-thumb{
 .btn:hover{border-color:var(--c-model);color:var(--c-model)}
 .btn.primary{background:var(--c-model);color:#fff;border-color:var(--c-model)}
 .btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btn:disabled{opacity:.4;cursor:default;pointer-events:none}
 .btnrow{display:flex;gap:.45rem;flex-wrap:wrap}
 .chk{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);cursor:pointer}
 .chk input{accent-color:var(--c-model);width:14px;height:14px;cursor:pointer}
@@ -263,6 +274,7 @@ input[type=range]::-moz-range-thumb{
 .stat.error{border-left-color:var(--c-error)} .stat.error .val{color:var(--c-error)}
 .stat.test{border-left-color:var(--c-test)}  .stat.test .val{color:var(--c-test)}
 .stat.alt{border-left-color:var(--c-alt)}  .stat.alt .val{color:var(--c-alt)}
+.stat.valid{border-left-color:var(--c-val-line)} .stat.valid .val{color:var(--c-val-ink)}
 .stat.plain .val{color:var(--ink)}
 
 .legend{display:flex;flex-wrap:wrap;gap:.35rem .95rem;font-family:var(--mono);font-size:.68rem;color:var(--ink-soft)}
@@ -1323,7 +1335,8 @@ function mk3d(id, height){
 
 /* ---------- layer toggles ----------
    layerToggles("hostId", [{k,label,kind,col,on}], redraw)
-   kind: "dot" | "ring" | "ln" | "dash"   col: a CSS custom property name.
+   kind: "dot" | "tri" | "ring" | "ln" | "dash"   col: a CSS custom property name.
+   ring (optional): a second property that outlines a "dot" or "tri" swatch.
    Returns { on(key) } so a draw function can ask what to render. */
 function layerToggles(hostId, spec, onChange){
   var host = document.getElementById(hostId);
@@ -1337,9 +1350,17 @@ function layerToggles(hostId, spec, onChange){
     var style = (kind === "ln" || kind === "dash") ? "border-top-color:" + v
               : (kind === "ring") ? "border-color:" + v
               : "background:" + v;
+    /* s.ring outlines a light marker in a deeper colour, as the plot does.
+       The triangle swatch is cut out by clip-path, which would cut the
+       outline off too, so an outlined triangle is drawn as a tiny SVG. */
+    var sw = '<i class="sw ' + kind + '" style="' + style +
+             (s.ring && kind === "dot" ? ";box-shadow:inset 0 0 0 1.5px var(" + s.ring + ")" : "") + '"></i>';
+    if (s.ring && kind === "tri")
+      sw = '<svg width="13" height="12" viewBox="0 0 13 12" aria-hidden="true" style="flex:none">' +
+           '<polygon points="6.5,1.2 12,11 1,11" style="fill:' + v + ';stroke:var(' + s.ring +
+           ');stroke-width:1.4;stroke-linejoin:round"/></svg>';
     return '<label class="lay"><input type="checkbox" data-k="' + s.k + '"' +
-           (s.on !== false ? " checked" : "") +
-           '><i class="sw ' + kind + '" style="' + style + '"></i>' + s.label + "</label>";
+           (s.on !== false ? " checked" : "") + '>' + sw + s.label + "</label>";
   }).join("");
   host.addEventListener("change", function(e){
     var t = e.target;

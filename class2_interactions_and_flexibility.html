@@ -27,6 +27,12 @@
   --c-error-wash:rgba(184,54,90,.16);
   --c-test:#0E7C7B;
   --c-test-wash:rgba(14,124,123,.14);
+  /* class 4's validation set: a light green fill that never reads as the
+     blue training set, a deeper green for its outlines and lines, and the
+     deepest for its text */
+  --c-val:#72D293;
+  --c-val-line:#2B9A56;
+  --c-val-ink:#1D7A42;
   --c-data:#3A3452;
   --c-alt:#3E63A8;
   --c-seq-lo:#F2CDAC;
@@ -56,6 +62,9 @@
   --c-error-wash:rgba(234,106,130,.18);
   --c-test:#3EB8B2;
   --c-test-wash:rgba(62,184,178,.16);
+  --c-val:#9BE8B4;
+  --c-val-line:#5CCB86;
+  --c-val-ink:#8BE3AA;
   --c-data:#C3BCD8;
   --c-alt:#89A9E8;
   --c-seq-lo:#553318;
@@ -165,6 +174,7 @@ section:first-of-type{padding-top:2.6rem}
 .prose p{margin:0 0 1rem}
 .prose p:last-child{margin-bottom:0}
 .prose ul{margin:0 0 1rem;padding-left:1.15rem}
+.prose ol{margin:0 0 1rem;padding-left:1.4rem}
 .prose li{margin:0 0 .35rem}
 .prose strong{font-weight:600}
 .prose h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin:2rem 0 .55rem;letter-spacing:-.005em}
@@ -239,6 +249,7 @@ input[type=range]::-moz-range-thumb{
 .btn:hover{border-color:var(--c-model);color:var(--c-model)}
 .btn.primary{background:var(--c-model);color:#fff;border-color:var(--c-model)}
 .btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btn:disabled{opacity:.4;cursor:default;pointer-events:none}
 .btnrow{display:flex;gap:.45rem;flex-wrap:wrap}
 .chk{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;color:var(--ink-soft);cursor:pointer}
 .chk input{accent-color:var(--c-model);width:14px;height:14px;cursor:pointer}
@@ -263,6 +274,7 @@ input[type=range]::-moz-range-thumb{
 .stat.error{border-left-color:var(--c-error)} .stat.error .val{color:var(--c-error)}
 .stat.test{border-left-color:var(--c-test)}  .stat.test .val{color:var(--c-test)}
 .stat.alt{border-left-color:var(--c-alt)}  .stat.alt .val{color:var(--c-alt)}
+.stat.valid{border-left-color:var(--c-val-line)} .stat.valid .val{color:var(--c-val-ink)}
 .stat.plain .val{color:var(--ink)}
 
 .legend{display:flex;flex-wrap:wrap;gap:.35rem .95rem;font-family:var(--mono);font-size:.68rem;color:var(--ink-soft)}
@@ -1302,13 +1314,12 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="bvN" min="25" max="120" value="40" step="1">
         </div>
         <div class="stats" id="bvStats"></div>
-        <p class="notecap" data-ed="part3/09-bias-variance.html:9"></p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part3/09-bias-variance.html:10">But why does the test error boosts up and the train goes down? That's the bias-variance tradeoff.</p>
+    <p data-ed="part3/09-bias-variance.html:9">But why does the test error go up and the train go down? That's the bias-variance trade-off.</p>
   </div>
 
   <div class="eq">
@@ -1319,34 +1330,34 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part3/09-bias-variance.html:11">Three terms, but we can only control the first two. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
-    <p data-ed="part3/09-bias-variance.html:12">The two terms we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
+    <p data-ed="part3/09-bias-variance.html:10">Three terms, but we can only control the first two. The third is the irreducible noise from class 1: the part of <span class="m">y</span> that no model, however good, can recover.</p>
+    <p data-ed="part3/09-bias-variance.html:11">The two terms we control move in opposite directions: flexibility buys lower bias at the price of higher variance. The best model is not the one with the least bias, nor the one with the least variance, but the one whose <em>sum</em> is smallest.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part3/09-bias-variance.html:13">The trade, drawn out</div>
-      <div class="hint" data-ed="part3/09-bias-variance.html:14">the dashed line marks your current degree</div>
+      <div class="t" data-ed="part3/09-bias-variance.html:12">The trade, drawn out</div>
+      <div class="hint" data-ed="part3/09-bias-variance.html:13">the dashed line marks your current degree</div>
     </div>
     <div class="panel-body panel-split">
       <div>
         <canvas id="cvBVcurve" class="cv" height="300"></canvas>
         <div id="bvcLayers"></div>
-        <p class="notecap" data-ed="part3/09-bias-variance.html:15">Bias falls, variance rises, their sum is U-shaped. Log scale: equal distances are equal ratios.</p>
+        <p class="notecap" data-ed="part3/09-bias-variance.html:14">Bias falls, variance rises, their sum is U-shaped. Log scale: equal distances are equal ratios.</p>
       </div>
       <div class="ctl">
-        <p class="notecap" data-ed="part3/09-bias-variance.html:16">More subjects lower variance at every degree, so the sweet spot moves right.
+        <p class="notecap" data-ed="part3/09-bias-variance.html:15">More subjects lower variance at every degree, so the sweet spot moves right.
           <br>Switch on the summed curve: it lands on the measured test MSE.</p>
       </div>
     </div>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part3/09-bias-variance.html:17">Key idea</div>
-    <p data-ed="part3/09-bias-variance.html:18">A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost errors, and the cost is measured on data the model has not seen.</p>
+    <div class="lbl" data-ed="part3/09-bias-variance.html:16">Key idea</div>
+    <p data-ed="part3/09-bias-variance.html:17">A model that is too simple is wrong the same way every time. A model that is too flexible is wrong a different way every time. Both cost errors, and the cost is measured on data the model has not seen.</p>
   </div>
 
-  <div class="warn" data-ed="part3/09-bias-variance.html:19"><b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many samples, and in a real study we do not have this. You have one sample and the train MSE, which is the blue curve here: it falls forever and would talk you into the most flexible model on offer. A test set is what can create the red curve. The bias-variance trade-off is something we need to keep in mind when comparing and choosing between models.</div>
+  <div class="warn" data-ed="part3/09-bias-variance.html:18"><b>You cannot compute this on real data.</b> Bias needs the truth and variance needs many samples, and in a real study we do not have this. You have one sample and the train MSE, which is the blue curve here: it falls forever and would talk you into the most flexible model on offer. A test set is what can create the red curve. The bias-variance trade-off is something we need to keep in mind when comparing and choosing between models.</div>
 </section>
 
 <!-- ==================== 25 ==================== -->
@@ -1850,7 +1861,8 @@ function mk3d(id, height){
 
 /* ---------- layer toggles ----------
    layerToggles("hostId", [{k,label,kind,col,on}], redraw)
-   kind: "dot" | "ring" | "ln" | "dash"   col: a CSS custom property name.
+   kind: "dot" | "tri" | "ring" | "ln" | "dash"   col: a CSS custom property name.
+   ring (optional): a second property that outlines a "dot" or "tri" swatch.
    Returns { on(key) } so a draw function can ask what to render. */
 function layerToggles(hostId, spec, onChange){
   var host = document.getElementById(hostId);
@@ -1864,9 +1876,17 @@ function layerToggles(hostId, spec, onChange){
     var style = (kind === "ln" || kind === "dash") ? "border-top-color:" + v
               : (kind === "ring") ? "border-color:" + v
               : "background:" + v;
+    /* s.ring outlines a light marker in a deeper colour, as the plot does.
+       The triangle swatch is cut out by clip-path, which would cut the
+       outline off too, so an outlined triangle is drawn as a tiny SVG. */
+    var sw = '<i class="sw ' + kind + '" style="' + style +
+             (s.ring && kind === "dot" ? ";box-shadow:inset 0 0 0 1.5px var(" + s.ring + ")" : "") + '"></i>';
+    if (s.ring && kind === "tri")
+      sw = '<svg width="13" height="12" viewBox="0 0 13 12" aria-hidden="true" style="flex:none">' +
+           '<polygon points="6.5,1.2 12,11 1,11" style="fill:' + v + ';stroke:var(' + s.ring +
+           ');stroke-width:1.4;stroke-linejoin:round"/></svg>';
     return '<label class="lay"><input type="checkbox" data-k="' + s.k + '"' +
-           (s.on !== false ? " checked" : "") +
-           '><i class="sw ' + kind + '" style="' + style + '"></i>' + s.label + "</label>";
+           (s.on !== false ? " checked" : "") + '>' + sw + s.label + "</label>";
   }).join("");
   host.addEventListener("change", function(e){
     var t = e.target;
@@ -3641,9 +3661,9 @@ var KNN2D = (function(){
   reg(draw);
 })();
 
-
 /* ============================================================
-   09 — bias and variance
+   bias and variance: thirty samples, thirty fits
+   Shared: the tab is in class 2 and again in class 4.
    ============================================================ */
 (function(){
   var p  = mkPlot("cvBV",      {xd:[0,1], yd:[-3.2,3.6], padL:40, padB:34});
