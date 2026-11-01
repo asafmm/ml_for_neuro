@@ -11,7 +11,8 @@
   --ground:#E8E9F0; --surface:#FCFCFE; --hairline:#D3D3E0;
   --ink:#1B1826; --ink-soft:#5C5674; --ink-faint:#8B85A3;
   --c-model:#DD5F1B; --c-model-wash:rgba(221,95,27,.13);
-  --c-ref:#6E6890; --c-ref-wash:rgba(110,104,144,.10);
+  --c-ref:#6E6890;
+  --surface-2:#F1F1F7; --c-axis:#9C96B2; --c-test:#0E7C7B; --c-error:#B8365A;   /* edit.py's bar */
 }
 *{box-sizing:border-box}
 body{
@@ -71,15 +72,12 @@ td.wk{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);white-space
 
 tr.first td{background:var(--c-model-wash)}
 tr.first td.rk{color:var(--c-model);font-weight:600}
-tr.ref td{background:var(--c-ref-wash);color:var(--ink-soft)}
-tr.ref td.tm{font-weight:400;font-style:italic}
-td .tag{display:table;margin:.2rem 0 0}
+td .tag{margin-left:.6rem;white-space:nowrap}
 .tag{
   display:inline-block;margin-left:.5rem;font-family:var(--mono);font-style:normal;font-size:.6rem;
   letter-spacing:.1em;text-transform:uppercase;color:var(--c-ref);border:1px solid var(--c-ref);
   border-radius:4px;padding:0 .35rem;vertical-align:.12em;
 }
-tr.empty td{text-align:center;color:var(--ink-soft);padding:1.6rem 1rem}
 .later{color:var(--ink-faint)}
 
 /* the rules */
@@ -94,6 +92,7 @@ tr.empty td{text-align:center;color:var(--ink-soft);padding:1.6rem 1rem}
   margin:1rem 0 0;padding:.9rem 1.1rem;border-radius:0 9px 9px 0;
   border-left:3px solid var(--c-model);background:var(--c-model-wash);font-size:.93rem;
 }
+.key p{margin:0}
 .key b{color:var(--c-model)}
 
 footer{
@@ -111,13 +110,13 @@ footer a{color:var(--c-model);text-decoration:none}
 <div class="wrap">
   <div class="kicker"><a href="index.html">1501.1027</a> &middot; Final project</div>
   <h1>The <em>leaderboard</em></h1>
-  <p class="lede">How much was each participant willing to pay for a lottery?
-    <br>We predict it from their brain activity alone,
-    <br>for 13 test participants that no model has seen.</p>
+  <div class="prose">
+    <p class="lede" data-ed="leaderboard.html:0"></p>
+  </div>
 
   <div class="stats">
     <div class="stat"><div class="lbl">Teams scored</div><div class="val">0</div><div class="sub">registered teams appear here</div></div>
-    <div class="stat"><div class="lbl">Best test MSE</div><div class="val">&ndash;</div><div class="sub">to beat: 199.14</div></div>
+    <div class="stat"><div class="lbl">Best test MSE</div><div class="val">199.14</div><div class="sub">The BOLD Moves</div></div>
     <div class="stat"><div class="lbl">Last scored</div><div class="val">not yet</div><div class="sub">deadline: Saturday, 23:59</div></div>
   </div>
 
@@ -133,29 +132,28 @@ footer a{color:var(--c-model);text-decoration:none}
         <th class="hide-sm">Scored</th>
         <th class="num hide-sm">This week</th>
       </tr>
-      <tr class="empty"><td colspan="7">No team has been scored yet.<br>The first standings come after Saturday&rsquo;s deadline.</td></tr>
-      <tr class="ref"><td class="rk">&middot;</td><td class="tm">The BOLD Moves<span class="tag">reference</span></td><td class="num">199.14</td><td class="num hide-sm">14.112</td><td class="num">0.098</td><td class="wk hide-sm"></td><td class="num hide-sm"></td></tr>
-      <tr class="ref"><td class="rk">&middot;</td><td class="tm">Predict the training mean<span class="tag">reference</span></td><td class="num">229.44</td><td class="num hide-sm">15.147</td><td class="num">-0.039</td><td class="wk hide-sm"></td><td class="num hide-sm"></td></tr>
+      <tr class="first"><td class="rk">1</td><td class="tm">The BOLD Moves<span class="tag">reference</span></td><td class="num">199.14</td><td class="num hide-sm">14.112</td><td class="num">0.098</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
+      <tr><td class="rk">2</td><td class="tm">Training-Mean Girls<span class="tag">reference</span></td><td class="num">229.44</td><td class="num hide-sm">15.147</td><td class="num">-0.039</td><td class="wk hide-sm"><span class="later">&ndash;</span></td><td class="num hide-sm"><span class="later">&ndash;</span></td></tr>
     </table>
   </div>
 
   <h3 class="clsx">How it is scored</h3>
-  <div class="rules">
+  <div class="rules prose">
     <ul>
-      <li>Each submission predicts all 403 test trials: 13 participants &times; 31 lotteries.</li>
-      <li>We rank by <strong>test MSE</strong>. Lower is better.
+      <li data-ed="leaderboard.html:1">Each submission predicts all 403 test trials: 13 participants &times; 31 lotteries.</li>
+      <li data-ed="leaderboard.html:2">We rank by <strong>test MSE</strong>. Lower is better.
         <br>RMSE = &radic;MSE, in the same units as the choices (shekels).
         <br><span class="m">R</span><sup>2</sup> = 1 &minus; MSE / variance of the test choices.
         <br>Above 0 means the model beats predicting one number for everyone.</li>
-      <li>Each team keeps its best week.
+      <li data-ed="leaderboard.html:3">Each team keeps its best week.
         <br>The lowest test MSE across the whole competition wins <strong>5 bonus points</strong>.</li>
-      <li>The weekly deadline is Saturday at 23:59.
+      <li data-ed="leaderboard.html:4">The weekly deadline is Saturday at 23:59.
         <br>Only the last submission before it is scored. Later ones count for the next week.</li>
-      <li>The <span class="tag">reference</span> rows are simple models of ours. They are not ranked.</li>
+      <li data-ed="leaderboard.html:5">Teams marked <span class="tag">reference</span> are simple models of ours.
+        <br>They show what a basic model scores.</li>
     </ul>
   </div>
-  <div class="key"><b>Remember.</b> The final grade comes from the oral exam,
-    <br>and there we care about how well we understand our model, much more than about its rank.</div>
+  <div class="key"><p data-ed="leaderboard.html:6"><b>Remember.</b> The final grade comes from the oral exam, and there we care about how well you understand your model, much more than about where you rank!</p></div>
 
   <footer>
     <a href="index.html">&larr; Course pages</a><br>
