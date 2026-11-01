@@ -27,7 +27,7 @@
   --c-error-wash:rgba(184,54,90,.16);
   --c-test:#0E7C7B;
   --c-test-wash:rgba(14,124,123,.14);
-  /* class 4's validation set: a light green fill that never reads as the
+  /* class 3's validation set: a light green fill that never reads as the
      blue training set, a deeper green for its outlines and lines, and the
      deepest for its text */
   --c-val:#72D293;
@@ -1389,10 +1389,10 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part3/10-glossary.html:34">Class 3: Drawing the line</div>
-      <p class="cl-d" data-ed="part3/10-glossary.html:35">Classification, logistic regression, maximum likelihood, error metrics and the nearest-neighbour classifier.</p>
+      <div class="cl-t" data-ed="part3/10-glossary.html:34">Class 3: Held out</div>
+      <p class="cl-d" data-ed="part3/10-glossary.html:35">Overfitting and underfitting, the validation set, <span class="m">K</span>-fold cross-validation, leakage and nested cross-validation.</p>
     </div>
-    <a href="https://claude.ai/artifact/8TpogMhm4oWyYxvB9UNTNX" data-local="class3_classification.html">On to class 3 &rarr;</a>
+    <a href="class3_cross_validation.html" data-local="class3_cross_validation.html">On to class 3 &rarr;</a>
   </div>
 
   <div class="crosslink">
@@ -3663,7 +3663,7 @@ var KNN2D = (function(){
 
 /* ============================================================
    bias and variance: thirty samples, thirty fits
-   Shared: the tab is in class 2 and again in class 4.
+   Shared: the tab is in class 2 and again in class 3.
    ============================================================ */
 (function(){
   var p  = mkPlot("cvBV",      {xd:[0,1], yd:[-3.2,3.6], padL:40, padB:34});
