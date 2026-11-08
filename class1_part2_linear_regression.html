@@ -35,8 +35,13 @@
   --c-val-ink:#1D7A42;
   --c-data:#3A3452;
   --c-alt:#3E63A8;
+  /* class 4's third diagnosis. --c-alt sits too close to the controls' teal and
+     --c-model to the patients' crimson to tell apart on a projector */
+  --c-scz:#6A3FC0;
   --c-seq-lo:#F2CDAC;
   --c-seq-hi:#7A2E06;
+  /* the legend swatch for shading that runs from control to patient */
+  --c-prob:linear-gradient(90deg,var(--c-test),var(--c-error));
   --c-grid:#DEDEE9;
   --c-axis:#9C96B2;
 
@@ -67,6 +72,7 @@
   --c-val-ink:#8BE3AA;
   --c-data:#C3BCD8;
   --c-alt:#89A9E8;
+  --c-scz:#A98BF2;
   --c-seq-lo:#553318;
   --c-seq-hi:#FFD3AE;
   --c-grid:#2C2639;
@@ -277,6 +283,17 @@ input[type=range]::-moz-range-thumb{
 .stat.valid{border-left-color:var(--c-val-line)} .stat.valid .val{color:var(--c-val-ink)}
 .stat.plain .val{color:var(--ink)}
 
+/* One category's coefficients, with the category's colour down the side. The
+   baseline's box is dashed, like its line on the plot, and has no sliders. */
+.coefset{
+  display:flex;flex-direction:column;gap:.4rem;padding:.55rem .65rem;
+  background:var(--surface-2);border-radius:5px;border-left:3px solid var(--hairline);
+}
+.coefset.base{border-left-style:dashed}
+.coefset .t{font-family:var(--mono);font-size:.76rem;font-weight:500;color:var(--ink)}
+/* two-part subscripts need the room, and have to read from the back of the class */
+.coefset .ctl-row label{font-size:.86rem}
+
 .legend{display:flex;flex-wrap:wrap;gap:.35rem .95rem;font-family:var(--mono);font-size:.68rem;color:var(--ink-soft)}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
 .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
@@ -304,9 +321,12 @@ input[type=range]::-moz-range-thumb{
 .lay i.sw.tri{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%);width:13px;height:12px}
 .lay i.sw.ln{height:0;width:15px;border-top:2.5px solid;border-radius:0}
 .lay i.sw.dash{height:0;width:15px;border-top:2px dashed;border-radius:0}
+/* a pale band on the plot: the outline keeps its swatch visible in the legend */
+.lay i.sw.box{box-shadow:inset 0 0 0 1px var(--c-test)}
 .lay:has(input:not(:checked)){opacity:.4}
 
 .notecap{font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);margin:.55rem 0 0;line-height:1.5}
+
 
 /* ============================================================
    MATH
@@ -429,6 +449,32 @@ sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
 .step.hid .sm,.step.hid .sw{visibility:hidden}
 .step.live{background:var(--c-model-wash)}
 .step.live .sn{color:var(--c-model);font-weight:600}
+/* a step that carries its own plot: the reason on the left, the picture on the right */
+.sfig{display:grid;grid-template-columns:minmax(0,1fr) 20rem;gap:1.05rem;align-items:start}
+.sfig .sm{font-size:1.2rem}
+.step.hid .sfig,.step.hid .tblwrap{visibility:hidden}
+.step .sw:first-child{margin-top:0}
+/* the sum with one subject's numbers in it, big enough to follow from the back */
+.sread{margin-top:.6rem}
+.sread .stat{justify-content:flex-start;flex-wrap:wrap}
+.sread .k{font-size:.72rem}
+.sread .k:first-child{font-size:.84rem;color:var(--ink)}
+.sread sup{font-size:.78em}
+.sread .val{font-size:1.02rem}
+.sread .where{margin-left:auto}
+/* The buttons and the slider stay in reach while the steps scroll past. This
+   cannot live inside a .panel, whose overflow:hidden would stop it sticking. */
+.stepbar{
+  position:sticky;top:0;z-index:4;background:var(--ground);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1.6rem;
+  padding:.6rem 0;margin-top:.6rem;
+}
+.stepbar .ctl-row{flex:1 1 14rem;max-width:24rem}
+.stepbar + .layers{margin-top:.1rem}
+.stepbar ~ .deriv{margin-top:.8rem}
+/* the two ends of a range: still open, or closed off by this step */
+.bnd-open{color:var(--c-error)}
+.bnd-ok{color:var(--c-test);font-weight:600}
 
 .tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.75rem;font-variant-numeric:tabular-nums}
 .tbl th{
@@ -441,6 +487,10 @@ sub,sup{font-size:.66em;font-family:var(--mono);font-style:normal}
 .tbl tr.tot td{border-top:1px solid var(--hairline);border-bottom:0;color:var(--ink);font-weight:600;padding-top:.44rem}
 .tbl td.hi{color:var(--c-model);font-weight:500}
 .tblwrap{overflow-x:auto;margin:.5rem 0 0}
+/* a short table of words and sums, read from the back of the room */
+.tbl.big th,.tbl.big td{text-align:left}
+.tbl.big th{font-size:.8rem}
+.tbl.big td{font-size:.9rem;color:var(--ink);padding:.36rem .6rem}
 
 /* data table beside its own explanation */
 .dfsplit{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.45rem;align-items:start}
@@ -505,7 +555,7 @@ footer{margin-top:4.5rem;border-top:1px solid var(--hairline);padding-top:1.5rem
   .wrap{padding:0 1.4rem}
   .hero .wrap{grid-template-columns:1fr;gap:1.4rem}
   .hero{padding-top:2.6rem}
-  .panel-split,.panel-split.wide-ctl,.panel-duo,.panel-quad{grid-template-columns:1fr}
+  .panel-split,.panel-split.wide-ctl,.panel-duo,.panel-quad,.sfig{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr}
   .gloss{grid-template-columns:1fr}
 }
