@@ -685,8 +685,8 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">01</div><h2 data-ed="part4/01-linear-vs-logistic.html:0">Linear vs. logistic regression</h2></div>
   <div class="prose">
     <p data-ed="part4/01-linear-vs-logistic.html:1">Everything so far assumed <span class="m">y</span> was a number: firing rate, wage, memory score.
-      <br>Plenty of the questions we actually ask are not: male or female, which of three diagnoses.&nbsp;<br>When <span class="m">y</span> is a category, the task is <strong>classification </strong>(instead of <b>regression</b>).</p>
-    <p data-ed="part4/01-linear-vs-logistic.html:2">Let's stay with two categories which is a pretty common scenario.&nbsp;<br>For more than two categories the ideas are similar, with one extra set of coefficients per extra category.<br>We get to that in the Multinomial logistic tab.</p>
+      <br>Plenty of the questions we actually ask are not: male or female, which of three diagnoses.<br>When <span class="m">y</span> is a category, the task is <strong>classification</strong> (instead of <b>regression</b>).</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:2">Let's stay with two categories, which is a pretty common scenario.<br>For more than two categories the ideas are similar, with one extra set of coefficients per extra category.<br>We get to that in the Multinomial logistic tab.</p>
     <p data-ed="part4/01-linear-vs-logistic.html:3">First, let's turn the two categories into numbers we can compute with:</p>
   </div>
 
@@ -700,13 +700,12 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <h3 data-ed="part4/01-linear-vs-logistic.html:4">Why not use linear regression for classification?</h3>
-    <p data-ed="part4/01-linear-vs-logistic.html:5">Say we want to simple use linear regression to predict who is a patient.<br>Below, you can see a synthetic connectivity score from a resting-state scan, and whether that subject met criteria for MDD. Fit a straight line to the 0/1 outcome and read it as a probability:</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:5">Say we simply want to use linear regression to predict who is a patient.<br>Below, you can see a synthetic connectivity score from a resting-state scan, and whether that subject met criteria for MDD.<br>Fit a straight line to the 0/1 outcome and read it as a probability:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
       <div class="t" data-ed="part4/01-linear-vs-logistic.html:6">A straight line through a 0/1 outcome</div>
-      <div class="hint" data-ed="part4/01-linear-vs-logistic.html:7"></div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -724,13 +723,13 @@ section.tabpanel{padding:2.6rem 0 0}
     </div>
   </div>
 
-  <div class="warn" data-ed="part4/01-linear-vs-logistic.html:8"><b>A probability below zero?</b>&nbsp;When the models predicts a "probability" below 0, or above 1, it shows its structure is problematic. The straight line is unrestricted, and doesn't know that <span class="m">y</span> only takes two values, so it extrapolates beyond these values.&nbsp;<br>We need a model whose output is a probability by construction.</div>
+  <div class="warn" data-ed="part4/01-linear-vs-logistic.html:7"><b>A probability below zero?</b> When the model predicts a "probability" below 0, or above 1, it shows its structure is problematic. The straight line is unrestricted, and doesn't know that <span class="m">y</span> only takes two values, so it extrapolates beyond these values.<br>We need a model whose output is a probability by construction.</div>
 
   <div class="prose">
-    <h3 data-ed="part4/01-linear-vs-logistic.html:9">The logistic function</h3>
-    <p data-ed="part4/01-linear-vs-logistic.html:10">We want a model that takes any number and returns something between 0 and 1 (probability).&nbsp;<br>One common solution is the <b>logistic function</b>.&nbsp;<br>The linear part stays exactly as it was, but we put it through a function that squashes it between 0 and 1.</p>
-    <p data-ed="part4/01-linear-vs-logistic.html:11">Let's build that function ourselves.<br>The line has exactly two problems: it goes below 0, and it goes above 1.<br>We fix them one at a time.</p>
-    <p data-ed="part4/01-linear-vs-logistic.html:12">To have real numbers to look at, we pick <span class="m">&beta;<sub>0</sub></span> = 0.4 and <span class="m">&beta;<sub>1</sub></span> = 1.8 by hand for now.<br>We get to where the real values come from at the end of this tab.<br>Reveal one step at a time, and move the slider to follow one subject through them:</p>
+    <h3 data-ed="part4/01-linear-vs-logistic.html:8">The logistic function</h3>
+    <p data-ed="part4/01-linear-vs-logistic.html:9">We want a model that takes any number and returns something between 0 and 1 (a probability).<br>One common solution is the <b>logistic function</b>.<br>The linear part stays exactly as it was, but we put it through a function that squashes it between 0 and 1.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:10">Let's build that function ourselves.<br>The line has exactly two problems: it goes below 0, and it goes above 1.<br>We fix them one at a time.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:11">To have real numbers to look at, we pick <span class="m">&beta;<sub>0</sub></span> = 0.4 and <span class="m">&beta;<sub>1</sub></span> = 1.8 by hand for now.<br>We get to where the real values come from at the end of this tab.<br>Reveal one step at a time, and move the slider to follow one subject through them:</p>
   </div>
 
   <div class="stepbuild">
@@ -790,7 +789,7 @@ section.tabpanel{padding:2.6rem 0 0}
               </span>
               &lt; <span class="bnd-ok">1</span>
             </div>
-            <div class="sw">Second problem: <b>above 1</b>.<br>We divide that positive number by itself plus one.<br>The bottom is always bigger than the top, so the fraction stays below 1.<br>Both are positive, so it stays above 0.<br>We can read it as a share: 3 out of 3 + 1 is 0.75, and 100 out of 100 + 1 is 0.99.<br>The bigger the number, the closer to 1.<br>This plot zooms in on the vertical axis, because the band is now all that is left.</div>
+            <div class="sw">Second problem: <b>above 1</b>.<br>We divide that positive number by itself plus one.<br>The bottom is always bigger than the top, so the fraction stays below 1.<br>Both are positive, so it stays above 0.<br>We can read it as a share: 3 out of 3 + 1 is 0.75, and 100 out of 100 + 1 is 0.99.<br>The bigger the number, the closer to 1.<br>We will see in the next tab what the 1 stands for.<br>This plot zooms in on the vertical axis, because the band is now all that is left.</div>
             <div class="sread" id="lfRead3"></div>
           </div>
           <canvas id="cvLf3" class="cv" height="210"></canvas>
@@ -819,7 +818,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/01-linear-vs-logistic.html:13">That fraction is the <b>logistic function</b>.<br>Whatever the line does, the output is a probability by construction.<br>We call it <span class="m">p</span>(<span class="m">X</span>): the probability that <span class="m">y</span> = 1 for a subject with this <span class="m">X</span>.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:12">That fraction is the <b>logistic function</b>.<br>Whatever the line does, the output is a probability by construction.<br>We call it <span class="m">p</span>(<span class="m">X</span>): the probability that <span class="m">y</span> = 1 for a subject with this <span class="m">X</span>.</p>
   </div>
 
   <div class="eq">
@@ -831,18 +830,18 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/01-linear-vs-logistic.html:14">Other functions could also squash a line between 0 and 1.<br>We use this one because it is easy to undo, which is what the next tab is about.</p>
-    <p data-ed="part4/01-linear-vs-logistic.html:15">The two coefficients do different jobs, and it is worth separating them:</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:13">Other functions could also squash a line between 0 and 1.<br>We use this one because it is easy to reverse, which is what the next tab is about.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:14">The two coefficients do different jobs, and it is worth separating them:</p>
     <ul>
-      <li data-ed="part4/01-linear-vs-logistic.html:16"><span class="m">β<sub>1</sub></span> sets how steep the transition from 0 to 1 is. Bigger value means a sharper switch between classes.</li>
-      <li data-ed="part4/01-linear-vs-logistic.html:17"><span class="m">&beta;<sub>0</sub></span> slides the whole curve left or right.<br>The halfway point is where the line equals 0, at <span class="m">X</span> = &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>.</li>
+      <li data-ed="part4/01-linear-vs-logistic.html:15"><span class="m">β<sub>1</sub></span> sets how steep the transition from 0 to 1 is. A bigger value means a sharper switch between classes.</li>
+      <li data-ed="part4/01-linear-vs-logistic.html:16"><span class="m">&beta;<sub>0</sub></span> slides the whole curve left or right.<br>The halfway point is where the line equals 0, at <span class="m">X</span> = &minus;<span class="m">&beta;<sub>0</sub></span>/<span class="m">&beta;<sub>1</sub></span>.</li>
     </ul>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/01-linear-vs-logistic.html:18">What the two coefficients do</div>
-      <div class="hint" data-ed="part4/01-linear-vs-logistic.html:19">drag them and watch the curve</div>
+      <div class="t" data-ed="part4/01-linear-vs-logistic.html:17">What the two coefficients do</div>
+      <div class="hint" data-ed="part4/01-linear-vs-logistic.html:18">drag them and watch the curve</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -861,19 +860,20 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="sigStats"></div>
         <div class="btnrow"><button class="btn" id="sigFit">fit it properly</button></div>
-        <p class="notecap" data-ed="part4/01-linear-vs-logistic.html:20">Push <span class="m">β<sub>1</sub></span> negative and the curve runs the other way: high scores become evidence <em>against</em> the diagnosis. Set it to zero and the model gives every subject the same probability.</p>
+        <p class="notecap" data-ed="part4/01-linear-vs-logistic.html:19">Push <span class="m">β<sub>1</sub></span> negative and the curve runs the other way: high scores become evidence <em>against</em> the diagnosis. Set it to zero and the model gives every subject the same probability.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part4/01-linear-vs-logistic.html:21">Where the coefficients come from</h3>
-    <p data-ed="part4/01-linear-vs-logistic.html:22">To estimate the coefficients, we use <b>maximum likelihood</b>.&nbsp;<br>Pick the β that make the diagnoses we observed most probable.&nbsp;In practice we maximise its the log of the maximum likelihood.</p>
-    <p data-ed="part4/01-linear-vs-logistic.html:23">There is no closed form. The β sit inside an exponential, so unlike the slope formula from simple linear regression, the answer has to be found by iterating.</p>  </div>
+    <h3 data-ed="part4/01-linear-vs-logistic.html:20">Where the coefficients come from</h3>
+    <p data-ed="part4/01-linear-vs-logistic.html:21">To estimate the coefficients, we use <b>maximum likelihood</b>:<br>we pick the <span class="m">β</span> values under which the labels we observed are the most probable.<br>In practice we maximize the <b>log</b> of the likelihood.</p>
+    <p data-ed="part4/01-linear-vs-logistic.html:22">There is no closed-form solution for this maximization problem.<br>The <span class="m">β</span> sit inside an exponential, so unlike the slope formula from simple linear regression, the answer has to be found by iterating (efficiently) through possible values.</p>
+  </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part4/01-linear-vs-logistic.html:24">Key idea</div>
-    <p data-ed="part4/01-linear-vs-logistic.html:25">This is still a linear model. <span class="m">β<sub>0</sub></span> + <span class="m">β<sub>1</sub></span><span class="m">X</span> is still in there, all we added was a function around it, so that whatever it returns comes out as a probability.</p>
+    <div class="lbl" data-ed="part4/01-linear-vs-logistic.html:23">Key idea</div>
+    <p data-ed="part4/01-linear-vs-logistic.html:24">This is still a linear model. <span class="m">β<sub>0</sub></span> + <span class="m">β<sub>1</sub></span><span class="m">X</span> is still in there, all we added was a function around it, so that whatever it returns comes out as a probability.</p>
   </div>
 </section>
 
@@ -882,7 +882,7 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">02</div><h2 data-ed="part4/02-the-logit.html:0">The logit</h2></div>
   <div class="prose">
     <h3 data-ed="part4/02-the-logit.html:1">The linear part in logistic regression</h3>
-    <p data-ed="part4/02-the-logit.html:2">The S-shaped curve of the logistic function is hard to reason about.&nbsp;<br>But, if we take the equation for p(X) and divide by 1-p(X), we get:</p>
+    <p data-ed="part4/02-the-logit.html:2">The S-shaped curve of the logistic function is hard to reason about.<br>But if we take the equation for <span class="m">p</span>(<span class="m">X</span>) and divide it by 1 &minus; <span class="m">p</span>(<span class="m">X</span>), we get:</p>
   </div>
 
   <div class="eq">
@@ -891,7 +891,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/02-the-logit.html:3">That ratio is the <strong>odds</strong>: how many times more likely the diagnosis is than its absence. If p(X)=0.8, the odds are 0.8/0.2=4, or four to one.
+    <p data-ed="part4/02-the-logit.html:3">That ratio is the <strong>odds</strong>: how many times more likely the positive diagnosis is than the negative one.<br>If <span class="m">p</span>(<span class="m">X</span>) = 0.8, the odds are 0.8/0.2 = 4, or four to one.<br>This is what the 1 in the logistic function stands for: the positive diagnosis gets a share of 4 against the negative one's 1, and 4 out of 4 + 1 is 0.8.
       <br>Take the log of both sides and you get a linear function:</p>
   </div>
 
@@ -901,7 +901,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/02-the-logit.html:4">The left side is the <strong>logit</strong>, or the <b>log odds</b>.&nbsp;<br>So, the logistic regression is a linear function for log odds!<br>In other words, if we add one more unit of <span class="m">X,&nbsp;</span>it adds <span class="m">β<sub>1</sub></span> to the log odds.</p>
+    <p data-ed="part4/02-the-logit.html:4">The left side is the <strong>logit</strong>, or the <b>log odds</b>.<br>So logistic regression is a linear function of the log odds!<br>In other words, if we add one more unit of <span class="m">X</span>, it adds <span class="m">β<sub>1</sub></span> to the log odds.</p>
     <p data-ed="part4/02-the-logit.html:5">Both panels below are the same model. Only the vertical axis differs.</p>
   </div>
 
@@ -913,11 +913,11 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="panel-body panel-duo">
       <div>
         <canvas id="cvLogitP" class="cv" height="280"></canvas>
-        <p class="notecap" data-ed="part4/02-the-logit.html:8">Probability. Bounded, and the effect of <span class="m">X</span> changes along the axis: steep in the middle, almost flat at either end.</p>
+        <p class="notecap" data-ed="part4/02-the-logit.html:8">Probability. Bounded, and the effect of <span class="m">X</span> changes along the axis: very steep in the middle, and almost flat at either end.</p>
       </div>
       <div>
         <canvas id="cvLogitL" class="cv" height="280"></canvas>
-        <p class="notecap" data-ed="part4/02-the-logit.html:9">Log odds. Unbounded, and the effect of <span class="m">X</span> is one constant slope. Same <span class="m">&beta;<sub>1</sub></span> as the panel above.</p>
+        <p class="notecap" data-ed="part4/02-the-logit.html:9">Log odds. Unbounded, and the effect of <span class="m">X</span> is one constant slope. Same <span class="m">&beta;<sub>1</sub></span> as the panel on the left.</p>
       </div>
     </div>
     <div class="panel-body" style="padding-top:0">
@@ -931,8 +931,8 @@ section.tabpanel{padding:2.6rem 0 0}
     <p data-ed="part4/02-the-logit.html:11">In linear regression the answer was easy: one more unit of <span class="m">X</span> adds <span class="m">β<sub>1</sub></span> to <span class="m">y</span>.</p>
     <p data-ed="part4/02-the-logit.html:12">Here the same question has three answers, depending on which scale we ask it on. Take one step along <span class="m">X</span>, from wherever we happen to be standing, and:</p>
     <ul>
-      <li data-ed="part4/02-the-logit.html:13">on the <strong>logit</strong> scale the step adds <span class="m">β<sub>1</sub></span>, always, it's linear.</li>
-      <li data-ed="part4/02-the-logit.html:14">on the <strong>odds</strong> scale it multiplies by <span class="m">e</span><sup><span class="m">β<sub>1</sub></span></sup></li>
+      <li data-ed="part4/02-the-logit.html:13">on the <strong>logit</strong> scale the step always adds <span class="m">β<sub>1</sub></span>: it's linear.</li>
+      <li data-ed="part4/02-the-logit.html:14">on the <strong>odds</strong> scale it multiplies by <span class="m">e</span><sup><span class="m">β<sub>1</sub></span></sup>.</li>
       <li data-ed="part4/02-the-logit.html:15">on the <strong>probability</strong> scale it adds an amount that depends <b>on where we started</b>.</li>
     </ul>
     <p data-ed="part4/02-the-logit.html:16">Move the step along the axis below and see for yourself.</p>
@@ -952,7 +952,7 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
           <div>
             <canvas id="cvStepP" class="cv" height="250"></canvas>
-            <p class="notecap" data-ed="part4/02-the-logit.html:20">Probability. The same step enhances in the middle of X and shrinks toward both ends.</p>
+            <p class="notecap" data-ed="part4/02-the-logit.html:20">Probability. The same step is biggest in the middle of <span class="m">X</span> and shrinks toward both ends.</p>
           </div>
         </div>
         <div id="stepLayers"></div>
@@ -973,7 +973,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
 
-  <div class="warn" data-ed="part4/02-the-logit.html:21"><b><span class="m">β<sub>1</sub></span> does not represent a change in probability.</b> It is a change in log odds, and the same <span class="m">β<sub>1</sub></span> adds a different amount of probability depending on where we start. Moving a subject from p=0.50 to 0.62 and from p=0.95 to 0.96 can both be the same step in <span class="m">β<sub>1</sub></span>.&nbsp;</div>
+  <div class="warn" data-ed="part4/02-the-logit.html:21"><b><span class="m">β<sub>1</sub></span> does not represent a change in probability.</b> It is a change in log odds, and the same <span class="m">β<sub>1</sub></span> adds a different amount of probability depending on where we start. Moving a subject from <span class="m">p</span> = 0.50 to 0.62 and from <span class="m">p</span> = 0.95 to 0.97 can both be the same step in <span class="m">β<sub>1</sub></span>.</div>
 
   <div class="key">
     <div class="lbl" data-ed="part4/02-the-logit.html:22">Summary</div>
@@ -986,8 +986,8 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s33">
   <div class="shead"><div class="num">03</div><h2 data-ed="part4/03-decision-boundary.html:0">The decision boundary</h2></div>
   <div class="prose">
-    <p data-ed="part4/03-decision-boundary.html:1">In linear regression, we had a line (or a plane) that fitted the data. In logistic regression we get the same line, but as a decision boundary.</p>
-    <p data-ed="part4/03-decision-boundary.html:2">The model still returns a probability for every subject. To turn that into a decision we need a rule, usually: decide it is MDD when <span class="m">p</span> ≥ 0.5.</p>
+    <p data-ed="part4/03-decision-boundary.html:1">In linear regression, we had a line (or a plane) that fitted the data.<br>In logistic regression we get the same line, but as a <b>decision boundary</b> that separates the classes.</p>
+    <p data-ed="part4/03-decision-boundary.html:2">The model still returns a probability for every subject. To turn that into a decision we need a rule, usually: decide it is MDD when <span class="m">p</span> ≥ 0.5 (more on that 0.5 value later).</p>
     <h3 data-ed="part4/03-decision-boundary.html:3">One predictor: the boundary is a point</h3>
     <p data-ed="part4/03-decision-boundary.html:4">Let's start with the single predictor from the previous tabs.<br>Here is the logistic function again, with the rule drawn on it:</p>
   </div>
@@ -1076,7 +1076,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/03-decision-boundary.html:14">This line is the <strong>decision boundary</strong>: every subject on one side is marked as a patient, every subject on the other a control.&nbsp;Logistic regression is thus a <strong>linear classifier</strong>.</p>
+    <p data-ed="part4/03-decision-boundary.html:14">This line is the <strong>decision boundary</strong>: every subject on one side is marked as a patient, every subject on the other a control.<br>Logistic regression is thus a <strong>linear classifier</strong>.</p>
     <p data-ed="part4/03-decision-boundary.html:15">Here are two synthetic connectivity scores, from two different networks, with the patient/control binary outcome.<br>We set every third control and every third patient aside as a test set.<br>We fit on the training subjects only, and check the result on the test subjects:</p>
   </div>
 
@@ -1111,20 +1111,39 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/03-decision-boundary.html:18">Two things we learn from this plot:</p>
+    <p data-ed="part4/03-decision-boundary.html:18">Three things we learn from this plot:</p>
     <ul>
       <li data-ed="part4/03-decision-boundary.html:19"><span class="m">β<sub>0</sub></span> slides the boundary without turning it. That's the intercept.</li>
       <li data-ed="part4/03-decision-boundary.html:20"><span class="m">β<sub>1</sub></span> and <span class="m">β<sub>2</sub></span> together set its <em>angle</em>. Only their ratio matters for the angle: doubling both keeps it the same.<br>Doubling all three coefficients leaves the boundary exactly where it is.</li>
+      <li data-ed="part4/03-decision-boundary.html:21">We can see the steepness in the fitted probability shading: it is the same steepness we saw in the 1D sigmoid, just in a higher dimension.</li>
     </ul>
   </div>
 
 
-  <div class="warn" data-ed="part4/03-decision-boundary.html:21"><b>Decision boundaries can be curved!</b>&nbsp;If the two groups are separated by a circle rather than a line, we can add <span class="m">x<sub>1</sub></span><sup>2</sup>, <span class="m">x<sub>2</sub></span><sup>2</sup> and <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> as columns. This will make the boundary nonlinear (but the model stays linear in its coefficients).&nbsp;</div>
+  <div class="warn" data-ed="part4/03-decision-boundary.html:22"><b>Decision boundaries can be curved!</b> If the two groups are separated by a circle rather than a line, we can add <span class="m">x<sub>1</sub></span><sup>2</sup>, <span class="m">x<sub>2</sub></span><sup>2</sup> and <span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span> as columns. This will make the boundary nonlinear, but the model stays linear in its coefficients.</div>
+
+  <div class="prose">
+    <p data-ed="part4/03-decision-boundary.html:23">With the three new columns, the model becomes:</p>
+  </div>
+
+  <div class="eq">
+    log <span class="frac"><span><span class="m">p</span></span><span>1 &minus; <span class="m">p</span></span></span>
+    &nbsp;=&nbsp; <span class="m">&beta;<sub>0</sub></span>
+    + <span class="m">&beta;<sub>1</sub></span><span class="m">x<sub>1</sub></span>
+    + <span class="m">&beta;<sub>2</sub></span><span class="m">x<sub>2</sub></span>
+    + <span class="m">&beta;<sub>3</sub></span><span class="m">x<sub>1</sub></span><sup>2</sup>
+    + <span class="m">&beta;<sub>4</sub></span><span class="m">x<sub>2</sub></span><sup>2</sup>
+    + <span class="m">&beta;<sub>5</sub></span><span class="m">x<sub>1</sub></span><span class="m">x<sub>2</sub></span>
+  </div>
+
+  <div class="prose">
+    <p data-ed="part4/03-decision-boundary.html:24">The boundary is still where this equals 0, but now that can be a circle, or any other curve of this shape.</p>
+  </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/03-decision-boundary.html:22">When a straight line cannot do it</div>
-      <div class="hint" data-ed="part4/03-decision-boundary.html:23">one class sits inside a ring</div>
+      <div class="t" data-ed="part4/03-decision-boundary.html:25">When a straight line cannot do it</div>
+      <div class="hint" data-ed="part4/03-decision-boundary.html:26">one class sits inside a ring</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -1141,7 +1160,7 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <div class="stats" id="curvStats"></div>
-        <p class="notecap" data-ed="part4/03-decision-boundary.html:24">The dashed circle is the truth, which we only know because the data is simulated. Faded markers are subjects on the wrong side.</p>
+        <p class="notecap" data-ed="part4/03-decision-boundary.html:27">The dashed circle is the truth, which we only know because the data is simulated. Faded markers are subjects on the wrong side.</p>
       </div>
     </div>
   </div>
@@ -1174,7 +1193,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/03b-multinomial.html:4">In general, <span class="m">K</span> categories give us <span class="m">K</span> &minus; 1 sets of coefficients.<br>Class 2 had the same count: <span class="m">K</span> categories needed <span class="m">K</span> &minus; 1 dummy variables.<br>The baseline needs no coefficients: its log odds against itself are log 1 = 0.<br>So its line is flat at 0.</p>
+    <p data-ed="part4/03b-multinomial.html:4">In general, <span class="m">K</span> categories give us <span class="m">K</span> − 1 sets of coefficients.<br>Class 2 had the same count: <span class="m">K</span> categories needed <span class="m">K</span> − 1 dummy variables.</p>
     <p data-ed="part4/03b-multinomial.html:5">As before, we undo the log to get back to probabilities:</p>
   </div>
 
@@ -1188,7 +1207,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/03b-multinomial.html:6">The three share one denominator, so they add up to 1.<br>The 1 in the denominator is the baseline's flat line, since <span class="m">e</span><sup>0</sup> = 1.</p>
+    <p data-ed="part4/03b-multinomial.html:6">In the first tab we read the logistic function as a share: 3 out of 3 + 1.<br>Here the sum has one more share.<br>MDD gets <span class="m">e</span><sup>MDD line</sup>, its odds against control, and control gets 1, its odds against itself.<br>SCZ gets <span class="m">e</span><sup>SCZ line</sup>, its odds against control.<br>For example, 3 out of 3 + 2 + 1 = 3/6 = 1/2.<br>Each probability is its own share out of the total, so the three add up to 1.</p>
     <p data-ed="part4/03b-multinomial.html:7">Here is a model with coefficients we picked by hand.<br>The top plot shows the two lines and the flat baseline.<br>The bottom plot shows the three probabilities they give:</p>
   </div>
 
@@ -1245,16 +1264,14 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/03b-multinomial.html:11">At each <span class="m">X</span>, we decide on the category with the highest curve.</p>
-    <p data-ed="part4/03b-multinomial.html:12">Now switch the baseline.<br>Every coefficient changes, and the top plot changes with them.<br>The bottom plot stays exactly the same.<br>The baseline is our choice: it changes what the coefficients compare, not what the model predicts.</p>
+    <p data-ed="part4/03b-multinomial.html:11">To get predictions, at each <span class="m">X</span> we predict the category with the highest probability.</p>
+    <p data-ed="part4/03b-multinomial.html:12">Now switch the baseline.<br>Every coefficient changes in the top plot.<br>But the bottom plot stays exactly the same, because the relations stay the same.<br>The baseline is our choice: it changes what the coefficients compare, not what the model predicts.</p>
     <p data-ed="part4/03b-multinomial.html:13">So a coefficient only has a meaning together with its baseline.<br>With the starting values, <span class="m">&beta;<sub>MDD,1</sub></span> = 1.0 against control, and &minus;1.5 against SCZ.<br>One more unit of <span class="m">X</span> raises the log odds of MDD against control, and lowers them against SCZ.<br>Both are true of the same model.</p>
   </div>
 
-  <div class="warn" data-ed="part4/03b-multinomial.html:14"><b>A positive <span class="m">&beta;<sub>MDD,1</sub></span> does not mean <span class="m">p<sub>MDD</sub></span> rises.</b> With the starting values the MDD line keeps rising, but <span class="m">p<sub>MDD</sub></span> falls after <span class="m">X</span> = 0.64, because SCZ rises even faster.</div>
-
   <div class="key">
-    <div class="lbl" data-ed="part4/03b-multinomial.html:15">Key idea</div>
-    <p data-ed="part4/03b-multinomial.html:16"><span class="m">K</span> categories, one baseline, <span class="m">K</span> &minus; 1 sets of coefficients. Each set compares one category with the baseline. A different baseline gives different coefficients, and the same probabilities.</p>
+    <div class="lbl" data-ed="part4/03b-multinomial.html:14">Key idea</div>
+    <p data-ed="part4/03b-multinomial.html:15"><span class="m">K</span> categories, one baseline, <span class="m">K</span> &minus; 1 sets of coefficients. Each set compares one category with the baseline. A different baseline gives different coefficients, and the same probabilities.</p>
   </div>
 </section>
 
@@ -1262,8 +1279,8 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s34">
   <div class="shead"><div class="num">05</div><h2 data-ed="part4/04-errors-and-metrics.html:0">Error types and metrics</h2></div>
   <div class="prose">
-    <p data-ed="part4/04-errors-and-metrics.html:1">The model returns a probability.&nbsp;<br>But a decision is a class, so somewhere we have to pick a <strong>threshold</strong> for the probability, where everything above it will be classified as a patient.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:2">p=0.5 is the obvious choice, but it is not necessarily the right one.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:1">The model returns a probability.<br>But a decision is a class, so somewhere we have to pick a <strong>threshold</strong> for the probability, where everything above it will be classified as a patient.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:2"><span class="m">p</span> = 0.5 is the obvious choice, but it is not necessarily the right one.</p>
     <p data-ed="part4/04-errors-and-metrics.html:3">Once we threshold, every subject lands in one of four boxes, and the two kinds of mistake are not the same mistake:</p>
   </div>
 
@@ -1275,13 +1292,12 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part4/04-errors-and-metrics.html:4">Accuracy counts all four boxes as though they were interchangeable.&nbsp;<br>Here is the problem: even with balanced groups, accuracy cannot tell a missed patient from a false alarm, and those have very different consequences.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:4">Accuracy counts all four boxes as though they were interchangeable.<br>Here is the problem: even with balanced groups, accuracy cannot tell a missed patient from a false alarm, and those have very different consequences.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
       <div class="t" data-ed="part4/04-errors-and-metrics.html:5">Move the threshold, move the errors</div>
-      <div class="hint" data-ed="part4/04-errors-and-metrics.html:6"></div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1302,51 +1318,50 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="thrP" min="5" max="60" value="40" step="1">
         </div>
         <div class="stats" id="thrStats"></div>
-        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:7">Drag the threshold to 0 and we call everyone a patient: every patient found, every control alarmed. Drag it to 1 and the reverse. Everything useful happens in between.</p>
+        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:6">Drag the threshold to 0 and we call everyone a patient: every patient found, every control alarmed. Drag it to 1 and the reverse. Everything useful happens in between.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part4/04-errors-and-metrics.html:8">Four numbers worth knowing</h3>
-    <p data-ed="part4/04-errors-and-metrics.html:9">Each one divides a box by a row or a column of the table above, and each answers a different question:</p>
+    <h3 data-ed="part4/04-errors-and-metrics.html:7">Four numbers worth knowing</h3>
+    <p data-ed="part4/04-errors-and-metrics.html:8">Each one divides a box by a row or a column of the table above, and each answers a different question:</p>
     <ul>
-      <li data-ed="part4/04-errors-and-metrics.html:10"><strong>Sensitivity</strong>, or recall: of the patients, how many did we find? Divides by the patient row. This is the one that matters when missing a case is dangerous.</li>
-      <li data-ed="part4/04-errors-and-metrics.html:11"><strong>Specificity</strong>: of the controls, how many did we correctly identified? Divides by the control row.</li>
-      <li data-ed="part4/04-errors-and-metrics.html:12"><strong>Precision</strong>: of those we flagged, how many really were patients? Divides by the flagged column, so unlike the other two it moves when prevalence moves.</li>
-      <li data-ed="part4/04-errors-and-metrics.html:13"><strong>F1</strong>: the harmonic mean of precision and recall, for when we want one number and accuracy will not do.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:9"><strong>Sensitivity</strong>, or <b>recall</b>: of the patients, how many did we find? Divides by the patient row. This is the one that matters when missing a case is dangerous.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:10"><strong>Specificity</strong>: of the controls, how many did we correctly identify? Divides by the control row.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:11"><strong>Precision</strong>: of those we flagged, how many really were patients? Divides by the flagged column.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:12"><strong>F1</strong>: the harmonic mean of precision and recall, for when we want one number and accuracy will not do.</li>
     </ul>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part4/04-errors-and-metrics.html:14">Every threshold at once: the ROC curve</h3>
-    <p data-ed="part4/04-errors-and-metrics.html:15">Each of those four measures was computed at one threshold. Move the threshold and they all change, so any of them alone describes just one arbitrary threshold.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:16">The <strong>ROC curve</strong> shows the whole set. Slide the threshold from 1 down to 0, and at every stop plot the pair we care about:</p>
+    <h3 data-ed="part4/04-errors-and-metrics.html:13">Every threshold at once: the ROC curve</h3>
+    <p data-ed="part4/04-errors-and-metrics.html:14">Each of those four measures was computed at one threshold. Move the threshold and they all change, so any of them alone describes just one arbitrary threshold.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:15">The <strong>ROC curve</strong> shows the whole set. Slide the threshold from 1 down to 0, and at every stop plot the pair we care about:</p>
     <ul>
-      <li data-ed="part4/04-errors-and-metrics.html:17">up the vertical axis, <strong>sensitivity</strong>: the share of patients we caught;</li>
-      <li data-ed="part4/04-errors-and-metrics.html:18">along the horizontal axis, <strong>1 − specificity</strong>: the share of controls we false-alarmed.</li>
+      <li data-ed="part4/04-errors-and-metrics.html:16">up the vertical axis, <strong>sensitivity</strong>: the share of patients we caught;</li>
+      <li data-ed="part4/04-errors-and-metrics.html:17">along the horizontal axis, <strong>1 − specificity</strong>: the share of controls we false-alarmed.</li>
     </ul>
-    <p data-ed="part4/04-errors-and-metrics.html:19">Each threshold gives one point, and the curve is the trace of all of them.&nbsp;</p>
-    <p data-ed="part4/04-errors-and-metrics.html:20">Two corners are fixed whatever the model does. At a threshold of 1 we flag nobody, so we catch no patients and alarm no controls: the bottom left. At a threshold of 0 we flag everybody, catching every patient and alarming every control: the top right.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:21">The panel below puts the two side by side. On the left, the same 400 subjects drawn as two distributions, one per class, with everything the threshold flags shaded in. On the right, the curve.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:22">Pin one threshold, move to another, and the two dots sit at two different places on the same curve: 0.5 and 0.7 are not better and worse models, they are two deals from one model.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:18">Each threshold gives one point, and together the points make the curve.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:19">Two corners are fixed.<br>At a threshold of 1 we flag nobody, so we catch no patients and alarm no controls: the bottom left.<br>At a threshold of 0 we flag everybody, catching every patient and alarming every control: the top right.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:20">The panel below puts the two side by side. On the left, the same 400 subjects drawn as two distributions, one per class, with everything the threshold flags shaded in. On the right, the curve.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/04-errors-and-metrics.html:23">From the two distributions to the curve</div>
-      <div class="hint" data-ed="part4/04-errors-and-metrics.html:24">move the threshold and watch the dot travel</div>
+      <div class="t" data-ed="part4/04-errors-and-metrics.html:21">From the two distributions to the curve</div>
+      <div class="hint" data-ed="part4/04-errors-and-metrics.html:22">move the threshold and watch the dot travel</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
         <div class="panel-duo">
           <div>
             <canvas id="cvDist" class="cv" height="300"></canvas>
-            <p class="notecap" data-ed="part4/04-errors-and-metrics.html:25">The same 400 subjects as above, drawn as two distributions instead of two rows of markers. Shaded: everything the threshold flags.</p>
+            <p class="notecap" data-ed="part4/04-errors-and-metrics.html:23">The same 400 subjects as above, drawn as two distributions instead of two rows of markers. Shaded: everything the threshold flags.</p>
           </div>
           <div>
             <canvas id="cvRoc" class="cv" height="300"></canvas>
-            <p class="notecap" data-ed="part4/04-errors-and-metrics.html:26">The red tail is how high the dot sits. The teal tail is how far right it sits.</p>
+            <p class="notecap" data-ed="part4/04-errors-and-metrics.html:24">The red tail is how high the dot sits. The teal tail is how far right it sits.</p>
           </div>
         </div>
         <div id="rocLayers"></div>
@@ -1357,25 +1372,21 @@ section.tabpanel{padding:2.6rem 0 0}
           <label>threshold <span class="v" id="rocTv">0.50</span></label>
           <input type="range" id="rocT" min="2" max="98" value="50" step="1">
         </div>
-        <div class="btnrow">
-          <button class="btn" id="rocPin">pin this threshold</button>
-          <button class="btn" id="rocClear">clear</button>
-        </div>
         <div class="ctl-row">
           <label>how separable the groups are <span class="v" id="rocSv">1.90</span></label>
           <input type="range" id="rocS" min="0" max="320" value="190" step="1">
         </div>
         <div class="stats" id="rocStats"></div>
-        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:27">The separability slider is the only thing here that changes the curve’s shape. The threshold just slides the dot along it.</p>
+        <p class="notecap" data-ed="part4/04-errors-and-metrics.html:25">The separability slider is the only thing here that changes the curve’s shape. The threshold just slides the dot along it.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part4/04-errors-and-metrics.html:28">Squeezing the curve into one number</h3>
-    <p data-ed="part4/04-errors-and-metrics.html:29">To summarize this entire curve, we use the <strong>area under the curve</strong>, the <b>AUC</b>.</p>
-    <p data-ed="part4/04-errors-and-metrics.html:30">A straight diagonal means AUC = 0.5. A curve that goes straight up and then straight across will have AUC = 1.&nbsp;</p>
-    <p data-ed="part4/04-errors-and-metrics.html:31">Another interpretation is this: pick one patient and one control at random, and AUC is the probability the model gives the patient the higher score. An AUC of 0.85 says it gets that right 85% of the time. A coin gets it right 50% of the time.</p>
+    <h3 data-ed="part4/04-errors-and-metrics.html:26">Squeezing the curve into one number</h3>
+    <p data-ed="part4/04-errors-and-metrics.html:27">To summarize this entire curve, we use the <strong>area under the curve</strong>, the <b>AUC</b>.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:28">A straight diagonal means AUC = 0.5. A curve that goes straight up and then straight across will have AUC = 1.</p>
+    <p data-ed="part4/04-errors-and-metrics.html:29">Another interpretation is this: pick one patient and one control at random, and AUC is the probability the model gives the patient the higher score. An AUC of 0.85 says it gets that right 85% of the time. A coin gets it right 50% of the time.</p>
   </div>
 
   <div class="eq tight">
@@ -1383,13 +1394,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
 
-  <div class="warn" data-ed="part4/04-errors-and-metrics.html:32">
-    <b>A high AUC is not a working test.</b> It says the ranking is good, which is a necessary condition and not a sufficient one. Before it helps a single patient someone still has to pick the operating point, check that the probabilities mean what they say, and confirm that the sensitivity on offer there is clinically enough. Papers that report AUC and stop have answered the easy half.
-  </div>
-
-  <div class="warn" data-ed="part4/04-errors-and-metrics.html:33">
-    <b>Report the threshold with the metric.</b> Sensitivity of 0.92 is meaningless without saying where we cut, because we can always buy sensitivity with specificity by moving the cut. Two papers reporting different sensitivities for the same model are often reporting the same curve at two different points on it.
-  </div>
+  <div class="warn" data-ed="part4/04-errors-and-metrics.html:30"><b>Examine and report several metrics.</b> Sensitivity of 0.92 is meaningless without saying where we threshold, because we can always buy sensitivity with specificity by moving the cut. Pick the metric based on what's interesting for the research or application: sensitivity, precision, F1, or AUC.</div>
 </section>
 
 <!-- ==================== 35 ==================== -->
@@ -1397,7 +1402,7 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">06</div><h2 data-ed="part4/05-knn-classifier.html:0">The KNN classifier</h2></div>
   <div class="prose">
     <p data-ed="part4/05-knn-classifier.html:1">Class 2 used nearest neighbours for regression: find the <span class="m">K</span> closest training points and average their <span class="m">y</span>.
-      <br>For classification, we use the same idea: Find the <span class="m">K</span> closest points and take a vote.</p>
+      <br>For classification, we use the same idea: find the <span class="m">K</span> closest points and take a vote.</p>
   </div>
 
   <div class="eq">
@@ -1409,13 +1414,12 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <p data-ed="part4/05-knn-classifier.html:2">The fraction of the neighbourhood belonging to class <span class="m">j</span>, used as a probability. Whichever class wins the vote is the prediction.</p>
-    <p data-ed="part4/05-knn-classifier.html:3">The difference from a simple logistic regression is that the KNN classifier can have any shape of a decision boundary:</p>
+    <p data-ed="part4/05-knn-classifier.html:3">The difference from simple logistic regression is that the KNN decision boundary can take any shape:</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
       <div class="t" data-ed="part4/05-knn-classifier.html:4">Two boundaries on the same data</div>
-      <div class="hint" data-ed="part4/05-knn-classifier.html:5"></div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1435,19 +1439,19 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <div class="stats" id="bndStats"></div>
-        <p class="notecap" data-ed="part4/05-knn-classifier.html:6">The dashed line is the <strong>Bayes boundary</strong>: where the true probability is exactly one half. It is the ground truth, on which the data was created.</p>
+        <p class="notecap" data-ed="part4/05-knn-classifier.html:5">The dashed line is the <strong>Bayes boundary</strong>: where the true probability is exactly one half. It is the ground truth, the rule the data was simulated from.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part4/05-knn-classifier.html:7">At <span class="m">K</span> = 1 the boundary is a jagged outline that separates the training points perfectly and has learned the noise. Raising <span class="m">K</span> smooths it toward the truth, then past it.</p>
+    <p data-ed="part4/05-knn-classifier.html:6">At <span class="m">K</span> = 1 the boundary breaks into small patches that separate the training points perfectly.<br>Raising <span class="m">K</span> smooths it toward the truth, creating a more continuous boundary.<br>But smoothing too much is also bad!</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part4/05-knn-classifier.html:8">The same U, in error rate</div>
-      <div class="hint" data-ed="part4/05-knn-classifier.html:9">flexibility runs right to left, as 1/<span class="m">K</span></div>
+      <div class="t" data-ed="part4/05-knn-classifier.html:7">The same U, in error rate</div>
+      <div class="hint" data-ed="part4/05-knn-classifier.html:8">flexibility grows to the right, as 1/<span class="m">K</span></div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -1457,8 +1461,6 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="stats" id="kerrStats"></div>
-        <p class="notecap" data-ed="part4/05-knn-classifier.html:10">By convention the axis is 1/<span class="m">K</span>, so flexibility increases to the right and the picture matches the bias-variance curve from class 2.
-          <br>At <span class="m">K</span> = 1 the training error is exactly zero: every point is its own nearest neighbour, so it always votes for itself. That number tells us nothing whatsoever.</p>
       </div>
     </div>
   </div>
@@ -2812,7 +2814,6 @@ function probTints(){
     statsEl.innerHTML =
       row("plain", 'the boundary, <span class="m">X</span> =', has ? fmt(mid, 2) : "none") +
       row("model", '<span class="m">p</span> at the boundary', has ? fmt(sigm(b0 + b1*mid), 2) : "none") +
-      row("plain", "the linear part there", has ? fmt(b0 + b1*mid, 2) : "none") +
       row("error", "on the wrong side", wrong + " of " + SUB.length);
 
     var P = '<span class="m">p</span>', XV = '<span class="m">X</span>';
@@ -2956,7 +2957,6 @@ function probTints(){
     statsEl.innerHTML =
       row("model", "correct on train", pct(trR, TR)) +
       row("model", "correct on test",  pct(teR, TE)) +
-      row("plain", "the fit, train / test", pct(FIT_TR, TR) + " / " + pct(FIT_TE, TE)) +
       row("plain", "angle of the boundary", fmt(ang,0) + "\u00B0") +
       row("plain", "steepness across it", fmt(Math.sqrt(b1*b1 + b2*b2), 2));
 
@@ -2969,7 +2969,8 @@ function probTints(){
           : "") +
         "This boundary gets <b>" + trR + " of the " + TR.length + "</b> training subjects right, and <b>" +
         teR + " of the " + TE.length + "</b> test subjects.<br>" +
-        "The maximum-likelihood fit gets " + FIT_TR + " and " + FIT_TE + ". It never saw the test subjects, so that second number is the honest one.<br>" +
+        "For comparison, the maximum-likelihood fit (the button) gets " + FIT_TR + " training and " + FIT_TE + " test subjects right.<br>" +
+        "The test subjects were never used to fit it, so the test count is the honest one.<br>" +
         "Points outlined in the boundary's colour are on the wrong side of it.<br>" +
         "Scaling all three coefficients together leaves the line exactly where it is and only sharpens the shading.";
   }
@@ -3360,7 +3361,7 @@ var MET = (function(){
   }
   var subs = [];
   return { N:N, cohort:cohort, counts:counts, roc:roc,
-           t:0.5, prev:0.40, sep:1.90, pin:null,
+           t:0.5, prev:0.40, sep:1.90,
            on: function(f){ subs.push(f); },
            emit: function(){ subs.forEach(function(f){ try{ f(); }catch(e){} }); } };
 })();
@@ -3469,7 +3470,6 @@ var MET = (function(){
     {k:"tails",  label:"what the threshold cuts off", kind:"dot", col:"--c-error"},
     {k:"curve",  label:"the ROC curve",         kind:"ln",   col:"--c-model"},
     {k:"here",   label:"your threshold",        kind:"ring", col:"--ink"},
-    {k:"pin",    label:"the pinned one",        kind:"ring", col:"--c-alt"},
     {k:"chance", label:"a coin flip",           kind:"dash", col:"--ink-faint"}
   ], function(){ MET.emit(); });
 
@@ -3564,8 +3564,6 @@ var MET = (function(){
       outline(pd, dPat, cPat);
     }
     var R = rates(t);
-    if (L.on("pin") && MET.pin !== null)
-      pd.seg(MET.pin, 0, MET.pin, top*1.18, {color: alpha(col("--c-alt"), .9), w:2, dash:[5,4]});
     pd.seg(t, 0, t, top*1.18, {color: alpha(col("--ink"), .85), w:2.2});
     pd.txt("flag \u2192", pd.x(t) + 6, pd.T + 12,
            {color: col("--ink-soft"), font:'600 9.5px "IBM Plex Mono", monospace'});
@@ -3598,14 +3596,6 @@ var MET = (function(){
     }
     if (L.on("chance"))
       p.seg(0, 0, 1, 1, {color: alpha(col("--ink-faint"), .8), w:1.4, dash:[5,4]});
-    if (L.on("pin") && MET.pin !== null){
-      var Q = rates(MET.pin);
-      p.seg(0, Q.sy, Q.sx, Q.sy, {color: alpha(col("--c-alt"), .4), w:1.2, dash:[4,3]});
-      p.seg(Q.sx, 0, Q.sx, Q.sy, {color: alpha(col("--c-alt"), .4), w:1.2, dash:[4,3]});
-      p.dots([[Q.sx, Q.sy]], {r:5.5, color: col("--c-alt"), ring: col("--surface")});
-      p.txt("t = " + MET.pin.toFixed(2), p.x(Q.sx) + 10, p.y(Q.sy) + 4,
-            {color: col("--c-alt"), font:'600 10px "IBM Plex Mono", monospace'});
-    }
     if (L.on("here")){
       p.seg(0, R.sy, R.sx, R.sy, {color: alpha(col("--ink"), .45), w:1.3, dash:[4,3]});
       p.seg(R.sx, 0, R.sx, R.sy, {color: alpha(col("--ink"), .45), w:1.3, dash:[4,3]});
@@ -3621,33 +3611,16 @@ var MET = (function(){
             ylabel:"sensitivity", fmt:function(v){ return v.toFixed(2); }});
 
     function row(cls,k2,v){ return '<div class="stat '+cls+'"><span class="k">'+k2+'</span><span class="val">'+v+'</span></div>'; }
-    var html =
+    statsEl.innerHTML =
       row("model", "AUC", fmt(RC.auc, 3)) +
       row("error", "sensitivity, the red tail",  fmt(100*R.sy,1) + "%") +
       row("test",  "false alarms, the teal tail", fmt(100*R.sx,1) + "%");
-    if (MET.pin !== null){
-      var Q2 = rates(MET.pin);
-      html += row("plain", "pinned at t = " + MET.pin.toFixed(2),
-                  fmt(100*Q2.sy,0) + "% / " + fmt(100*Q2.sx,0) + "%");
-    }
-    statsEl.innerHTML = html;
 
-    capEl.innerHTML = (MET.pin !== null)
-      ? "Two thresholds, two dots. Moving from <b>" + MET.pin.toFixed(2) + "</b> to <b>" + t.toFixed(2) +
-        "</b> takes sensitivity from " + fmt(100*rates(MET.pin).sy,0) + "% to " + fmt(100*R.sy,0) +
-        "% and false alarms from " + fmt(100*rates(MET.pin).sx,0) + "% to " + fmt(100*R.sx,0) +
-        "%. Both tails on the left shrink or grow together: that is the trade, and the curve is every version of it."
-      : "The shaded tail under the red curve is the share of patients we flag, and the one under the teal curve is the share of controls we alarm. Those two numbers are the height and the across of the dot on the right. Pin a threshold and move the slider to compare two of them.";
+    capEl.innerHTML = "The shaded tail under the red curve is the share of patients we flag, and the one under the teal curve is the share of controls we alarm. Those two numbers are the height and the across of the dot on the right.";
   }
 
   eS.addEventListener("input", function(){ MET.sep = (+eS.value)/100; MET.emit(); });
   eT.addEventListener("input", function(){ MET.t = (+eT.value)/100; MET.emit(); });
-  document.getElementById("rocPin").addEventListener("click", function(){
-    MET.pin = (MET.pin === MET.t) ? null : MET.t; MET.emit();
-  });
-  document.getElementById("rocClear").addEventListener("click", function(){
-    MET.pin = null; MET.emit();
-  });
   MET.on(draw); reg(draw);
 })();
 
