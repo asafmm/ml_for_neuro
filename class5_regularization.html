@@ -686,13 +686,13 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">01</div><h2 data-ed="part6/01-more-features-than-subjects.html:0">More features than subjects</h2></div>
   <div class="prose">
     <p data-ed="part6/01-more-features-than-subjects.html:1">In neuroscience we often measure many more features than we have subjects:
-      <br>the thickness of hundreds of cortical regions, the activity of thousands of voxels, the connectivity between every pair of regions.
-      <br>We write this as <span class="m">p</span> &#8811; <span class="m">n</span>: the number of features <span class="m">p</span> is much larger than the number of subjects <span class="m">n</span>.</p>
-    <p data-ed="part6/01-more-features-than-subjects.html:2">Today's data is real. ABIDE II is an open MRI dataset of 1004 children and adults, aged 5 to 64, scanned at 17 sites.
+      <br>the thickness of hundreds of cortical regions, the activity in thousands of voxels, the connectivity between every pair of regions.
+      <br>We write this as <span class="m">p</span> ≫ <span class="m">n</span>: the number of features <span class="m">p</span> is much larger than the number of subjects <span class="m">n</span>.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:2">As an example, we will look at ABIDE II (familiar to you from the exercises), an open MRI dataset of 1004 children and adults, aged 5 to 64, scanned at 17 sites.
       <br>For every participant, the thickness of the cortex was measured in 360 regions.
-      <br>We will try to predict age from these 360 numbers. The cortex gets thinner as we grow up, so there is something to find.</p>
-    <p data-ed="part6/01-more-features-than-subjects.html:3">A typical study has a few dozen subjects, so we draw 60 participants to train on, and keep 200 others as a test set.
-      <br>That is a table of <span class="m">n</span> = 60 rows and <span class="m">p</span> = 360 features, for the linear model from class 1:</p>
+      <br>We will try to predict age from these 360 numbers.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:3">In a typical study (which is not ABIDE) we have a few dozen subjects, so we draw 60 participants from ABIDE to train on, and keep 200 others as a test set.
+      <br>That is a table of <span class="m">n</span> = 60 rows and <span class="m">p</span> = 360 features, given to a linear model:</p>
   </div>
 
   <div class="eq">
@@ -706,11 +706,10 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part6/01-more-features-than-subjects.html:4">Count the unknowns: one intercept and 360 slopes, 361 numbers to estimate from 60 subjects.
-      <br>Once the model has as many numbers as there are subjects, least squares can pass exactly through every training point, and the training error is zero.
-      <br>With even more features, infinitely many sets of coefficients fit perfectly, and least squares no longer has a single answer.</p>
-    <p data-ed="part6/01-more-features-than-subjects.html:5">Is this a bias problem or a variance problem?
-      <br>Let's watch it happen. Below, least squares uses the first <span class="m">k</span> regions in a fixed random order, from 1 up to 59.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:4">We have 361 coefficients, one intercept and 360 slopes, to estimate from 60 subjects.
+      <br>Once the model has as many features as there are subjects (<span class="m">p</span> = <span class="m">n</span>), least squares can fit through every training point, and the training error is zero.
+      <br>With even more features (<span class="m">p</span> &gt; <span class="m">n</span>), we have infinitely many sets of coefficients that fit perfectly, and least squares no longer has a single answer (think about solving <span class="m">n</span> equations with <span class="m">p</span> variables).</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:5">Let's watch it happen when we use the first <span class="m">k</span> regions in a fixed random order, and increase <span class="m">k</span> from 1 up to 59.</p>
   </div>
 
   <div class="panel">
@@ -729,31 +728,42 @@ section.tabpanel{padding:2.6rem 0 0}
           </div>
         </div>
         <div id="fsLayers"></div>
+        <canvas id="cvFsCoef" class="cv" height="210" style="margin-top:.8rem"></canvas>
+        <div id="fsCoefLayers"></div>
         <p class="notecap" id="fsCap"></p>
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>regions in the model, <span class="m">k</span> <span class="v" id="fsKv">10</span></label>
+          <label><span>regions in the model, <span class="m">k</span></span> <span class="v" id="fsKv">10</span></label>
           <input type="range" id="fsK" min="1" max="59" value="10" step="1">
         </div>
         <div class="stats" id="fsStats"></div>
-        <p class="notecap" data-ed="part6/01-more-features-than-subjects.html:8">Left: every subject's predicted age against their true age. A prediction beyond the frame is drawn on its edge.
-          <br>Right: the MSE of the same fit, for every <span class="m">k</span>.</p>
+        <div class="btnrow">
+          <button class="btn" id="fsNew">new training sample</button>
+          <button class="btn" id="fsFirst">first sample</button>
+        </div>
+        <p class="notecap" data-ed="part6/01-more-features-than-subjects.html:8">Top left: every subject's predicted age against their true age. A prediction beyond the frame is drawn on its edge.
+          <br>Top right: the MSE of the same fit, for every <span class="m">k</span>.
+          <br>Bottom: the coefficient of each region in the model. A new training sample draws another 60 of the 260 participants to train on, and tests on the other 200. A coefficient beyond &plusmn;20 is drawn on the edge.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part6/01-more-features-than-subjects.html:9">The training MSE only goes down. Every new region gives least squares more freedom to fit these 60 subjects, noise included.
-      <br>At 59 regions plus the intercept there are as many numbers as subjects, and the fit is perfect.</p>
-    <p data-ed="part6/01-more-features-than-subjects.html:10">The test MSE goes down at first, while the new regions still carry information about age, and then it goes up. Close to 59 it explodes.
-      <br>So it is a <strong>variance</strong> problem: with this many coefficients, the fit follows the noise of the particular 60 subjects we happened to draw.</p>
-    <p data-ed="part6/01-more-features-than-subjects.html:11">With <span class="m">p</span> &#8811; <span class="m">n</span> we cannot simply use every feature. We need to decide which features go into the model, and how many.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:9">The training MSE only goes down. Every new region gives least squares more freedom to fit these 60 subjects.
+      <br>At 59 regions plus the intercept, <span class="m">p</span> = <span class="m">n</span>, and the fit is perfect.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:10">Is this perfect fit a bias or a variance problem?
+      <br>The two curves together tell bias and variance apart.
+      <br>With few regions, both errors are high and close to each other: the model is too simple to capture how thickness changes with age. That is a <strong>bias</strong> problem.
+      <br>With many regions, the training error falls to zero while the test error rises: the fit follows the noise of the particular 60 subjects we happened to draw. That is a <strong>variance</strong> problem, and <span class="m">p</span> ≫ <span class="m">n</span> puts us at the far right of the plot.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:11">Variance means that the fit changes from one training sample to the next.
+      <br>Press <strong>new training sample</strong> a few times and watch the bottom plot: with a few regions the coefficients hardly move, and with 59 they jump all over it.</p>
+    <p data-ed="part6/01-more-features-than-subjects.html:12">With <span class="m">p</span> &#8811; <span class="m">n</span> we cannot simply use every feature. We need to decide which features go into the model, and how many.</p>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part6/01-more-features-than-subjects.html:12">Key idea</div>
-    <p data-ed="part6/01-more-features-than-subjects.html:13">Once a model has as many coefficients as there are subjects, a perfect fit to the training data is guaranteed, and it tells us nothing about prediction. Only held-out data can show how many features actually help.</p>
+    <div class="lbl" data-ed="part6/01-more-features-than-subjects.html:13">Key idea</div>
+    <p data-ed="part6/01-more-features-than-subjects.html:14">Once a model has as many coefficients as there are subjects, a perfect fit to the training data is guaranteed, and it tells us nothing about prediction. Only held-out data can show how many features actually help.</p>
   </div>
 </section>
 
@@ -767,7 +777,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <li data-ed="part6/02-selecting-by-a-criterion.html:3">Keep the <span class="m">k</span> features with the best <span class="m">c</span>.</li>
     </ol>
     <p data-ed="part6/02-selecting-by-a-criterion.html:4">A common criterion is the correlation <span class="m">r</span> between the feature and <span class="m">y</span>.
-      <br>A <span class="m">t</span>-statistic or an <span class="m">F</span>-statistic of each feature on its own ranks the features in exactly the same order.
+      <br>For different tasks, we can also use a <span class="m">t</span>-statistic or an <span class="m">F</span>-statistic of each feature.
       <br>Here we use the correlation with age, computed on the 60 training subjects.</p>
     <p data-ed="part6/02-selecting-by-a-criterion.html:5">How many features should we keep? <span class="m">k</span> is a setting like the polynomial degree, or the number of neighbours in KNN, so we choose it the same way: by cross-validation (class 3).</p>
   </div>
@@ -786,7 +796,7 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="ctl-row">
-          <label>regions kept, <span class="m">k</span> <span class="v" id="crKv">3</span></label>
+          <label><span>regions kept, <span class="m">k</span></span> <span class="v" id="crKv">3</span></label>
           <input type="range" id="crK" min="1" max="47" value="3" step="1">
         </div>
         <div class="stats" id="crStats"></div>
@@ -799,30 +809,23 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <p data-ed="part6/02-selecting-by-a-criterion.html:9">Cross-validation chooses <span class="m">k</span> = 14: the 14 regions most correlated with age.
-      <br>Their test MSE is 44.7, against 49.6 for the best number of regions in the random order of the previous tab, and 78.6 for predicting the mean age for everyone.</p>
-    <p data-ed="part6/02-selecting-by-a-criterion.html:10">A few strong regions already predict well. Beyond them, every region added brings more noise than information.</p>
+      <br>Their test MSE is 44.7, against 78.6 for predicting the mean age for everyone.</p>
   </div>
 
-  <div class="warn" data-ed="part6/02-selecting-by-a-criterion.html:11"><b>Select inside the folds.</b> Choosing features is part of fitting the model. In every round of cross-validation, the correlations are computed on that round's training folds only, and the held-out fold has no say in which regions are kept. Ranking the regions once on all 60 subjects, and only then splitting the folds, would leak the validation subjects into the choice and make the CV error look better than it is.</div>
+  <div class="warn" data-ed="part6/02-selecting-by-a-criterion.html:10"><b>Select features inside the folds!</b> Note that cross-validation tells us the <b>best value for <span class="m">k</span>, not which regions to choose</b>. Each fold in the cross-validation used a different set of regions, based on its training set. If we have a test set at hand, we would fit a final model using <span class="m">k</span> = 14 on the entire training set, and evaluate it on the test set. We expect the MSE to be close to 52.5.</div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part6/02-selecting-by-a-criterion.html:12">Class 3: Leakage in cross-validation</div>
-      <p class="cl-d" data-ed="part6/02-selecting-by-a-criterion.html:13">The same choice, made before and after the split, on 1000 features of pure noise.</p>
+      <div class="cl-t" data-ed="part6/02-selecting-by-a-criterion.html:11">Class 3: Leakage in cross-validation</div>
+      <p class="cl-d" data-ed="part6/02-selecting-by-a-criterion.html:12">The same choice, made before and after the split, on 1000 features of pure noise.</p>
     </div>
     <a href="class3_cross_validation.html#s46" data-local="class3_cross_validation.html#s46">Open in class 3 &rarr;</a>
   </div>
 
   <div class="prose">
-    <h3 data-ed="part6/02-selecting-by-a-criterion.html:14">What this kind of selection cannot do</h3>
-    <p data-ed="part6/02-selecting-by-a-criterion.html:15">The criterion looks at one feature at a time. It cannot tell when two features carry the same information, like neighbouring regions, or the same region on the left and on the right.
-      <br>And every feature is either fully in the model or fully out of it.</p>
-    <p data-ed="part6/02-selecting-by-a-criterion.html:16">The next tabs take a different route: keep every feature, and let the fit itself decide how much each one counts.</p>
-  </div>
-
-  <div class="key">
-    <div class="lbl" data-ed="part6/02-selecting-by-a-criterion.html:17">Key idea</div>
-    <p data-ed="part6/02-selecting-by-a-criterion.html:18">Selecting features is part of fitting. The number of features is chosen by cross-validation, and the selection itself is repeated inside every fold, on the training folds alone.</p>
+    <h3 data-ed="part6/02-selecting-by-a-criterion.html:13">What this kind of selection cannot do</h3>
+    <p data-ed="part6/02-selecting-by-a-criterion.html:14">The criterion looks at one feature at a time. It cannot tell when two features carry the same information, like neighbouring regions, or the same region on the left and on the right.</p>
+    <p data-ed="part6/02-selecting-by-a-criterion.html:15">The next tabs take a different route: keep every feature, and let the fit itself decide how much each one counts.</p>
   </div>
 </section>
 
@@ -831,9 +834,9 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">03</div><h2 data-ed="part6/03-ridge.html:0">Ridge regression</h2></div>
   <div class="prose">
     <p data-ed="part6/03-ridge.html:1">Feature selection makes a hard decision for every feature: in or out.
-      <br><strong>Regularization</strong> keeps all the features, and limits how large their coefficients can grow instead.
-      <br>It works as an automatic feature selection: the fit itself decides how much each feature counts.</p>
-    <p data-ed="part6/03-ridge.html:2">Standard linear regression minimizes the RSS:</p>
+      <br><strong>Regularization</strong> keeps all the features, and limits how large their coefficients can be instead. Some methods of regularization also perform feature selection.
+      <br>With regularization, the fit itself decides how much each feature counts.</p>
+    <p data-ed="part6/03-ridge.html:2">Let's recall the standard linear regression, which minimizes the RSS:</p>
   </div>
 
   <div class="eq">
@@ -845,20 +848,22 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part6/03-ridge.html:3"><strong>Ridge regression</strong> adds the size of the coefficients to it, as a penalty:</p>
+    <p data-ed="part6/03-ridge.html:3"><strong>Ridge regression</strong> (a regularized regression) adds the size of the coefficients to it, as a penalty.
+      <br>The result is the <strong>penalized RSS</strong> (PRSS):</p>
   </div>
 
   <div class="eq">
-    <span class="m">L</span>(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS(<span class="m">&beta;</span>) + <span class="m">&lambda;</span>
+    PRSS(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS(<span class="m">&beta;</span>) + <span class="m">&lambda;</span>
     <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
     <span class="m">&beta;<sub>j</sub></span><sup>2</sup>
   </div>
 
   <div class="prose">
-    <p data-ed="part6/03-ridge.html:4">The first part is the RSS we know. The second is the <strong>penalty</strong>: the sum of the squared coefficients, multiplied by <span class="m">&lambda;</span> &ge; 0, the <strong>regularization parameter</strong>.
-      <br>The sum starts at <span class="m">j</span> = 1: the intercept <span class="m">&beta;<sub>0</sub></span> is not penalized, because it only sets the average level of <span class="m">y</span>.</p>
+    <p data-ed="part6/03-ridge.html:4">The first part is the RSS we know. The second is the <strong>penalty</strong>: the sum of the squared coefficients, multiplied by <span class="m">λ</span> ≥ 0, the <strong>regularization parameter</strong>.
+      <br>The sum starts at <span class="m">j</span> = 1: the intercept <span class="m">β<sub>0</sub></span> is not penalized, because it only sets the average level of <span class="m">y</span>.
+      <br>The PRSS penalizes the fit for selecting large coefficients, so it makes the model shrink them.</p>
     <p data-ed="part6/03-ridge.html:5">This penalty is called the <strong>L2 penalty</strong>, and ridge is also called <strong>L2 regularization</strong>.
-      <br>The name comes from the <strong>L2 norm</strong>, the ordinary length of the list of coefficients, measured with Pythagoras:</p>
+      <br>The name comes from the <strong>L2 norm</strong>, the length of the vector of coefficients, measured as Euclidean distance from the origin (0, 0):</p>
   </div>
 
   <div class="eq tight">
@@ -890,17 +895,18 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <p data-ed="part6/03-ridge.html:13">The two forms give the same coefficients. Every <span class="m">&lambda;</span> matches one limit <span class="m">s</span> in the <strong>constraint</strong>: the larger <span class="m">&lambda;</span>, the smaller <span class="m">s</span>, and the tighter the constraint.</p>
-    <p data-ed="part6/03-ridge.html:14">The constrained form can be drawn. Take only two of the 360 regions: IP0, a region in the intraparietal sulcus, in the left hemisphere (<span class="m">x<sub>1</sub></span>) and in the right (<span class="m">x<sub>2</sub></span>), on the same 60 subjects.
-      <br>Both are measured in standard deviations from their mean, for a reason we will get to below.
-      <br>The red ellipses are contours of the RSS: the least-squares loss surface seen from above, as in class 1, with its lowest point at least squares. The shading and the number on each ellipse give the RSS there: the deeper the shade, the lower the RSS.
-      <br>The teal disk is the <strong>constraint region</strong>, <span class="m">&beta;<sub>1</sub></span><sup>2</sup> + <span class="m">&beta;<sub>2</sub></span><sup>2</sup> &le; <span class="m">s</span>: every pair of coefficients whose L2 length is at most &radic;<span class="m">s</span>.
+    <p data-ed="part6/03-ridge.html:14">The constrained form can be drawn geometrically.
+      <br>Take only two of the 360 regions: IP0, a region in the intraparietal sulcus, in the left hemisphere (<span class="m">x<sub>1</sub></span>) and in the right (<span class="m">x<sub>2</sub></span>), on the same 60 subjects.
+      <br>Both are measured in standard deviations from their mean (i.e., scaled).</p>
+    <p data-ed="part6/03-ridge.html:15">The red ellipses are contours of the RSS: the least-squares loss surface seen from above, as in class 1, with its lowest point at least squares. The shading and the number on each ellipse give the RSS there: the deeper the shade, the lower the RSS.
+      <br>The teal disk is the <strong>constraint region</strong>, <span class="m">β<sub>1</sub></span><sup>2</sup> + <span class="m">β<sub>2</sub></span><sup>2</sup> ≤ <span class="m">s</span>: every pair of coefficients whose L2 length is at most √<span class="m">s</span>.
       <br>Ridge picks the point of the disk with the lowest RSS: where the smallest ellipse that reaches the disk touches it.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part6/03-ridge.html:15">Least squares and the ridge constraint, on one graph</div>
-      <div class="hint" data-ed="part6/03-ridge.html:16">raise <span class="m">&lambda;</span> and watch where the ellipse touches the disk</div>
+      <div class="t" data-ed="part6/03-ridge.html:16">Least squares and the ridge constraint, on one graph</div>
+      <div class="hint" data-ed="part6/03-ridge.html:17">raise <span class="m">&lambda;</span> and watch where the ellipse touches the disk</div>
     </div>
     <div class="panel-body panel-split">
       <div>
@@ -914,7 +920,7 @@ section.tabpanel{padding:2.6rem 0 0}
           <input type="range" id="srL" min="0" max="650" value="100" step="5">
         </div>
         <div class="stats" id="srStats"></div>
-        <p class="notecap" data-ed="part6/03-ridge.html:17">(<span class="m">&beta;<sub>1</sub></span>, <span class="m">&beta;<sub>2</sub></span>) at each solution. The dark dot is least squares, the orange dot ridge.
+        <p class="notecap" data-ed="part6/03-ridge.html:18">(<span class="m">&beta;<sub>1</sub></span>, <span class="m">&beta;<sub>2</sub></span>) at each solution. The dark dot is least squares, the orange dot ridge.
           <br>The numbers are RSS, in years&sup2; summed over the 60 subjects. The thick ellipse is the RSS contour through the ridge solution.
           <br>The thin lines are the two axes, where a coefficient is exactly 0.</p>
       </div>
@@ -922,19 +928,15 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part6/03-ridge.html:18">At <span class="m">&lambda;</span> = 0 the constraint region is large enough to hold least squares itself, and ridge is least squares.
-      <br>As <span class="m">&lambda;</span> grows, the disk shrinks, and the ridge solution slides along its edge toward (0, 0).
-      <br>A circle has no corners, so the ellipse touches it at a point where both coefficients are non-zero: ridge shrinks every coefficient, but sets none to exactly zero.</p>
-    <p data-ed="part6/03-ridge.html:19">Notice the direction it takes. The left and right IP0 are correlated (<span class="m">r</span> = 0.65), so the ellipses are long and tilted: many pairs of coefficients predict almost equally well.
-      <br>Ridge pulls the two coefficients toward each other as well as toward zero, so the weight ends up shared between the two regions.
-      <br>When features carry the same information, ridge spreads the weight across them.</p>
+    <p data-ed="part6/03-ridge.html:19">At <span class="m">λ</span> = 0 the constraint region is large enough to reach the least squares solution itself, and the ridge solution just becomes least squares.
+      <br>As <span class="m">λ</span> grows, the disk shrinks, and the ridge solution slides along its edge toward (0, 0).</p>
     <h3 data-ed="part6/03-ridge.html:20">In matrix form</h3>
     <p data-ed="part6/03-ridge.html:21">With all the features in a matrix <span class="m">X</span> (<span class="m">n</span> rows, <span class="m">p</span> columns) and the outcomes in a column <span class="m">y</span>, the two losses are:</p>
   </div>
 
   <div class="eq">
     <span class="mline">RSS(<span class="m">&beta;</span>) = (<span class="m">y</span> &minus; <span class="m">X&beta;</span>)<sup>T</sup>(<span class="m">y</span> &minus; <span class="m">X&beta;</span>)</span>
-    <span class="mline"><span class="m">L</span>(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = (<span class="m">y</span> &minus; <span class="m">X&beta;</span>)<sup>T</sup>(<span class="m">y</span> &minus; <span class="m">X&beta;</span>) + <span class="m">&lambda;</span><span class="m">&beta;</span><sup>T</sup><span class="m">&beta;</span></span>
+    <span class="mline">PRSS(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = (<span class="m">y</span> &minus; <span class="m">X&beta;</span>)<sup>T</sup>(<span class="m">y</span> &minus; <span class="m">X&beta;</span>) + <span class="m">&lambda;</span><span class="m">&beta;</span><sup>T</sup><span class="m">&beta;</span></span>
   </div>
 
   <div class="prose">
@@ -979,21 +981,21 @@ section.tabpanel{padding:2.6rem 0 0}
   <div class="shead"><div class="num">04</div><h2 data-ed="part6/04-lasso.html:0">Lasso regression</h2></div>
   <div class="prose">
     <p data-ed="part6/04-lasso.html:1"><strong>Lasso</strong> stands for Least Absolute Shrinkage and Selection Operator.
-      <br>It changes one thing in the ridge loss: the penalty adds up the absolute values of the coefficients, instead of their squares.</p>
+      <br>It changes one thing in the PRSS of ridge: the penalty adds up the absolute values of the coefficients, instead of their squares.</p>
   </div>
 
   <div class="eq">
-    <span class="mline">ridge: &nbsp;<span class="m">L</span>(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS + <span class="m">&lambda;</span>
+    <span class="mline">ridge: &nbsp;PRSS(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS + <span class="m">&lambda;</span>
       <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
       <span class="m">&beta;<sub>j</sub></span><sup>2</sup></span>
-    <span class="mline">lasso: &nbsp;<span class="m">L</span>(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS + <span class="m">&lambda;</span>
+    <span class="mline">lasso: &nbsp;PRSS(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS + <span class="m">&lambda;</span>
       <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
       |<span class="m">&beta;<sub>j</sub></span>|</span>
   </div>
 
   <div class="prose">
     <p data-ed="part6/04-lasso.html:2">This is the <strong>L1 penalty</strong>, and the lasso is also called <strong>L1 regularization</strong>.
-      <br>The <strong>L1 norm</strong> is another way to measure the length of the coefficients: walk from the origin along the axes only, like city blocks, instead of cutting straight across:</p>
+      <br>The <strong>L1 norm</strong> is another way to measure the length of the coefficients: walk from the origin along the axes only, like city blocks in Manhattan, instead of cutting straight across:</p>
   </div>
 
   <div class="eq tight">
@@ -1001,20 +1003,18 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part6/04-lasso.html:3">Ridge charges for the straight-line (L2) length, the lasso for the city-block (L1) length.</p>
-    <p data-ed="part6/04-lasso.html:4">Both penalties shrink. The difference shows in the constrained form.
-      <br>The lasso keeps the RSS, and limits |<span class="m">&beta;<sub>1</sub></span>| + |<span class="m">&beta;<sub>2</sub></span>| &le; <span class="m">s</span>: every pair of coefficients whose L1 length is at most <span class="m">s</span>.
+    <p data-ed="part6/04-lasso.html:3">Ridge penalizes for the Euclidean/straight-line (L2) length, the lasso for the Manhattan/city-block (L1) length.</p>
+    <p data-ed="part6/04-lasso.html:4">Both penalties shrink, but their difference is evident in the constrained form.
+      <br>The lasso keeps the RSS, and limits |<span class="m">β<sub>1</sub></span>| + |<span class="m">β<sub>2</sub></span>| ≤ <span class="m">s</span>: every pair of coefficients whose L1 length is at most <span class="m">s</span>.
       <br>That constraint region is a diamond, with its corners on the axes, where ridge's is a round disk.
       <br>The RSS ellipses often reach a diamond first at one of its corners, and at a corner one coefficient is exactly zero.</p>
-    <p data-ed="part6/04-lasso.html:5">The same idea in numbers: with <span class="m">&beta;</span><sup>2</sup>, a small coefficient costs almost nothing (taking one from 0.1 down to 0 saves only 0.01<span class="m">&lambda;</span>), so ridge always keeps a little of every feature.
-      <br>With |<span class="m">&beta;</span>|, every unit costs the same <span class="m">&lambda;</span>, however small the coefficient, so a feature whose contribution to the fit is worth less than that price is dropped completely.</p>
-    <p data-ed="part6/04-lasso.html:6">Below are the same two regions as in the previous tab: ridge's disk on the left, the lasso's diamond on the right, with the same <span class="m">&lambda;</span> for both.</p>
+    <p data-ed="part6/04-lasso.html:5">Below are the same two regions as in the previous tab: ridge's disk on the left, the lasso's diamond on the right, with the same <span class="m">&lambda;</span> for both.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part6/04-lasso.html:7">Ridge against lasso, on the same two regions</div>
-      <div class="hint" data-ed="part6/04-lasso.html:8">raise <span class="m">&lambda;</span> past 280 and watch the diamond's corner</div>
+      <div class="t" data-ed="part6/04-lasso.html:6">Ridge against lasso, on the same two regions</div>
+      <div class="hint" data-ed="part6/04-lasso.html:7">raise <span class="m">&lambda;</span> past 280 and watch the diamond's corner</div>
     </div>
     <div class="panel-body panel-duo">
       <div>
@@ -1035,23 +1035,24 @@ section.tabpanel{padding:2.6rem 0 0}
       </div>
       <div class="ctl">
         <div class="stats" id="slStats"></div>
-        <p class="notecap" data-ed="part6/04-lasso.html:9">(<span class="m">&beta;<sub>1</sub></span>, <span class="m">&beta;<sub>2</sub></span>) at each solution. The shading and the numbers on the ellipses are the RSS.
+        <p class="notecap" data-ed="part6/04-lasso.html:8">(<span class="m">&beta;<sub>1</sub></span>, <span class="m">&beta;<sub>2</sub></span>) at each solution. The shading and the numbers on the ellipses are the RSS.
           <br>The diamond's corners lie on the axes: a solution at a corner has one coefficient exactly 0.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part6/04-lasso.html:10">Below <span class="m">&lambda;</span> &asymp; 280, the ellipse touches the diamond on one of its sides, and the lasso keeps both coefficients.
+    <p data-ed="part6/04-lasso.html:9">Below <span class="m">&lambda;</span> &asymp; 280, the ellipse touches the diamond on one of its sides, and the lasso keeps both coefficients.
       <br>From about 280 it touches the diamond at its corner on the <span class="m">&beta;<sub>1</sub></span> axis, and stays there as the diamond shrinks: <span class="m">&beta;<sub>2</sub></span> = 0, the right IP0 is out of the model, and the left IP0 carries the effect alone.
       <br>At about 670 the diamond shrinks to (0, 0), and the lasso is the null model. With the same <span class="m">&lambda;</span>, ridge's disk still touches the ellipse where both coefficients are non-zero.</p>
-    <p data-ed="part6/04-lasso.html:11">This is why the lasso is a <strong>selection operator</strong>: it selects features automatically, as part of the fit.
-      <br>Between correlated features it tends to keep one and drop the others, where ridge would share the weight between them.</p>
+    <p data-ed="part6/04-lasso.html:10">This is why the lasso is a <strong>selection operator</strong>: it selects features automatically, as part of the fit.
+      <br>Between correlated features it tends to keep one and drop the others, where ridge would share the weight between them.
+      <br><b>Keep in mind</b> that the fact that lasso chose one correlated feature over the other does not necessarily mean the chosen one is more important than the dropped one, as the selection is affected by the current noisy sample.</p>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part6/04-lasso.html:12">Key idea</div>
-    <p data-ed="part6/04-lasso.html:13">Ridge shrinks every coefficient and keeps every feature. The lasso shrinks too, and sets some coefficients to exactly zero: it selects features as part of the fit, and the larger <span class="m">&lambda;</span>, the fewer features it keeps.</p>
+    <div class="lbl" data-ed="part6/04-lasso.html:11">Key idea</div>
+    <p data-ed="part6/04-lasso.html:12">Ridge shrinks every coefficient and keeps every feature. Lasso shrinks too, and sets some coefficients to exactly zero: it selects features as part of the fit, and the larger <span class="m">λ</span>, the fewer features it keeps.</p>
   </div>
 </section>
 
@@ -1059,16 +1060,17 @@ section.tabpanel{padding:2.6rem 0 0}
 <section id="s55">
   <div class="shead"><div class="num">05</div><h2 data-ed="part6/05-tuning-lambda.html:0">Tuning <span class="m">&lambda;</span></h2></div>
   <div class="prose">
-    <p data-ed="part6/05-tuning-lambda.html:1">Back to all 360 regions and the 60 training subjects, where least squares could not even be fitted.
-      <br>Ridge and the lasso can be fitted for any <span class="m">&lambda;</span> &gt; 0, and every <span class="m">&lambda;</span> gives a different model. How should we choose <span class="m">&lambda;</span>?</p>
-    <p data-ed="part6/05-tuning-lambda.html:2"><span class="m">&lambda;</span> is a setting like the number of regions <span class="m">k</span> two tabs ago, so we choose it the same way: by cross-validation, on the training set only.
+    <p data-ed="part6/05-tuning-lambda.html:1">Note that <span class="m">λ</span> is a "hyperparameter", i.e., it is not fitted but chosen by us.
+      <br>Ridge and the lasso can be fitted for any <span class="m">λ</span> &gt; 0, and every <span class="m">λ</span> gives a different model. How should we choose <span class="m">λ</span>?</p>
+    <p data-ed="part6/05-tuning-lambda.html:2">Let's go back to all 360 regions and the 60 training subjects, where least squares could not even be fitted.</p>
+    <p data-ed="part6/05-tuning-lambda.html:3"><span class="m">&lambda;</span> is a setting like the number of regions <span class="m">k</span> two tabs ago, so we choose it the same way: by cross-validation, on the training set only.
       <br>We try a grid of values and keep the one with the lowest MSE<sub>CV</sub>. As always, the features are standardized inside every fold, on that fold's training subjects.</p>
   </div>
 
   <div class="panel">
     <div class="panel-bar">
-      <div class="t" data-ed="part6/05-tuning-lambda.html:3">360 coefficients along the penalty</div>
-      <div class="hint" data-ed="part6/05-tuning-lambda.html:4">slide <span class="m">&lambda;</span>, then switch to the lasso</div>
+      <div class="t" data-ed="part6/05-tuning-lambda.html:4">360 coefficients along the penalty</div>
+      <div class="hint" data-ed="part6/05-tuning-lambda.html:5">slide <span class="m">&lambda;</span>, then switch to the lasso</div>
     </div>
     <div class="panel-body panel-split wide-ctl">
       <div>
@@ -1090,24 +1092,24 @@ section.tabpanel{padding:2.6rem 0 0}
         </div>
         <div class="stats" id="tuStats"></div>
         <div class="btnrow"><button class="btn" id="tuBest">lowest MSE<sub>CV</sub></button></div>
-        <p class="notecap" data-ed="part6/05-tuning-lambda.html:5">Top: one line per region, its coefficient as <span class="m">&lambda;</span> changes. The slider moves along a log scale.</p>
+        <p class="notecap" data-ed="part6/05-tuning-lambda.html:6">Top: one line per region, its coefficient as <span class="m">&lambda;</span> changes. The slider moves along a log scale.</p>
       </div>
     </div>
   </div>
 
   <div class="prose">
-    <p data-ed="part6/05-tuning-lambda.html:6"><strong>Ridge.</strong> Read the plots from left to right, as <span class="m">&lambda;</span> grows.
-      <br>On the far left the penalty is negligible, and the 60 training subjects are fitted perfectly.
-      <br>As <span class="m">&lambda;</span> grows, all 360 coefficients shrink together, and none of them ever reaches exactly zero.
-      <br>Cross-validation chooses <span class="m">&lambda;</span> &asymp; 141. Its test MSE is 34.2.</p>
-    <p data-ed="part6/05-tuning-lambda.html:7"><strong>Lasso.</strong> Now read from right to left. At a large <span class="m">&lambda;</span> every coefficient is exactly zero, and as <span class="m">&lambda;</span> decreases, regions enter the model one at a time.
+    <p data-ed="part6/05-tuning-lambda.html:7"><strong>Ridge.</strong> Read the plots from left to right, as <span class="m">λ</span> grows.
+      <br>On the far left the penalty is very small, and the 60 training subjects are fitted perfectly.
+      <br>As <span class="m">λ</span> grows, all 360 coefficients shrink together, and none of them ever reaches exactly zero.
+      <br>Cross-validation chooses <span class="m">λ</span> ≈ 141. Its test MSE is 34.2.</p>
+    <p data-ed="part6/05-tuning-lambda.html:8"><strong>Lasso.</strong> Now read from right to left. At a large <span class="m">&lambda;</span> every coefficient is exactly zero, and as <span class="m">&lambda;</span> decreases, regions enter the model one at a time.
       <br>Cross-validation chooses <span class="m">&lambda;</span> &asymp; 50, where 34 of the 360 regions have a coefficient. The lasso picked these 34 by itself, without us ranking anything, and its test MSE is 41.3.</p>
-    <p data-ed="part6/05-tuning-lambda.html:8">For comparison: keeping the 14 regions most correlated with age gave 44.7, and predicting the mean age for everyone gives 78.6.</p>
+    <p data-ed="part6/05-tuning-lambda.html:9">For comparison: keeping the 14 regions most correlated with age gave 44.7, and predicting the mean age for everyone gives 78.6.</p>
   </div>
 
   <div class="key">
-    <div class="lbl" data-ed="part6/05-tuning-lambda.html:9">Key idea</div>
-    <p data-ed="part6/05-tuning-lambda.html:10"><span class="m">&lambda;</span> is chosen like any other flexibility setting: by cross-validation, on the training data. A small <span class="m">&lambda;</span> gives a flexible model with high variance, a large <span class="m">&lambda;</span> a rigid one with high bias.</p>
+    <div class="lbl" data-ed="part6/05-tuning-lambda.html:10">Key idea</div>
+    <p data-ed="part6/05-tuning-lambda.html:11"><span class="m">λ</span> is chosen like any other flexibility setting: by cross-validation, on the training and validation data. A small <span class="m">λ</span> gives a flexible model with high variance, a large <span class="m">λ</span> a rigid one with high bias.</p>
   </div>
 </section>
 
@@ -1119,7 +1121,7 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="eq">
-    <span class="m">L</span>(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS + <span class="m">&lambda;<sub>1</sub></span>
+    PRSS(<span class="m">&beta;</span>, <span class="m">&lambda;<sub>1</sub></span>, <span class="m">&lambda;<sub>2</sub></span>) = RSS + <span class="m">&lambda;<sub>1</sub></span>
     <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
     |<span class="m">&beta;<sub>j</sub></span>| + <span class="m">&lambda;<sub>2</sub></span>
     <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
@@ -1127,29 +1129,29 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="prose">
-    <p data-ed="part6/06-elastic-net.html:2">It is usually written with one strength <span class="m">&lambda;</span>, and a mixing weight <span class="m">&alpha;</span> between 0 and 1:</p>
+    <p data-ed="part6/06-elastic-net.html:2">It is usually written with one strength <span class="m">&lambda;</span>, and a mixing weight <span class="m">&gamma;</span> between 0 and 1:</p>
   </div>
 
   <div class="eq">
-    <span class="m">L</span>(<span class="m">&beta;</span>, <span class="m">&lambda;</span>) = RSS + <span class="m">&lambda;</span>
-    (<span class="m">&alpha;</span>
+    PRSS(<span class="m">&beta;</span>, <span class="m">&lambda;</span>, <span class="m">&gamma;</span>) = RSS + <span class="m">&lambda;</span>
+    (<span class="m">&gamma;</span>
     <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
-    |<span class="m">&beta;<sub>j</sub></span>| + (1 &minus; <span class="m">&alpha;</span>)
+    |<span class="m">&beta;<sub>j</sub></span>| + (1 &minus; <span class="m">&gamma;</span>)
     <span class="sum"><span class="lim">p</span><span class="sig">&Sigma;</span><span class="lim">j=1</span></span>
     <span class="m">&beta;<sub>j</sub></span><sup>2</sup>)
   </div>
 
   <div class="prose">
-    <p data-ed="part6/06-elastic-net.html:3"><span class="m">&alpha;</span> = 1 is the lasso, and <span class="m">&alpha;</span> = 0 is ridge.
+    <p data-ed="part6/06-elastic-net.html:3"><span class="m">&gamma;</span> = 1 is the lasso, and <span class="m">&gamma;</span> = 0 is ridge.
       <br>In between, it can still set coefficients to exactly zero like the lasso, but it shares the weight between correlated features like ridge, instead of keeping one and dropping the rest.
-      <br>There are now two settings, <span class="m">&lambda;</span> and <span class="m">&alpha;</span>, and cross-validation searches a grid of pairs.</p>
-    <p data-ed="part6/06-elastic-net.html:4">Watch the names in scikit-learn: our <span class="m">&lambda;</span> is called <em>alpha</em> there, and our <span class="m">&alpha;</span> is called <em>l1_ratio</em>, the share of the L1 penalty.
+      <br>There are now two settings, <span class="m">&lambda;</span> and <span class="m">&gamma;</span>, and cross-validation needs to search a grid of pairs of both hyperparameters.</p>
+    <p data-ed="part6/06-elastic-net.html:4">When you model this with scikit-learn, watch for the names: our <span class="m">&lambda;</span> is called <em>alpha</em> there, and our <span class="m">&gamma;</span> is called <em>l1_ratio</em>, the share of the L1 penalty.
       <br>Their values are scaled differently from ours: the note at the end of the next tab gives the exact translation.</p>
   </div>
 
   <div class="key">
     <div class="lbl" data-ed="part6/06-elastic-net.html:5">Key idea</div>
-    <p data-ed="part6/06-elastic-net.html:6">The elastic net mixes the L1 and L2 penalties, with <span class="m">&alpha;</span> setting the mix: <span class="m">&alpha;</span> = 1 is the lasso, <span class="m">&alpha;</span> = 0 is ridge. It can select features while sharing the weight between correlated ones.</p>
+    <p data-ed="part6/06-elastic-net.html:6">The elastic net mixes the L1 and L2 penalties, with <span class="m">&gamma;</span> setting the mix: <span class="m">&gamma;</span> = 1 is the lasso, <span class="m">&gamma;</span> = 0 is ridge. It can select features while sharing the weight between correlated ones.</p>
   </div>
 </section>
 
@@ -1169,25 +1171,12 @@ section.tabpanel{padding:2.6rem 0 0}
 
   <div class="prose">
     <p data-ed="part6/06b-logistic-regression.html:2">That is the L2 penalty of ridge. The L1 penalty of the lasso works the same way, and so does their elastic-net mix.
-      <br>Everything from the previous tabs carries over: scale the features first, and choose the strength by cross-validation.</p>
+      <br>Everything from the previous tabs is still true: scale the features first, and choose the strength by cross-validation.</p>
     <p data-ed="part6/06b-logistic-regression.html:3">In scikit-learn, <em>LogisticRegression</em> is regularized by default, with the L2 penalty.
       <br>Its strength is set by <span class="m">C</span>, which works the other way around from <span class="m">&lambda;</span> (<span class="m">C</span> = 1/(2<span class="m">&lambda;</span>) in our notation): a small <span class="m">C</span> means a strong penalty.
       <br>The default is <span class="m">C</span> = 1, and like <span class="m">&lambda;</span> it should be tuned by cross-validation.</p>
-    <h3 data-ed="part6/06b-logistic-regression.html:4">Not only regression</h3>
-    <p data-ed="part6/06b-logistic-regression.html:5">Logistic regression is just one example. Almost every model has a setting that limits how flexible it can be, and choosing that setting is regularization in the broad sense.
-      <br>We have already met one: in KNN, a larger <span class="m">K</span> averages more neighbours, and gives a smoother, less flexible fit.
-      <br>Later in the course, decision trees are limited by how deep they may grow, boosting by its learning rate, and neural networks by weight decay, which is the L2 penalty again.
-      <br>Each of these settings plays the role of <span class="m">&lambda;</span>, and each is chosen the same way: by cross-validation.</p>
-  </div>
-
-  <div class="key">
-    <div class="lbl" data-ed="part6/06b-logistic-regression.html:6">Key idea</div>
-    <p data-ed="part6/06b-logistic-regression.html:7">The same penalties regularize logistic regression, where scikit-learn sets the strength with <span class="m">C</span>: the smaller <span class="m">C</span>, the stronger the penalty. Most models have a setting like <span class="m">&lambda;</span> that limits their flexibility, and it is always chosen by cross-validation.</p>
-  </div>
-
-  <div class="prose">
-    <h3 data-ed="part6/06b-logistic-regression.html:8">A note on scikit-learn's settings</h3>
-    <p data-ed="part6/06b-logistic-regression.html:9">scikit-learn names and scales the penalty strength differently in each model. This is how each setting translates to our <span class="m">&lambda;</span>, with <span class="m">n</span> the number of training subjects:</p>
+    <h3 data-ed="part6/06b-logistic-regression.html:4">A note on scikit-learn's settings</h3>
+    <p data-ed="part6/06b-logistic-regression.html:5">scikit-learn names and scales the penalty strength differently in each model. This is how each setting translates to our <span class="m">&lambda;</span>, with <span class="m">n</span> the number of training subjects:</p>
   </div>
 
   <div class="tblwrap">
@@ -1200,7 +1189,7 @@ section.tabpanel{padding:2.6rem 0 0}
       <tr><td>LogisticRegression(C), L1</td><td><span class="m">C</span>&middot;(&minus;log-likelihood) + &Sigma;|<span class="m">&beta;<sub>j</sub></span>|</td><td><span class="m">&lambda;</span> = 1/<span class="m">C</span></td></tr>
     </table>
   </div>
-  <p class="notecap" data-ed="part6/06b-logistic-regression.html:10">Only the names and the scales differ. Each setting plays the role of <span class="m">&lambda;</span>, and is tuned by cross-validation in the same way.
+  <p class="notecap" data-ed="part6/06b-logistic-regression.html:6">Only the names and the scales differ. Each setting plays the role of <span class="m">&lambda;</span>, and is tuned by cross-validation in the same way.
     <br>For the elastic net, <span class="m">&lambda;<sub>1</sub></span> and <span class="m">&lambda;<sub>2</sub></span> are the two strengths in the first elastic-net formula of the previous tab.</p>
 </section>
 
@@ -1217,26 +1206,27 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:6">selection by<br>a criterion</div><div class="gd" data-ed="part6/07-glossary.html:7">Scoring every feature on its own, by its correlation with <span class="m">y</span> or a <span class="m">t</span>- or <span class="m">F</span>-statistic, and keeping the best <span class="m">k</span>.</div></div>
     <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:8">regularization</div><div class="gd" data-ed="part6/07-glossary.html:9">Adding a penalty on the size of the coefficients to the loss, so the fit keeps them small.</div></div>
     <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:10">penalty</div><div class="gd" data-ed="part6/07-glossary.html:11">The added part of the loss: <span class="m">&lambda;</span> times the size of the coefficients. The intercept is not penalized.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:12"><span class="m">&lambda;</span>, regularization parameter</div><div class="gd" data-ed="part6/07-glossary.html:13">The price of size. <span class="m">&lambda;</span> = 0 is least squares, <span class="m">&lambda;</span> &rarr; &infin; the null model. Chosen by cross-validation.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:14">shrinkage</div><div class="gd" data-ed="part6/07-glossary.html:15">Coefficients pulled toward zero by the penalty.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:16">null model</div><div class="gd" data-ed="part6/07-glossary.html:17">Every <span class="m">&beta;<sub>j</sub></span> = 0: predicting the mean of <span class="m">y</span> for everyone.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:18">ridge regression</div><div class="gd" data-ed="part6/07-glossary.html:19">RSS + <span class="m">&lambda;</span>&Sigma;<span class="m">&beta;<sub>j</sub></span><sup>2</sup>, L2 regularization. Shrinks every coefficient, sets none to exactly zero, and shares the weight between correlated features.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:20">lasso regression</div><div class="gd" data-ed="part6/07-glossary.html:21">RSS + <span class="m">&lambda;</span>&Sigma;|<span class="m">&beta;<sub>j</sub></span>|, L1 regularization. Shrinks, and sets some coefficients to exactly zero: it selects features as part of the fit.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:22">L2 penalty</div><div class="gd" data-ed="part6/07-glossary.html:23"><span class="m">&lambda;</span>&Sigma;<span class="m">&beta;<sub>j</sub></span><sup>2</sup>: <span class="m">&lambda;</span> times the squared L2 norm, the straight-line length of the coefficients. Its constraint region is a disk.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:24">L1 penalty</div><div class="gd" data-ed="part6/07-glossary.html:25"><span class="m">&lambda;</span>&Sigma;|<span class="m">&beta;<sub>j</sub></span>|: <span class="m">&lambda;</span> times the L1 norm, the city-block length of the coefficients. Its constraint region is a diamond.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:26">constrained form</div><div class="gd" data-ed="part6/07-glossary.html:27">The second way to write the penalty: least squares, subject to &Sigma;<span class="m">&beta;<sub>j</sub></span><sup>2</sup> &le; <span class="m">s</span> (ridge) or &Sigma;|<span class="m">&beta;<sub>j</sub></span>| &le; <span class="m">s</span> (lasso). A larger <span class="m">&lambda;</span> is a smaller <span class="m">s</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:28">constraint region</div><div class="gd" data-ed="part6/07-glossary.html:29">The coefficients the constraint allows. Ridge's is a disk, the lasso's a diamond with its corners on the axes.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:30">loss surface</div><div class="gd" data-ed="part6/07-glossary.html:31">The RSS drawn over the coefficients, as contours around least squares.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:32">coefficient path</div><div class="gd" data-ed="part6/07-glossary.html:33">Every coefficient plotted against <span class="m">&lambda;</span>.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:34">standardization</div><div class="gd" data-ed="part6/07-glossary.html:35">(<span class="m">x</span> &minus; <span class="bar">x</span>)/sd(<span class="m">x</span>), so the penalty treats every feature alike. The mean and SD come from the training data.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:36">elastic net</div><div class="gd" data-ed="part6/07-glossary.html:37">The L1 and L2 penalties at once, mixed by <span class="m">&alpha;</span>: <span class="m">&alpha;</span> = 1 is the lasso, <span class="m">&alpha;</span> = 0 is ridge.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:38"><span class="m">C</span></div><div class="gd" data-ed="part6/07-glossary.html:39">The strength setting of scikit-learn's <em>LogisticRegression</em>, the inverse of <span class="m">&lambda;</span>: a small <span class="m">C</span> is a strong penalty.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:12">PRSS, penalized RSS</div><div class="gd" data-ed="part6/07-glossary.html:13">The RSS plus the penalty. Ridge, the lasso and the elastic net minimize it.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:14"><span class="m">&lambda;</span>, regularization parameter</div><div class="gd" data-ed="part6/07-glossary.html:15">The price of size. <span class="m">&lambda;</span> = 0 is least squares, <span class="m">&lambda;</span> &rarr; &infin; the null model. Chosen by cross-validation.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:16">shrinkage</div><div class="gd" data-ed="part6/07-glossary.html:17">Coefficients pulled toward zero by the penalty.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:18">null model</div><div class="gd" data-ed="part6/07-glossary.html:19">Every <span class="m">&beta;<sub>j</sub></span> = 0: predicting the mean of <span class="m">y</span> for everyone.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:20">ridge regression</div><div class="gd" data-ed="part6/07-glossary.html:21">RSS + <span class="m">&lambda;</span>&Sigma;<span class="m">&beta;<sub>j</sub></span><sup>2</sup>, L2 regularization. Shrinks every coefficient, sets none to exactly zero, and shares the weight between correlated features.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:22">lasso regression</div><div class="gd" data-ed="part6/07-glossary.html:23">RSS + <span class="m">&lambda;</span>&Sigma;|<span class="m">&beta;<sub>j</sub></span>|, L1 regularization. Shrinks, and sets some coefficients to exactly zero: it selects features as part of the fit.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:24">L2 penalty</div><div class="gd" data-ed="part6/07-glossary.html:25"><span class="m">&lambda;</span>&Sigma;<span class="m">&beta;<sub>j</sub></span><sup>2</sup>: <span class="m">&lambda;</span> times the squared L2 norm, the straight-line length of the coefficients. Its constraint region is a disk.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:26">L1 penalty</div><div class="gd" data-ed="part6/07-glossary.html:27"><span class="m">&lambda;</span>&Sigma;|<span class="m">&beta;<sub>j</sub></span>|: <span class="m">&lambda;</span> times the L1 norm, the city-block length of the coefficients. Its constraint region is a diamond.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:28">constrained form</div><div class="gd" data-ed="part6/07-glossary.html:29">The second way to write the penalty: least squares, subject to &Sigma;<span class="m">&beta;<sub>j</sub></span><sup>2</sup> &le; <span class="m">s</span> (ridge) or &Sigma;|<span class="m">&beta;<sub>j</sub></span>| &le; <span class="m">s</span> (lasso). A larger <span class="m">&lambda;</span> is a smaller <span class="m">s</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:30">constraint region</div><div class="gd" data-ed="part6/07-glossary.html:31">The coefficients the constraint allows. Ridge's is a disk, the lasso's a diamond with its corners on the axes.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:32">loss surface</div><div class="gd" data-ed="part6/07-glossary.html:33">The RSS drawn over the coefficients, as contours around least squares.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:34">coefficient path</div><div class="gd" data-ed="part6/07-glossary.html:35">Every coefficient plotted against <span class="m">&lambda;</span>.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:36">standardization</div><div class="gd" data-ed="part6/07-glossary.html:37">(<span class="m">x</span> &minus; <span class="bar">x</span>)/sd(<span class="m">x</span>), so the penalty treats every feature alike. The mean and SD come from the training data.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:38">elastic net</div><div class="gd" data-ed="part6/07-glossary.html:39">The L1 and L2 penalties at once, mixed by <span class="m">&gamma;</span>: <span class="m">&gamma;</span> = 1 is the lasso, <span class="m">&gamma;</span> = 0 is ridge.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part6/07-glossary.html:40"><span class="m">C</span></div><div class="gd" data-ed="part6/07-glossary.html:41">The strength setting of scikit-learn's <em>LogisticRegression</em>, the inverse of <span class="m">&lambda;</span>: a small <span class="m">C</span> is a strong penalty.</div></div>
   </div>
 
   <div class="crosslink">
     <div>
-      <div class="cl-t" data-ed="part6/07-glossary.html:40">Class 4: Drawing the line</div>
-      <p class="cl-d" data-ed="part6/07-glossary.html:41">Classification, logistic regression, the decision boundary, error metrics and the nearest-neighbour classifier.</p>
+      <div class="cl-t" data-ed="part6/07-glossary.html:42">Class 4: Drawing the line</div>
+      <p class="cl-d" data-ed="part6/07-glossary.html:43">Classification, logistic regression, the decision boundary, error metrics and the nearest-neighbour classifier.</p>
     </div>
     <a href="class4_classification.html" data-local="class4_classification.html">Back to class 4 &rarr;</a>
   </div>
@@ -2505,14 +2495,17 @@ function c5Seg(host, fn){
 /* ============================================================
    01 — more features than subjects: least squares on the first k regions
    of a fixed random order, from 1 up to 59, where the intercept and the
-   59 slopes make as many numbers as there are training subjects
+   59 slopes make as many numbers as there are training subjects. A new
+   training sample reshuffles the 260 participants, so the coefficients of
+   one sample can be laid over those of the samples before it.
    ============================================================ */
 (function(){
-  var KMAX = C5_NT - 1;
+  var KMAX = C5_NT - 1, HIST = 8, COEF = 20;
   var AMAX = Math.ceil(Math.max.apply(null, ABIDE.age)/10)*10;
   var p = mkPlot("cvFsFit", {xd:[0, AMAX], yd:[0, AMAX], padL:46, padB:36, padT:12});
   var q = mkPlot("cvFsMse", {xd:[0, KMAX + 1], yd:[0, 1], padL:46, padB:36, padT:12});
-  if (!p || !q) return;
+  var cb = mkPlot("cvFsCoef", {xd:[0.5, 1.5], yd:[-COEF, COEF], padL:46, padB:36, padT:12});
+  if (!p || !q || !cb) return;
   var elK = document.getElementById("fsK"), lbK = document.getElementById("fsKv");
   var statsEl = document.getElementById("fsStats"), capEl = document.getElementById("fsCap");
 
@@ -2522,13 +2515,32 @@ function c5Seg(host, fn){
     {k:"train_mse", label:"train MSE",          kind:"ln",   col:"--c-alt"},
     {k:"test_mse",  label:"test MSE",           kind:"ln",   col:"--c-error"}
   ], function(){ draw(); });
+  var Lc = layerToggles("fsCoefLayers", [
+    {k:"now", label:"coefficients, this training sample", kind:"dot",  col:"--c-model"},
+    {k:"old", label:"earlier samples",                    kind:"ring", col:"--ink-faint"}
+  ], function(){ draw(); });
 
+  /* The samples drawn so far, oldest first, each fitted once for every k.
+     The first is the page's own split; the others put a random 60 of the
+     260 participants in training and the other 200 in the test set. */
+  var SAMPLES = [], draws = 0;
+  function fitSample(S){
+    var c = c5OlsCurve(S, ABIDE.order.slice(0, KMAX), KMAX);
+    return {S:S, c:c, nul: c5Mse(S.yv, S.yv.map(function(){ return S.y0; })), best: c5ArgMin(c.va) + 1};
+  }
+  function firstSample(){ SAMPLES = [fitSample(c5Main())]; draws = 0; }
+  function newSample(){
+    draws++;
+    var r = rng(9000 + draws), idx = [], i, j, t;
+    for (i=0;i<ABIDE.age.length;i++) idx.push(i);
+    for (i=idx.length-1;i>0;i--){ j = Math.floor(r()*(i+1)); t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+    SAMPLES.push(fitSample(c5Set(idx.slice(0, C5_NT), idx.slice(C5_NT))));
+    if (SAMPLES.length > HIST) SAMPLES.shift();
+  }
   var R = null;
   function prep(){
-    if (R) return;
-    var S = c5Main(), cols = ABIDE.order.slice(0, KMAX);
-    var c = c5OlsCurve(S, cols, KMAX);
-    R = {S:S, c:c, nul: c5Mse(S.yv, S.yv.map(function(){ return S.y0; })), best: c5ArgMin(c.va) + 1};
+    if (!SAMPLES.length) firstSample();
+    R = SAMPLES[SAMPLES.length - 1];
   }
 
   function draw(){
@@ -2573,12 +2585,42 @@ function c5Seg(host, fn){
     c5Null(q, R.nul, top, k);
     q.axes({xt:xt, yt:yt, xlabel:"k: regions in the model", ylabel:"MSE (years²)", fmt:function(v){ return String(v); }});
 
+    /* ---- the k coefficients, this sample over the earlier ones. A fixed
+       scale, so a swing cannot hide behind a rescaled axis; anything
+       beyond it sits on the edge. ---- */
+    cb.dom([0.5, k + 0.5], [-COEF, COEF]);
+    cb.sync(); cb.frame();
+    var cyt = [-20, -10, 0, 10, 20], cxt = k <= 12 ? ks.slice(0, k) : ticks(1, k, 6).filter(function(v){ return v >= 1; });
+    cb.grid(null, cyt);
+    cb.seg(0.5, 0, k + 0.5, 0, {color: col("--ink-faint"), w:1.2});
+    function coefPts(sm){
+      return sm.c.b[k-1].map(function(v, j){ return [j + 1, Math.max(-COEF, Math.min(COEF, v))]; });
+    }
+    var rr = Math.max(2.6, Math.min(5, 140/k));
+    if (Lc.on("old")) SAMPLES.slice(0, -1).forEach(function(sm){
+      cb.dots(coefPts(sm), {r:rr, hollow:true, color: alpha(col("--ink-faint"), .8), lw:1.2});
+    });
+    if (Lc.on("now")) cb.dots(coefPts(R), {r:rr, color: col("--c-model")});
+    cb.axes({xt:cxt, yt:cyt, xlabel:"the " + k + (k === 1 ? " region" : " regions") + " in the model, in their fixed order",
+             ylabel:"β (years per SD)", fmt:function(v){ return String(v); },
+             fmtY:function(v){ return String(v).replace("-", "−"); }});
+
+    /* how far a coefficient moves from sample to sample: the SD of each
+       region's coefficient across the samples shown, averaged over regions */
+    var spread = null;
+    if (SAMPLES.length > 1){
+      var tot = 0;
+      for (var jj=0; jj<k; jj++) tot += sd(SAMPLES.map(function(sm){ return sm.c.b[k-1][jj]; }));
+      spread = tot/k;
+    }
+
     var tr = c.tr[k-1], te = c.va[k-1];
     statsEl.innerHTML =
       c5Row("alt",   "train MSE", fmt(tr, 1)) +
       c5Row("error", "test MSE",  fmt(te, 1)) +
       c5Row("plain", "numbers fitted, <span class=\"m\">k</span> + 1", (k+1) + " for 60") +
-      c5Row("plain", "test MSE of predicting the mean age", fmt(R.nul, 1));
+      c5Row("plain", "test MSE of predicting the mean age", fmt(R.nul, 1)) +
+      c5Row("plain", "training samples drawn", String(SAMPLES.length));
 
     var cap;
     if (k === KMAX)
@@ -2592,10 +2634,17 @@ function c5Seg(host, fn){
     else
       cap = k + " regions: train MSE is down to " + fmt(tr, 1) + ", but test MSE has climbed to " + fmt(te, 1) +
             ". The fit is following the noise of these 60 subjects.";
+    if (spread !== null)
+      cap += " Across the " + SAMPLES.length + " training samples, a coefficient typically moves by " + fmt(spread, 1) +
+             " years per SD from one sample to the next.";
+    else
+      cap += " Draw a new training sample to see how much the coefficients move.";
     capEl.innerHTML = cap;
   }
 
   elK.addEventListener("input", draw);
+  document.getElementById("fsNew").addEventListener("click", function(){ prep(); newSample(); draw(); });
+  document.getElementById("fsFirst").addEventListener("click", function(){ firstSample(); draw(); });
   reg(draw);
 })();
 
@@ -2617,7 +2666,7 @@ function c5Seg(host, fn){
 
   var L = layerToggles("crLayers", [
     {k:"train", label:"train MSE",                   kind:"ln", col:"--c-alt"},
-    {k:"cv",    label:"MSE<sub>CV</sub>, 5 folds",   kind:"ln", col:"--c-val-line"},
+    {k:"cv",    label:"<span>MSE<sub>CV</sub>, 5 folds</span>",   kind:"ln", col:"--c-val-line"},
     {k:"test",  label:"test MSE",                    kind:"ln", col:"--c-error"}
   ], function(){ draw(); });
 
@@ -2811,7 +2860,7 @@ function c5ConstraintPanel(cfg){
   var L = layerToggles(cfg.layers, [
     {k:"rss",    label:"RSS: shading, contours and their values",  kind:"ln",   col:"--c-error"},
     {k:"region", label:"the constraint region",                     kind:"box",  col:"--c-test-wash"},
-    {k:"path",   label:"where the solution moves as <span class=\"m\">&lambda;</span> grows", kind:"dash", col:"--ink-soft"}
+    {k:"path",   label:"<span>where the solution moves as <span class=\"m\">&lambda;</span> grows</span>", kind:"dash", col:"--ink-soft"}
   ], function(){ draw(); });
 
   var PATHS = {};
@@ -3043,7 +3092,7 @@ function c5ConstraintPanel(cfg){
 
   var L = layerToggles("tuLayers", [
     {k:"train", label:"train MSE",                 kind:"ln", col:"--c-alt"},
-    {k:"cv",    label:"MSE<sub>CV</sub>, 5 folds", kind:"ln", col:"--c-val-line"},
+    {k:"cv",    label:"<span>MSE<sub>CV</sub>, 5 folds</span>", kind:"ln", col:"--c-val-line"},
     {k:"test",  label:"test MSE",                  kind:"ln", col:"--c-error"}
   ], function(){ draw(); });
 
