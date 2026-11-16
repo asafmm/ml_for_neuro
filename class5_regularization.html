@@ -1149,9 +1149,49 @@ section.tabpanel{padding:2.6rem 0 0}
       <br>Their values are scaled differently from ours: the note at the end of the next tab gives the exact translation.</p>
   </div>
 
+  <!-- elastic net paths: from here to "end of elastic net paths". Its code is the last block of widgets-part6.js, and the two can be moved to _unused/ together. -->
+  <div class="prose" style="margin-top:1rem">
+    <p data-ed="part6/06-elastic-net.html:5">Below is the elastic net on all 360 regions and the 60 training subjects, as in the previous tab, with one setting changing at a time.
+      <br>Changing <span class="m">&lambda;</span> with <span class="m">&gamma;</span> fixed: at <span class="m">&gamma;</span> = 1 it is the lasso path, and at <span class="m">&gamma;</span> = 0 the ridge path.
+      <br>Changing <span class="m">&gamma;</span> with <span class="m">&lambda;</span> fixed: from ridge on the left to the lasso on the right.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <div class="t" data-ed="part6/06-elastic-net.html:6">360 coefficients, one setting at a time</div>
+      <div class="hint" data-ed="part6/06-elastic-net.html:7">choose which setting changes, then slide the fixed one</div>
+    </div>
+    <div class="panel-body panel-split wide-ctl">
+      <div>
+        <canvas id="cvEn" class="cv" height="320"></canvas>
+        <p class="notecap" id="enCap"></p>
+      </div>
+      <div class="ctl">
+        <div class="btnrow">
+          <div class="seg" id="enSeg">
+            <button class="on" data-v="lam">vary <span class="m">&lambda;</span></button>
+            <button data-v="gam">vary <span class="m">&gamma;</span></button>
+          </div>
+        </div>
+        <div class="ctl-row">
+          <label><span><span class="m">&gamma;</span><span id="enGf">, fixed</span></span> <span class="v" id="enGv">0.50</span></label>
+          <input type="range" id="enG" min="0" max="20" value="10" step="1">
+        </div>
+        <div class="ctl-row">
+          <label><span><span class="m">&lambda;</span><span id="enLf"></span></span> <span class="v" id="enLv">100</span></label>
+          <input type="range" id="enL" min="0" max="80" value="40" step="1">
+        </div>
+        <div class="stats" id="enStats"></div>
+        <p class="notecap" data-ed="part6/06-elastic-net.html:8">One line per region: its coefficient as the chosen setting changes, with the other one fixed at its slider.
+          <br>The dashed line marks the slider of the setting that changes. The <span class="m">&lambda;</span> slider moves along a log scale.</p>
+      </div>
+    </div>
+  </div>
+  <!-- end of elastic net paths -->
+
   <div class="key">
-    <div class="lbl" data-ed="part6/06-elastic-net.html:5">Key idea</div>
-    <p data-ed="part6/06-elastic-net.html:6">The elastic net mixes the L1 and L2 penalties, with <span class="m">&gamma;</span> setting the mix: <span class="m">&gamma;</span> = 1 is the lasso, <span class="m">&gamma;</span> = 0 is ridge. It can select features while sharing the weight between correlated ones.</p>
+    <div class="lbl" data-ed="part6/06-elastic-net.html:9">Key idea</div>
+    <p data-ed="part6/06-elastic-net.html:10">The elastic net mixes the L1 and L2 penalties, with <span class="m">&gamma;</span> setting the mix: <span class="m">&gamma;</span> = 1 is the lasso, <span class="m">&gamma;</span> = 0 is ridge. It can select features while sharing the weight between correlated ones.</p>
   </div>
 </section>
 
@@ -3277,6 +3317,270 @@ function c5ConstraintPanel(cfg){
     var R = method === "ridge" ? ridgeAll() : lassoAll();
     elL.value = R.best; draw();
   });
+  reg(draw);
+})();
+
+
+/* ============================================================
+   06 — elastic net: all 360 regions, the 60 training subjects. The
+   coefficients along lambda at one gamma, or along gamma at one lambda,
+   switched by a toggle and read off one grid of fits. A self-contained block: it
+   uses only the shared helpers above, and does nothing when its panel is
+   not in the page, so the panel can be removed on its own.
+   ============================================================ */
+/* The elastic-net path by coordinate descent, warm-started down a decreasing
+   grid of lambda at one gamma. PRSS: RSS + lambda*gamma * sum |beta_j|
+   + lambda*(1 - gamma) * sum beta_j^2. Each update soft-thresholds one
+   coefficient against the current residual by lambda1/2, then divides by
+   its sum of squares plus lambda2. At gamma = 1 this is c5LassoPath, with a
+   looser tolerance that is still far below a pixel. */
+function c5ElasticPath(S, grid, gam){
+  var Z = S.Z, n = Z.length, j, i, C = [], nrm = new Float64Array(C5_P);
+  for (j=0;j<C5_P;j++){
+    var cj = new Float64Array(n), s2 = 0;
+    for (i=0;i<n;i++){ cj[i] = Z[i][j]; s2 += cj[i]*cj[i]; }
+    C.push(cj); nrm[j] = s2;
+  }
+  var r = Float64Array.from(S.yc), beta = new Float64Array(C5_P), out = [], TOL = 1e-4;
+  function upd(jj, h, l2){
+    var cj = C[jj], rho = 0, t;
+    for (t=0;t<n;t++) rho += cj[t]*r[t];
+    rho += nrm[jj]*beta[jj];
+    var d = nrm[jj] + l2;
+    var nb = rho > h ? (rho - h)/d : (rho < -h ? (rho + h)/d : 0), dl = nb - beta[jj];
+    if (dl !== 0){ for (t=0;t<n;t++) r[t] -= dl*cj[t]; beta[jj] = nb; }
+    return Math.abs(dl);
+  }
+  grid.forEach(function(lam){
+    var h = lam*gam/2, l2 = lam*(1 - gam);
+    for (var outer=0; outer<100; outer++){
+      var dmax = 0, act = [];
+      for (j=0;j<C5_P;j++){ dmax = Math.max(dmax, upd(j, h, l2)); if (beta[j] !== 0) act.push(j); }
+      if (dmax < TOL) break;
+      for (var it=0; it<5000; it++){
+        var d2 = 0;
+        for (var q=0;q<act.length;q++) d2 = Math.max(d2, upd(act[q], h, l2));
+        if (d2 < TOL) break;
+      }
+    }
+    out.push(Float64Array.from(beta));
+  });
+  return out;
+}
+/* The exact solution near a path's answer. A path stops a little short of
+   the optimum, so a coefficient of 0.0005 can land on the wrong side of zero
+   and a count of regions be off by one. Here the active set and signs of b0
+   are solved as a linear system, (Z_A^T Z_A + lambda2 I) b = Z_A^T y -
+   lambda1/2 * signs, checked against the optimality conditions, and
+   corrected until they hold. Null if it does not settle. */
+function c5ElasticExact(S, b0, lam, gam){
+  var Z = S.Z, y = S.yc, n = Z.length, h = lam*gam/2, l2 = lam*(1 - gam);
+  var A = [], s = [], mag = [], j, t, u, q, a, c, g;
+  for (j=0;j<C5_P;j++) if (b0[j] !== 0){ A.push(j); s.push(b0[j] > 0 ? 1 : -1); mag.push(Math.abs(b0[j])); }
+  for (var round=0; round<10; round++){
+    if (!(l2 > 0) && A.length >= n){
+      /* the lasso holds at most n - 1 coefficients (the columns are centred):
+         keep the largest, and let the check below bring back any it needs */
+      var keep = A.map(function(x, p){ return p; }).sort(function(p1, p2){ return mag[p2] - mag[p1]; }).slice(0, n - 1);
+      A = keep.map(function(p){ return A[p]; }); s = keep.map(function(p){ return s[p]; }); mag = keep.map(function(p){ return mag[p]; });
+    }
+    var m = A.length, bA = [], v = [];
+    for (q=0;q<m;q++){ g = 0; for (t=0;t<n;t++) g += Z[t][A[q]]*y[t]; v.push(g - h*s[q]); }
+    if (m > 0 && m < n){
+      var G = [];
+      for (a=0;a<m;a++) G.push(new Array(m));
+      for (a=0;a<m;a++) for (c=a;c<m;c++){
+        g = 0; for (t=0;t<n;t++) g += Z[t][A[a]]*Z[t][A[c]];
+        G[a][c] = G[c][a] = g + (a === c ? l2 : 0);
+      }
+      bA = solveLin(G, v);
+    } else if (m > 0){
+      if (!(l2 > 0)) return null;
+      /* more coefficients than subjects: solve through the subjects instead,
+         (l2 I + Z_A Z_A^T) w = Z_A v, then b = (v - Z_A^T w)/l2 */
+      var M = [], zv = [];
+      for (t=0;t<n;t++) M.push(new Array(n));
+      for (t=0;t<n;t++){
+        for (u=t;u<n;u++){ g = 0; for (q=0;q<m;q++) g += Z[t][A[q]]*Z[u][A[q]]; M[t][u] = M[u][t] = g + (t === u ? l2 : 0); }
+        g = 0; for (q=0;q<m;q++) g += Z[t][A[q]]*v[q]; zv.push(g);
+      }
+      var w = solveLin(M, zv);
+      for (q=0;q<m;q++){ g = 0; for (t=0;t<n;t++) g += Z[t][A[q]]*w[t]; bA.push((v[q] - g)/l2); }
+    }
+    /* optimal when every coefficient in the set keeps its sign, and none left
+       at zero is pulled harder than lambda1/2 */
+    var r = Float64Array.from(y), inA = new Uint8Array(C5_P), nA = [], ns = [], nm = [], ok = true;
+    for (q=0;q<m;q++){ inA[A[q]] = 1; for (t=0;t<n;t++) r[t] -= Z[t][A[q]]*bA[q]; }
+    for (q=0;q<m;q++){ if (bA[q]*s[q] > 0){ nA.push(A[q]); ns.push(s[q]); nm.push(Math.abs(bA[q])); } else ok = false; }
+    for (j=0;j<C5_P;j++){
+      if (inA[j]) continue;
+      g = 0; for (t=0;t<n;t++) g += Z[t][j]*r[t];
+      if (Math.abs(g) > h + 1e-9*(1 + h)){ nA.push(j); ns.push(g > 0 ? 1 : -1); nm.push(Infinity); ok = false; }
+    }
+    if (ok){
+      var b = new Float64Array(C5_P);
+      for (q=0;q<m;q++) b[A[q]] = bA[q];
+      return b;
+    }
+    A = nA; s = ns; mag = nm;
+  }
+  return null;
+}
+
+(function(){
+  var p = mkPlot("cvEn", {padL:52, padB:36, padT:12});
+  if (!p) return;
+  var elL = document.getElementById("enL"), lbL = document.getElementById("enLv"), fxL = document.getElementById("enLf");
+  var elG = document.getElementById("enG"), lbG = document.getElementById("enGv"), fxG = document.getElementById("enGf");
+  var statsEl = document.getElementById("enStats"), capEl = document.getElementById("enCap");
+  var mode = "lam";      /* the setting that changes along the x axis: "lam" or "gam" */
+  var LAM = [], GAM = [], j;
+  for (j=0;j<=80;j++) LAM.push(Math.pow(10, j/20));     /* 1 to 10 000 */
+  for (j=0;j<=20;j++) GAM.push(j/20);                   /* 0 to 1 */
+  var LAST = GAM.length - 1;
+
+  /* B[k][i]: the 360 coefficients at GAM[k] and LAM[i]. gamma = 0 is ridge,
+     solved exactly through the subjects; every other gamma is one path. */
+  var B = [];
+  function pathAt(k){
+    if (!B[k]){
+      var S = c5Main();
+      if (k === 0){
+        var F = c5RidgeFit(S);
+        B[0] = LAM.map(function(lam){ return c5RidgeBeta(F, c5RidgeAt(F, lam).alpha); });
+      } else B[k] = c5ElasticPath(S, LAM.slice().reverse(), GAM[k]).reverse();
+    }
+    return B[k];
+  }
+  function ready(){ for (var k=0;k<=LAST;k++) if (!B[k]) return false; return true; }
+  /* the paths are drawn as they are; the counts on show come from the exact
+     solution. Where the path is too rough a start (the lasso at the smallest
+     lambda), the exact answer one step up in lambda is the start instead. */
+  var EXACT = {};
+  function exactAt(k, i){
+    var key = k + "," + i;
+    if (!(key in EXACT)){
+      var b0 = pathAt(k)[i], e = k === 0 ? b0 : c5ElasticExact(c5Main(), b0, LAM[i], GAM[k]);
+      if (!e && i < LAM.length - 1) e = c5ElasticExact(c5Main(), exactAt(k, i + 1), LAM[i], GAM[k]);
+      EXACT[key] = e || b0;
+    }
+    return EXACT[key];
+  }
+  /* varying gamma needs every gamma: one path per tick, once this tab is
+     open, so switching to it is usually instant */
+  var pending = false;
+  function background(){
+    if (pending || ready()) return;
+    pending = true;
+    setTimeout(function tick(){
+      for (var k=0;k<=LAST;k++) if (!B[k]){ pathAt(k); break; }
+      if (!ready()) setTimeout(tick, 0);
+      else { pending = false; draw(); }
+    }, 30);
+  }
+
+  function nnz(b){ var z = 0; for (var t=0;t<C5_P;t++) if (b[t] !== 0) z++; return z; }
+  function absMax(rows){
+    var m = 0;
+    rows.forEach(function(b){ for (var t=0;t<C5_P;t++) m = Math.max(m, Math.abs(b[t])); });
+    return m;
+  }
+  function niceUp(v){
+    var s = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 8, 10];
+    for (var t=0;t<s.length;t++) if (v <= s[t]) return s[t];
+    return Math.ceil(v);
+  }
+  /* one line per region, as in the previous tab */
+  function lines(p, xs, rows){
+    var ctx = p.ctx;
+    p.clip();
+    ctx.strokeStyle = alpha(col("--c-data"), .22); ctx.lineWidth = 1.1; ctx.lineJoin = "round";
+    for (var jj=0; jj<C5_P; jj++){
+      ctx.beginPath();
+      for (var t=0;t<xs.length;t++){
+        var X = p.x(xs[t]), Y = p.y(rows[t][jj]);
+        if (t === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+      }
+      ctx.stroke();
+    }
+    p.unclip();
+  }
+  /* One y scale for both views and every setting, so neither a slider nor the
+     switch moves an axis. The lasso end holds the largest coefficients, so its
+     path sets the scale from the first draw; once every path is in, all are
+     checked. */
+  var YM = null, YM_ALL = false;
+  function scale(){
+    if (YM === null) YM = absMax(pathAt(LAST));
+    if (!YM_ALL && ready()){ for (var k=0;k<=LAST;k++) YM = Math.max(YM, absMax(B[k])); YM_ALL = true; }
+    return niceUp(1.02*YM);
+  }
+  function fmtY(v){ return String(Math.round(v*100)/100).replace("-", "−"); }
+  var LBL = '600 11.5px "IBM Plex Mono", monospace';
+  /* the plot's label, on a backing so neither a path nor the dashed line runs through it */
+  function tag(p, s){
+    var ctx = p.ctx;
+    ctx.save(); ctx.font = LBL;
+    ctx.fillStyle = alpha(col("--surface-2"), .9); ctx.fillRect(p.L + 4, p.T + 5, ctx.measureText(s).width + 8, 18);
+    ctx.restore();
+    p.txt(s, p.L + 8, p.T + 14, {color: col("--ink-soft"), baseline:"middle", font:LBL});
+  }
+
+  function draw(){
+    var i = +elL.value, k = +elG.value, lam = LAM[i], gam = GAM[k];
+    lbL.textContent = c5Lam(lam); lbG.textContent = gam.toFixed(2);
+    fxG.textContent = mode === "lam" ? ", fixed" : "";
+    fxL.textContent = mode === "gam" ? ", fixed" : "";
+    if (!c5Shown(p)) return;
+    var path = pathAt(k);
+    background();
+    var ym = scale(), yt = ticks(-ym, ym, 4);
+
+    if (mode === "lam"){
+      /* along lambda, at this gamma */
+      var xs = LAM.map(function(v){ return Math.log10(v); }), xd = [xs[0], xs[xs.length-1]];
+      p.dom(xd, [-ym, ym]); p.sync(); p.frame();
+      lines(p, xs, path);
+      p.seg(xd[0], 0, xd[1], 0, {color: col("--ink-faint"), w:1.2});
+      p.seg(xs[i], -ym, xs[i], ym, {color: col("--ink-soft"), w:1.3, dash:[5,4]});
+      p.axes({xt:[0, 1, 2, 3, 4], yt:yt, xlabel:"λ, log scale", ylabel:"β (years per SD)",
+              fmt:function(e){ return String(Math.round(Math.pow(10, e))); }, fmtY:fmtY});
+      tag(p, "γ = " + gam.toFixed(2) + " fixed");
+    } else {
+      /* along gamma, at this lambda */
+      p.dom([0, 1], [-ym, ym]); p.sync(); p.frame();
+      if (ready()){
+        lines(p, GAM, GAM.map(function(g, t){ return B[t][i]; }));
+        p.seg(0, 0, 1, 0, {color: col("--ink-faint"), w:1.2});
+        p.seg(gam, -ym, gam, ym, {color: col("--ink-soft"), w:1.3, dash:[5,4]});
+        tag(p, "λ = " + c5Lam(lam) + " fixed");
+      } else {
+        p.txt("computing every γ …", (p.L + p.R)/2, (p.T + p.B)/2,
+              {color: col("--ink-faint"), align:"center", baseline:"middle", font:LBL});
+      }
+      p.axes({xt:[0, .25, .5, .75, 1], yt:yt, xlabel:"γ: 0 is ridge, 1 is the lasso", ylabel:"β (years per SD)",
+              fmt:function(v){ return String(v); }, fmtY:fmtY});
+    }
+
+    /* ---- numbers ---- */
+    var nz = nnz(exactAt(k, i)), nzL = nnz(exactAt(LAST, i));
+    var lm = '<span class="m">&lambda;</span>', gm = '<span class="m">&gamma;</span>';
+    function lv(v){ return v === 0 ? "0" : c5Lam(v); }
+    statsEl.innerHTML =
+      c5Row("model", "non-zero coefficients", nz + " of " + C5_P) +
+      c5Row("plain", '<span class="m">&lambda;<sub>1</sub></span> = ' + lm + gm, lv(lam*gam)) +
+      c5Row("plain", '<span class="m">&lambda;<sub>2</sub></span> = ' + lm + "(1 &minus; " + gm + ")", lv(lam*(1 - gam)));
+    var head = gm + " = " + gam.toFixed(2) + ", " + lm + " = " + c5Lam(lam) + ". ", body;
+    if (k === 0) body = "This is ridge: all 360 regions have a coefficient, whatever " + lm + " is.";
+    else if (nz === 0) body = "Every coefficient is exactly zero: the null model.";
+    else if (k === LAST) body = "This is the lasso: " + nz + " of the 360 regions have a coefficient.";
+    else body = nz + " of the 360 regions have a coefficient. At the same " + lm + ", the lasso keeps " +
+                (nzL === 0 ? "none" : nzL) + ", and ridge all 360.";
+    capEl.innerHTML = head + body;
+  }
+  c5Seg(document.getElementById("enSeg"), function(v){ mode = v; draw(); });
+  elL.addEventListener("input", draw);
+  elG.addEventListener("input", draw);
   reg(draw);
 })();
 
