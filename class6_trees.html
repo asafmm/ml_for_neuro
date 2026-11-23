@@ -892,12 +892,12 @@ section.tabpanel{padding:2.6rem 0 0}
     <p data-ed="part7/04-classification-trees.html:2"><strong>The prediction.</strong> A leaf predicts the most common class among its training subjects: a majority vote, as in the KNN classifier (class 4).
       <br>The fraction of each class in the leaf can be used as a probability.</p>
     <p data-ed="part7/04-classification-trees.html:3"><strong>The criterion.</strong> The RSS needs numbers to subtract, so it is replaced by a measure of how mixed a node is, its <strong>impurity</strong>.
-      <br>Write <span class="hat">p</span><sub>mk</sub> for the fraction of the training subjects in node <span class="m">m</span> that belong to class <span class="m">k</span>.
+      <br>With two classes, 0 and 1, write <span class="hat">p</span> for the fraction of the training subjects in a node that belong to class 1. The rest, 1 &minus; <span class="hat">p</span>, belong to class 0.
       <br>The obvious choice is the <strong>classification error rate</strong>, the fraction of the node outside its most common class:</p>
   </div>
 
   <div class="eq">
-    <span class="m">E</span> = 1 &minus; max<sub>k</sub> <span class="hat">p</span><sub>mk</sub>
+    <span class="m">E</span> = min(<span class="hat">p</span>, 1 &minus; <span class="hat">p</span>)
   </div>
 
   <div class="prose">
@@ -905,13 +905,11 @@ section.tabpanel{padding:2.6rem 0 0}
   </div>
 
   <div class="eq">
-    <span class="m">G</span> =
-    <span class="sum"><span class="lim">K</span><span class="sig">&Sigma;</span><span class="lim">k=1</span></span>
-    <span class="hat">p</span><sub>mk</sub>(1 &minus; <span class="hat">p</span><sub>mk</sub>)
+    <span class="m">G</span> = 2<span class="hat">p</span>(1 &minus; <span class="hat">p</span>)
   </div>
 
   <div class="prose">
-    <p data-ed="part7/04-classification-trees.html:5">Each term is small when <span class="hat">p</span><sub>mk</sub> is close to 0 or to 1, so <span class="m">G</span> is small when the node is nearly pure: almost all of one class.
+    <p data-ed="part7/04-classification-trees.html:5"><span class="m">G</span> is 0 when <span class="hat">p</span> is 0 or 1, and largest, 0.5, at <span class="hat">p</span> = 0.5. So <span class="m">G</span> is small when the node is nearly pure: almost all of one class.
       <br>A split is scored by the impurity of its two nodes, each weighted by its share of the subjects.
       <br>Take a node of 100 subjects, 80 in class 0 and 20 in class 1, and a split that sets 40 of the class 0 subjects apart:</p>
   </div>
@@ -1240,8 +1238,8 @@ section.tabpanel{padding:2.6rem 0 0}
     <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:20">pruning</div><div class="gd" data-ed="part7/09-glossary.html:21">Growing the full tree, then cutting it back to the subtree that minimizes RSS + <span class="m">&alpha;</span>|<span class="m">T</span>|.</div></div>
     <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:22"><span class="m">&alpha;</span></div><div class="gd" data-ed="part7/09-glossary.html:23">The price of a leaf when pruning, the tree's version of <span class="m">&lambda;</span>. <span class="m">&alpha;</span> = 0 keeps the full tree. Chosen by cross-validation.</div></div>
     <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:24">impurity</div><div class="gd" data-ed="part7/09-glossary.html:25">How mixed the classes in a node are. A classification tree is grown by lowering it.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:26">classification error rate</div><div class="gd" data-ed="part7/09-glossary.html:27">1 &minus; max<sub>k</sub> <span class="hat">p</span><sub>mk</sub>: the fraction of a node outside its most common class. It only changes when a split changes the majority of a node, so it is too insensitive to grow trees with.</div></div>
-    <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:28">Gini index</div><div class="gd" data-ed="part7/09-glossary.html:29">&Sigma;<sub>k</sub> <span class="hat">p</span><sub>mk</sub>(1 &minus; <span class="hat">p</span><sub>mk</sub>): small when a node is nearly pure. The usual criterion for classification trees.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:26">classification error rate</div><div class="gd" data-ed="part7/09-glossary.html:27">min(<span class="hat">p</span>, 1 &minus; <span class="hat">p</span>) for two classes, with <span class="hat">p</span> the fraction of a node in class 1: the fraction of a node outside its most common class. It only changes when a split changes the majority of a node, so it is too insensitive to grow trees with.</div></div>
+    <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:28">Gini index</div><div class="gd" data-ed="part7/09-glossary.html:29">2<span class="hat">p</span>(1 &minus; <span class="hat">p</span>) for two classes: small when a node is nearly pure. The usual criterion for classification trees.</div></div>
     <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:30">ensemble</div><div class="gd" data-ed="part7/09-glossary.html:31">A model that combines the predictions of many models, for example by averaging them.</div></div>
     <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:32">bootstrap</div><div class="gd" data-ed="part7/09-glossary.html:33">Drawing <span class="m">n</span> subjects out of <span class="m">n</span>, at random with replacement. Also used to estimate the variance of a statistic.</div></div>
     <div class="gitem"><div class="gt" data-ed="part7/09-glossary.html:34">bagging</div><div class="gd" data-ed="part7/09-glossary.html:35">Bootstrap aggregating: one deep tree per bootstrap sample, and the average of their predictions.</div></div>
