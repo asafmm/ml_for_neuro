@@ -934,8 +934,10 @@ section.tabpanel{padding:2.6rem 0 0}
             <button data-v="1">after the split</button>
           </div>
         </div>
+        <canvas id="cvGiniTree" class="cv" height="170"></canvas>
         <div class="stats" id="giniStats"></div>
-        <p class="notecap" data-ed="part7/04-classification-trees.html:8">For two classes, both measures depend only on the fraction of the node in class 1, and the curves give each measure for every fraction.
+        <p class="notecap" data-ed="part7/04-classification-trees.html:8">The small tree: each box is a node, with how many of its subjects are in class 0 and in class 1, and the class it predicts.
+          <br>For two classes, both measures depend only on the fraction of the node in class 1, and the curves give each measure for every fraction.
           <br>After the split, the dots at the ends of each dashed line are the two new nodes. The open circle is the node before the split, and the small dot on the dashed line under it is the split's score: the average of the two nodes, weighted by their sizes.</p>
       </div>
     </div>
@@ -2937,7 +2939,41 @@ var C6OC = (function(){
   function G(q){ return 2*q*(1 - q); }
   function pair(c){ return c[0] + "&nbsp;/&nbsp;" + c[1]; }
 
+  /* the same split as a small tree: each node with its class counts and
+     the class it predicts; after the split, the one under the old node */
+  var tp = mkPlot("cvGiniTree", {padL:0, padR:0, padT:0, padB:0});
+  function drawTree(){
+    if (!tp) return;
+    tp.sync();
+    var c = tp.ctx, W = tp.W, ink = col("--ink"), bw = Math.min(150, W/2 - 12), bh = 46;
+    c.clearRect(0, 0, W, tp.H);
+    function box(x, y, cnt, pure){
+      c6RRect(c, x - bw/2, y, bw, bh, 6);
+      c.fillStyle = pure ? col("--c-model-wash") : col("--surface-2"); c.fill();
+      c.strokeStyle = alpha(ink, .45); c.lineWidth = 1.1; c.stroke();
+      c.textAlign = "center"; c.textBaseline = "middle";
+      c.font = '600 12.5px "IBM Plex Mono", monospace'; c.fillStyle = ink;
+      c.fillText(cnt[0] + " / " + cnt[1], x, y + 15);
+      c.font = '11px "IBM Plex Mono", monospace'; c.fillStyle = col("--ink-soft");
+      c.fillText(cnt[1] ? "predicts class 0" : "pure: class 0", x, y + 32);
+    }
+    var x0 = W/2, y0 = 6;
+    box(x0, y0, NODE, false);
+    if (!after){
+      c6Tag(c, "class 0 / class 1", x0, y0 + bh + 18, {font: '11px "IBM Plex Mono", monospace', color: col("--ink-faint")});
+      return;
+    }
+    var xl = W/4 + 2, xr = 3*W/4 - 2, yk = y0 + bh + 40, bar = y0 + bh + 18;
+    c.strokeStyle = alpha(col("--ink-faint"), .85); c.lineWidth = 1.4;
+    c.beginPath(); c.moveTo(x0, y0 + bh); c.lineTo(x0, bar); c.moveTo(xl, yk); c.lineTo(xl, bar); c.lineTo(xr, bar); c.lineTo(xr, yk); c.stroke();
+    box(xl, yk, KIDS[0], true);
+    box(xr, yk, KIDS[1], false);
+    c.font = '11px "IBM Plex Mono", monospace'; c.fillStyle = col("--ink-faint"); c.textBaseline = "middle";
+    c.textAlign = "center"; c.fillText("same 20 mistakes", xr, yk + bh + 12);
+  }
+
   function draw(){
+    drawTree();
     p.sync(); p.frame();
     var xt = [0, .25, .5, .75, 1], yt = [0, .1, .2, .3, .4, .5], ctx = p.ctx, ink = col("--ink");
     var small = '11.5px "IBM Plex Mono", monospace';
